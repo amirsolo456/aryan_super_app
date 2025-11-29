@@ -1,0 +1,9 @@
+# Flutter/Dart
+build/
+.dart_tool/
+.packages
+.pub/
+/build/
+/.dart_tool/
+/.packages
+*.lock

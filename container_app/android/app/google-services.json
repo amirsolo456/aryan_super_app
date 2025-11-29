@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "511210742680",
+    "firebase_url": "https://aryanerp-e996e-default-rtdb.firebaseio.com",
+    "project_id": "aryanerp-e996e",
+    "storage_bucket": "aryanerp-e996e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:511210742680:android:a754014ad3e3daefab81ed",
+        "android_client_info": {
+          "package_name": "net.ariansystem.erp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaFoQ1BufZNuUKKYrVfnoAPjVytggLeJY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

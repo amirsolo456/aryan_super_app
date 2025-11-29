@@ -1,0 +1,49 @@
+{
+  "appTitle": "Aryan Front",
+  "profileTitle": "Profile",
+  "loginPageTitle": "Login Page",
+  "phoneNumber": "Phone Number",
+  "password": "Password",
+  "passwordValidationNullMsg": "Password is required",
+  "passwordValidationMsg": "Password is NotValid",
+  "passwordForgot": "Password Forgot",
+  "passwordRecovery": "Repeat Password",
+  "personList": "Person List",
+  "userInfo": "User Info",
+  "userPasswordChange": "User Password Change",
+  "usernameValidationNullMsg": "User Not Found!",
+  "userWallet": "User Wallet",
+  "userSettings": "User Settings",
+  "userOtherAccounts": "Other Accounts",
+  "usersTitle": "Account Title",
+  "usersDevices": "My Devices",
+  "usersSignOut": "Sign Out From Account",
+  "loginButtonText": "Login",
+  "loginButtonSignUpText": "Create Account",
+  "loginButtonOtpText": "Confirm and Continue",
+  "loginButtonLoadingText": "Please Waite ...",
+  "loginFailed": "Login Failed",
+  "languagesDisplayName": "",
+  "@languagesDisplayName": {
+    "description": "فارسی",
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "فارسی"
+      }
+    }
+  },
+  "@languagesDisplayName": {
+    "description": "English",
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "English"
+      }
+    }
+  },
+  "userSignupLabel": "You are not a member of any account.\nIf you are the owner or a representative of a business, you can create an account for your [b]main user[/b] or [b]company admin[/b]!\nIf you are an employee of a business, please wait to receive an invitation.",
+  "userInvitationLabel" : "A person named [b][Inviter's Full Name][/b] has invited you to the account [b][Account Name or ID][/b].\nWould you like to accept this invitation and join this account?\n",
+  "userOtpValidationTitle" : "A 4-digit code has been sent to the number [0912 202 5458].\n"
+
+}
