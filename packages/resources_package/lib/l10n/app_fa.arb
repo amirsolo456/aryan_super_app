@@ -23,6 +23,17 @@
   "loginButtonSignUpText": "ایجاد حساب",
   "loginButtonOtpText": "تایید و ادامه",
   "loginFailed": "ورود ناموفق",
+  "transferring": "در حال انتقال...",
+  "addNew": "اضافه کردن",
+  "menu": "منو",
+  "opened": "باز شده ها",
+  "defaults": "پیش فرض ها",
+  "profile": "حساب کاربری",
+  "dashboard": "داشبورد",
+
+
+
+
   "languagesDisplayName": "",
   "@languagesDisplayName": {
     "description": "فارسی",

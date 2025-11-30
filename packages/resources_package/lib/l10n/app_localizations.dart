@@ -239,6 +239,48 @@ abstract class AppLocalizations {
   /// **'Login Failed'**
   String get loginFailed;
 
+  /// No description provided for @transferring.
+  ///
+  /// In en, this message translates to:
+  /// **'Transferring...'**
+  String get transferring;
+
+  /// No description provided for @menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get menu;
+
+  /// No description provided for @addNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New'**
+  String get addNew;
+
+  /// No description provided for @opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened'**
+  String get opened;
+
+  /// No description provided for @defaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Defaults'**
+  String get defaults;
+
+  /// No description provided for @profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// No description provided for @dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboard;
+
   /// English
   ///
   /// In en, this message translates to:

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../font_size.dart';
+
 class DarkColorTheme {
   static ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
     scaffoldBackgroundColor: FontColors.darkBackground,
     primaryColor: FontColors.darkTextPrimary,
     textTheme: TextTheme(
-      bodyLarge: TextStyle(color: FontColors.darkTextPrimary, fontSize: 16),
-      bodyMedium: TextStyle(color: FontColors.darkTextSecondary, fontSize: 14),
-      bodySmall: TextStyle(color: FontColors.darkTextSecondary, fontSize: 12),
+
+      bodyLarge: TextStyle(color: FontColors.darkTextPrimary, fontSize: AryanSizes.largeFontSize16),
+      bodyMedium: TextStyle(color: FontColors.darkTextSecondary, fontSize: AryanSizes.mediumFontSize14),
+      bodySmall: TextStyle(color: FontColors.darkTextSecondary, fontSize: AryanSizes.smallFontSize12),
     ),
 
     inputDecorationTheme: InputDecorationTheme(
@@ -60,6 +63,26 @@ class FontColors {
   static const Color _aryanTextHintColor = Color(0xFF939393);
   static const Color _linkColor = Color(0XFF086EDC);
 
+  //Hesaraki Changes
+
+  static const Color _divider = Color(0XFFB1B1AA);
+  static const Color _test = Color(0XFFB1B1AA);
+  static const Color _exitColor = Color(0xFFDC3545);
+  static const Color _subColor = Color(0xFFB1B1aa);
+  static const Color _borderSelectNavIcon = Color(0xfff36666);
+
+
+
+  static Color get divider => _divider;
+  static Color get exit => _exitColor;
+  static Color get subColor => _subColor;
+  static Color get borderSelectNavIcon => _borderSelectNavIcon;
+
+  //Hesaraki Changes
+
+
+
+
   // Dark getters
   static Color get darkBackground => _darkBackground;
   static Color get darkSurface => _darkSurface;
@@ -84,7 +107,11 @@ class FontColors {
 
   static Color get aryanLinkColor => _linkColor;
 
+
   static Color get ordinaryWhite => _white;
 
   static Color get counterTheme => _counterTheme;
+
+  static Color get selectNavIcon => _borderSelectNavIcon;
+
 }

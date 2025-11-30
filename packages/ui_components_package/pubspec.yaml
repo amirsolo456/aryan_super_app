@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
   flutter_bloc: ^9.1.1
   flutter_otp_text_field: ^1.5.1+1
+
   resources_package:
     path: ../resources_package
   models_package:

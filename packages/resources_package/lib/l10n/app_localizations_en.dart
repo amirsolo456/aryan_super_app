@@ -81,6 +81,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginFailed => 'Login Failed';
 
   @override
+  String get transferring => 'Transferring...';
+
+  @override
+  String get menu => 'Menu';
+
+  @override
+  String get addNew => 'Add New';
+
+  @override
+  String get opened => 'Opened';
+
+  @override
+  String get defaults => 'Defaults';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get dashboard => 'Dashboard';
+
+  @override
   String languagesDisplayName(String userName) {
     return '';
   }

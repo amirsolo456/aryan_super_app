@@ -81,6 +81,27 @@ class AppLocalizationsFa extends AppLocalizations {
   String get loginFailed => 'ورود ناموفق';
 
   @override
+  String get transferring => 'در حال انتقال...';
+
+  @override
+  String get menu => 'منو';
+
+  @override
+  String get addNew => 'اضافه کردن';
+
+  @override
+  String get opened => 'باز شده ها';
+
+  @override
+  String get defaults => 'پیش فرض ها';
+
+  @override
+  String get profile => 'حساب کاربری';
+
+  @override
+  String get dashboard => 'داشبورد';
+
+  @override
   String languagesDisplayName(String userName) {
     return '';
   }

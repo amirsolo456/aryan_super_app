@@ -59,6 +59,26 @@ class FontColors {
   static const Color _counterTheme = Color(0XFF333333);
   static const Color _linkColor = Color(0XFF086EDC);
 
+  //Hesaraki Changes
+
+  static const Color _divider = Color(0XFFB1B1AA);
+  static const Color _test = Color(0XFFB1B1AA);
+  static const Color _exitColor = Color(0xFFDC3545);
+  static const Color _subColor = Color(0xFFB1B1aa);
+  static const Color _borderSelectNavIcon = Color(0xfff3eeee);
+
+
+
+
+  static Color get divider => _divider;
+  static Color get exit => _exitColor;
+  static Color get subColor => _subColor;
+  static Color get borderSelectNavIcon => _borderSelectNavIcon;
+
+
+  //Hesaraki Changes
+
+
   static Color get primary => _primary;
 
   static Color get listTitlePrimary => _primary;
@@ -86,4 +106,6 @@ class FontColors {
   static Color get aryanLinkColor => _linkColor;
 
   static Color get counterTheme => _counterTheme;
+
+  static Color get selectNavIcon => _borderSelectNavIcon;
 }

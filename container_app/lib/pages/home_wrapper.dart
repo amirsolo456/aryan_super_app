@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:login_module/login_page.dart';
 import 'package:models_package/Base/login_module.dart';
 import 'package:models_package/Data/Auth/User/dto.dart';
+import 'package:resources_package/l10n/app_localizations.dart';
 import 'package:services_package/setup_services.dart';
 import 'package:services_package/storage_service.dart';
 
@@ -121,6 +122,8 @@ class _HomeWrapperState extends State<HomeWrapper> {
       });
     }
 
+
+    //Hesaraki Change
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
@@ -130,12 +133,17 @@ class _HomeWrapperState extends State<HomeWrapper> {
             const CircularProgressIndicator(),
             const SizedBox(height: 20),
             Text(
-              'در حال انتقال...',
+
+
+              AppLocalizations.of(context)!.password,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
         ),
       ),
     );
+
+
+    //Hesaraki Change
   }
 }

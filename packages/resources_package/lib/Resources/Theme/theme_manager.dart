@@ -148,4 +148,12 @@ class ThemeColorsManager {
 
   Color get secondary =>
       isDark ? dark.FontColors.secondary : light.FontColors.secondary;
+
+
+  Color get subColor =>
+      isDark ? dark.FontColors.subColor : light.FontColors.secondary;
+
+  Color get exitColor =>
+      isDark ? dark.FontColors.exit : light.FontColors.exit;
+
 }

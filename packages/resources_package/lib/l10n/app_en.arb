@@ -23,6 +23,14 @@
   "loginButtonOtpText": "Confirm and Continue",
   "loginButtonLoadingText": "Please Waite ...",
   "loginFailed": "Login Failed",
+  "transferring": "Transferring...",
+  "menu": "Menu",
+  "addNew": "Add New",
+  "opened": "Opened",
+  "defaults": "Defaults",
+  "profile": "Profile",
+  "dashboard": "Dashboard",
+
   "languagesDisplayName": "",
   "@languagesDisplayName": {
     "description": "فارسی",

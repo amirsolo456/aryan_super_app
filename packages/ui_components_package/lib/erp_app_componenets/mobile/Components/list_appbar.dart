@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:models_package/Base/enums.dart';
+import 'package:resources_package/l10n/app_localizations.dart';
 
 final Widget futuresIcon = Image.asset(
   'assets/images/futures.png',
@@ -16,6 +17,7 @@ final Widget moreIcon = Image.asset(
 
 class ListAppBar extends StatelessWidget implements PreferredSizeWidget {
   final AppBarsMode mode;
+
   const ListAppBar({super.key, required this.mode});
 
   @override
@@ -53,7 +55,10 @@ AppBar buildPersonListAppBar(BuildContext context) {
     title: Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Text("منو", style: TextStyle(color: Colors.black)),
+        Text(AppLocalizations.of(context)!.menu,
+        // Text("منو",
+
+            style: TextStyle(color: Colors.black)),
         // SizedBox(width: 5), // فاصله دلخواه
         IconButton(onPressed: () {}, icon: Icon(Icons.arrow_forward)),
       ],
@@ -66,7 +71,7 @@ AppBar buildNewModeAppBar(BuildContext context) {
     title: Text(
       textAlign: TextAlign.start,
       // AppLocalizations.of(context)!.personList,
-      "اضافه کردن ",
+      AppLocalizations.of(context)!.addNew,
       style: TextStyle(color: Colors.black),
     ),
     // centerTitle: true,
@@ -96,7 +101,7 @@ AppBar builderpOpendAppBar(BuildContext context) {
     backgroundColor: Colors.white,
     primary: true,
     title: Text(
-      "باز شده ها",
+      AppLocalizations.of(context)!.opened,
       // AppLocalizations.of(context)!.profileTitle,
       style: const TextStyle(color: Color(0xFF585858)),
     ),
@@ -111,7 +116,7 @@ AppBar builderpdefaultAppBar(BuildContext context) {
     backgroundColor: Colors.white,
     primary: true,
     title: Text(
-      "پیش فرض ها",
+      AppLocalizations.of(context)!.defaults,
       // AppLocalizations.of(context)!.profileTitle,
       style: const TextStyle(color: Color(0xFF585858)),
     ),
@@ -125,9 +130,11 @@ AppBar builderpprofileAppBar(BuildContext context) {
     automaticallyImplyLeading: false,
 
     title: Row(
+      //Change By Hesaraki
       mainAxisAlignment: MainAxisAlignment.end,
+      //Change By Hesaraki
       children: [
-        Text("حساب کاربری", style: TextStyle(color: Colors.black)),
+        Text(AppLocalizations.of(context)!.profile, style: TextStyle(color: Colors.black)),
         // SizedBox(width: 5), // فاصله دلخواه
         IconButton(onPressed: () {}, icon: Icon(Icons.arrow_forward)),
       ],
@@ -141,7 +148,7 @@ AppBar builderpdashvoardAppBar(BuildContext context) {
     elevation: 0.0,
     backgroundColor: Colors.white,
     primary: true,
-    title: Text("داشبورد", style: const TextStyle(color: Color(0xFF585858))),
+    title: Text(AppLocalizations.of(context)!.dashboard, style: const TextStyle(color: Color(0xFF585858))),
     centerTitle: false,
   );
 }
