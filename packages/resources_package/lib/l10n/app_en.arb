@@ -31,6 +31,17 @@
   "profile": "Profile",
   "dashboard": "Dashboard",
   "languagesDisplayName": "",
+
+  "rial": "Rial",
+  "menu": "Menu",
+  "addNew": "اضافه کردن",
+  "opend": "باز شده ها",
+  "defaults": "پیش فرض ها",
+  "profile": "حساب کاربری",
+
+
+
+
   "@languagesDisplayName": {
     "description": "فارسی",
     "placeholders": {

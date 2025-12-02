@@ -5,16 +5,20 @@ import 'package:models_package/Base/enums.dart';
 import 'package:services_package/page_cache_manager.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Components/list_appbar.dart';
-
+import 'package:models_package/Data/Auth/Login/dto.dart';
 import '../../feature/add_new/add-new_page.dart';
 import '../../feature/dashboard_page/dashboard/dashboard.dart';
 import '../../feature/default_page/default_page.dart';
 import '../../feature/menu/presentation/pages/menu_page.dart';
 import '../../feature/open_page/Open_Page.dart';
 import '../../feature/profile/profile.dart';
+import '../../core/local_storge/saveToken.dart';
+import '../../core/local_storge/getToken.dart';
 
 class MainLayoutPage extends StatefulWidget {
-  const MainLayoutPage({super.key});
+
+  final LoginRequest? token;
+   MainLayoutPage({super.key, required this.token});
 
   @override
   State<MainLayoutPage> createState() => _MainLayoutPageState();
@@ -80,6 +84,15 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
   //   NavButtonTabBarMode.defaultTabMode,
   //   NavButtonTabBarMode.profileTabMode,
   // ];
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.token != null) {
+      saveToken(widget.token!);
+    }
+  }
+
 
   Widget _getPage(NavButtonTabBarMode? tab) {
     if (tab == null || tab == NavButtonTabBarMode.dashboardTabMode) {
@@ -176,6 +189,12 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    // print("Access Token: ${widget.token.accessToken}");
+    // print("User Name: ${widget.token.user.name}");
+    // print("Role: ${widget.token.user.role}");
+    //
+
     final tabs = NavButtonTabBarMode.values;
     // final currentIndex = tabs.indexOf(_selectedTab);
     final currentIndex = _tabToIndex[_selectedTab] ?? 10;

@@ -17,7 +17,7 @@ HttpException? apiExceptionValidator(http.Response response) {
     if (response.body.isNotEmpty) {
       data = jsonDecode(response.body);
     } else {
-      data = response.headers;
+      data = response.headers;    throw Exception('Server Error ${response.statusCode}');
     }
   } catch (_) {
     data = response.body.isNotEmpty ? response.body : response.headers;
