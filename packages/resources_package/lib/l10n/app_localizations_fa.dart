@@ -86,6 +86,24 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get rial => 'ریال';
+
+  @override
+  String get menu => 'منو';
+
+  @override
+  String get addNew => 'اضافه کردن';
+
+  @override
+  String get opend => 'بازشده ها';
+
+  @override
+  String get defaults => 'پیش فرض ها';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
   String get userSignupLabel => 'شما در هیچ حسابی عضویت ندارید.\nاگر صاحب یا نماینده یک کسب و کار هستید، میتوانید یک حساب برای [b]کاربر اصلی[/b] یا [b]ادمین شرکت[/b] خودتان بسازید !\nاگر از پرسنل یک کسب و کار هستید، منتظر دریافت دعوتنامه بمانید.';
 
   @override

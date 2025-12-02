@@ -24,6 +24,16 @@
   "loginButtonOtpText": "تایید و ادامه",
   "loginFailed": "ورود ناموفق",
   "languagesDisplayName": "",
+
+  "rial": "ریال",
+  "menu": "منو",
+  "addNew": "اضافه کردن",
+  "opend": "بازشده ها",
+  "defaults": "پیش فرض ها",
+  "profile": "Profile",
+
+
+
   "@languagesDisplayName": {
     "description": "فارسی",
     "placeholders": {

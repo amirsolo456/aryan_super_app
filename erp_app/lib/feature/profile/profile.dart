@@ -75,6 +75,20 @@ class _ProfilePageState extends State<ProfilePage> {
               textDirection: TextDirection.rtl,
               child: Column(
                 children: [
+                  
+                  //مشخصات کاربری
+                  ListTile(
+                    title: Text(
+                      AppLocalizations.of(context)!.usersTitle,
+                      style: itemsStyle,
+                    ),
+                    horizontalTitleGap: 10,
+                    leading: userInfoIcon,
+                  ),
+
+                  Divider(height: 10, color: Color(0xFFB1B1B1)),
+
+                  //تغییر رمز عبور
                   ListTile(
                     title: Text(
                       AppLocalizations.of(context)!.userPasswordChange,
@@ -84,7 +98,17 @@ class _ProfilePageState extends State<ProfilePage> {
                     leading: userPasswordChange,
                   ),
                   Divider(height: 10, color: Color(0xFFB1B1B1)),
-                  ListTile(
+
+                  //کیف پول
+                  ListTile(trailing: SizedBox(
+                    width:70,
+                    child: Row(
+                      children: [
+                        Text(AppLocalizations.of(context)!.rial),
+                        Text(" 0.00 "),
+                      ],
+                    ),
+                  ),
                     title: Text(
                       AppLocalizations.of(context)!.userWallet,
                       style: itemsStyle,
@@ -102,28 +126,18 @@ class _ProfilePageState extends State<ProfilePage> {
                     leading: userSettings,
                   ),
                   Divider(height: 10, color: Color(0xFFB1B1B1)),
-                  ListTile(
-                    title: Text(
-                      AppLocalizations.of(context)!.userOtherAccounts,
-                      style: itemsStyle,
-                    ),
+                  // ListTile(
+                  //   title: Text(
+                  //     AppLocalizations.of(context)!.userOtherAccounts,
+                  //     style: itemsStyle,
+                  //   ),
+                  //
+                  //   horizontalTitleGap: 10,
+                  //   leading: userOtherAccounts,
+                  // ),
+                  // Divider(height: 10, color: Color(0xFFB1B1B1)),
 
-                    horizontalTitleGap: 10,
-                    leading: userOtherAccounts,
-                  ),
-                  Divider(height: 10, color: Color(0xFFB1B1B1)),
 
-                  ListTile(
-                    title: Text(
-                      AppLocalizations.of(context)!.usersTitle,
-                      style: itemsStyle,
-                    ),
-                    contentPadding: EdgeInsets.only(right: 30),
-                    horizontalTitleGap: 10,
-                    leading: userInfoIcon,
-                  ),
-
-                  Divider(height: 10, color: Color(0xFFB1B1B1)),
                   ListTile(
                     title: Text(
                       AppLocalizations.of(context)!.usersDevices,

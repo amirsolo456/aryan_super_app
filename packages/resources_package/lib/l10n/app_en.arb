@@ -24,6 +24,17 @@
   "loginButtonLoadingText": "Please Waite ...",
   "loginFailed": "Login Failed",
   "languagesDisplayName": "",
+
+  "rial": "Rial",
+  "menu": "Menu",
+  "addNew": "اضافه کردن",
+  "opend": "باز شده ها",
+  "defaults": "پیش فرض ها",
+  "profile": "حساب کاربری",
+
+
+
+
   "@languagesDisplayName": {
     "description": "فارسی",
     "placeholders": {

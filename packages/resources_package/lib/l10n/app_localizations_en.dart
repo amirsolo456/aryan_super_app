@@ -86,6 +86,24 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get rial => 'Rial';
+
+  @override
+  String get menu => 'Menu';
+
+  @override
+  String get addNew => 'اضافه کردن';
+
+  @override
+  String get opend => 'باز شده ها';
+
+  @override
+  String get defaults => 'پیش فرض ها';
+
+  @override
+  String get profile => 'حساب کاربری';
+
+  @override
   String get userSignupLabel => 'You are not a member of any account.\nIf you are the owner or a representative of a business, you can create an account for your [b]main user[/b] or [b]company admin[/b]!\nIf you are an employee of a business, please wait to receive an invitation.';
 
   @override
