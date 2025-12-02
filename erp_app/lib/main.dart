@@ -145,7 +145,6 @@ Widget buildERPApp(Language lang) {
       BlocProvider(create: (_) => ProfileBloc()),
       BlocProvider(create: (_) => PersonListBloc(apiMiddleware: apiMiddleware)),
     ],
-    // child: const MainLayoutPage(),
     child: PartOfContainerApp(initialLanguage: lang),
   );
 }

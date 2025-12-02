@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:login_module/login_manager_service.dart';
+import 'package:models_package/Base/language.dart';
 import 'package:resources_package/Resources/Theme/theme_manager.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
 import 'package:services_package/setup_services.dart';
@@ -21,7 +22,6 @@ void main() async {
   Locale initialLocale = Locale('fa');
   GetIt.I.registerLazySingleton(() => LoginModuleManager());
   ThemeManager.init();
-
   await Firebase.initializeApp(
     options: const FirebaseOptions(
       apiKey: "AIzaSyDaFoQ1BufZNuUKKYrVfnoAPjVytggLeJY",
@@ -31,22 +31,22 @@ void main() async {
       databaseURL: "https://aryanerp-e996e-default-rtdb.firebaseio.com",
       storageBucket: "aryanerp-e996e.firebasestorage.app",
       androidClientId:
-          "511210742680-xxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
+      "511210742680-xxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
     ),
   );
 
   try {
     String? token = await FirebaseMessaging.instance.getToken();
     if (token != null && token.isNotEmpty) {
-      final storageService = GetIt.I.get<StorageService>();
+      final storageService = getIt.get<StorageService>();
       await storageService.setDeviceToken(token);
-    }
+      final _lang = await storageService.getLanguage();
 
-    if (GetIt.I.isRegistered<StorageService>()) {
-      final _storage = GetIt.instance<StorageService>();
-      final _lang = await _storage.getLanguage();
       if (_lang != null) {
         initialLocale = Locale(_lang.languageCode ?? 'fa');
+      }
+      else {
+        await storageService.setLanguage(Language(id : 0, languageCode: 'fa'));
       }
     }
   } catch (e) {
@@ -67,10 +67,11 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => LanguageButtonStandAloneCubit(
-            initialLocale: initialLocal,
-            storage: GetIt.I<StorageService>(),
-          ),
+          create: (_) =>
+              LanguageButtonStandAloneCubit(
+                initialLocale: initialLocal,
+                storage: GetIt.I<StorageService>(),
+              ),
         ),
       ],
       child: BlocBuilder<LanguageButtonStandAloneCubit, Locale>(

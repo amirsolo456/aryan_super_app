@@ -17,12 +17,15 @@ import 'html_text_parser.dart';
 import 'login_bloc.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  final String deviceToken;
+  final Locale locale;
+  final int runMode = 0;
+  const LoginPage({super.key, required this.locale, required this.deviceToken});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => LoginBloc(networkMode: 1),
+      create: (_) => LoginBloc(networkMode: runMode, deviceToken: deviceToken),
       child: const LoginPageBody(),
     );
   }
@@ -167,9 +170,9 @@ class _LoginPageBodyState extends State<LoginPageBody> {
   }
 
   Widget _buildRecoverPasswordBody(
-      LoginRecoverPasswordState state,
-      BuildContext context,
-      ) {
+    LoginRecoverPasswordState state,
+    BuildContext context,
+  ) {
     return Form(
       key: _passRecformKey,
       child: Column(
@@ -215,7 +218,10 @@ class _LoginPageBodyState extends State<LoginPageBody> {
           ),
 
           TextButton.icon(
-            label: Text(AppLocalizations.of(context)!.phoneNumber,style: TextStyle(color: ThemeColorsManager().primary),),
+            label: Text(
+              AppLocalizations.of(context)!.phoneNumber,
+              style: TextStyle(color: ThemeColorsManager().primary),
+            ),
             onPressed: () =>
                 _getBackPressed(LoginOtpValidationState(phonNumber ?? '')),
             icon: AryanAppAssets.images.imageByValue(AryanAssets.smallGoCaret),
@@ -393,27 +399,27 @@ class _LoginPageBodyState extends State<LoginPageBody> {
           return Scaffold(
             appBar: (state is LoginUsernameState || state is LoginInitialState)
                 ? AppBar(
-              primary: true,
-              scrolledUnderElevation: 0.0,
-              automaticallyImplyLeading: false,
-              backgroundColor: Colors.white,
-              animateColor: false,
-              title: const LanguageButtonStandAlone(),
-            )
+                    primary: true,
+                    scrolledUnderElevation: 0.0,
+                    automaticallyImplyLeading: false,
+                    backgroundColor: Colors.white,
+                    animateColor: false,
+                    title: const LanguageButtonStandAlone(),
+                  )
                 : AppBar(
-              toolbarHeight: 50,
-              primary: true,
-              animateColor: false,
-              backgroundColor: Colors.white,
-              scrolledUnderElevation: 0.0,
-              leading: CustomDynamicButton(
-                icon: const Icon(Icons.arrow_back),
-                useDefaultAnimation: false,
-                onPressed: () =>
-                    context.read<LoginBloc>().add(_getBackPressed(state)),
-              ),
-              actions: const [LanguageButtonStandAlone()],
-            ),
+                    toolbarHeight: 50,
+                    primary: true,
+                    animateColor: false,
+                    backgroundColor: Colors.white,
+                    scrolledUnderElevation: 0.0,
+                    leading: CustomDynamicButton(
+                      icon: const Icon(Icons.arrow_back),
+                      useDefaultAnimation: false,
+                      onPressed: () =>
+                          context.read<LoginBloc>().add(_getBackPressed(state)),
+                    ),
+                    actions: const [LanguageButtonStandAlone()],
+                  ),
             body: _buildBody(state, context),
           );
         },

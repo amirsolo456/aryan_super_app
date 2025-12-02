@@ -2,6 +2,7 @@ import 'package:container_app/pages/launcher_page.dart';
 import 'package:container_app/pages/splash_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:login_module/login_page.dart';
 import 'package:models_package/Base/login_module.dart';
 import 'package:models_package/Data/Auth/User/dto.dart';
@@ -28,76 +29,79 @@ class _HomeWrapperState extends State<HomeWrapper> {
 
   Future<void> _checkExistingLogin() async {
     try {
-      final storageService = getIt.get<StorageService>();
-      final token = await storageService.getToken();
+      final storageService = GetIt.I.get<StorageService>();
+      final token =  await storageService.getToken();
       final user = await storageService.getUser();
+      final deviceToken = await storageService.getDeviceToken() ?? '';
+      final language = await storageService.getLanguage();
 
-      if (token != null && user != null) {
+      try {
+        if (token != null && user != null) {
+          setState(() {
+            _currentUser = user;
+            _isCheckingLogin = false;
+          });
+        } else {
+          setState(() {
+            _isCheckingLogin = false;
+          });
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _openLoginModule(
+              deviceToken,
+              Locale(language!.languageCode ?? 'fa'),
+            );
+          });
+        }
+      } catch (e) {
+        print('Error checking login: $e');
         setState(() {
-          _currentUser = user;
           _isCheckingLogin = false;
         });
-      } else {
-        setState(() {
-          _isCheckingLogin = false;
-        });
-
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _openLoginModule();
+          _openLoginModule(deviceToken, Locale(language!.languageCode ?? 'fa'));
         });
       }
     } catch (e) {
       print('Error checking login: $e');
-      setState(() {
-        _isCheckingLogin = false;
-      });
-      // در صورت خطا هم مستقیماً به لاگین برو
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _openLoginModule();
-      });
     }
   }
 
-  Future<void> _openLoginModule() async {
+  Future<void> _openLoginModule(String deviceToken, Locale language) async {
     final result = await Navigator.of(context).push<LoginModuleResult>(
       MaterialPageRoute(
-        builder: (context) => LoginPage(),
+        builder: (context) =>
+            LoginPage(deviceToken: deviceToken, locale: language),
         fullscreenDialog: true,
       ),
     );
 
-
     if (result != null && result.success) {
       await _handleSuccessfulLogin(result);
     } else if (result != null && !result.success) {
-
       _handleLoginError(result);
-      _openLoginModule();
+      _openLoginModule(deviceToken, Locale(language.languageCode ?? 'fa'));
     } else {
-
-
-      _openLoginModule();
+      _openLoginModule(deviceToken, Locale(language.languageCode ?? 'fa'));
     }
   }
 
   Future<void> _handleSuccessfulLogin(LoginModuleResult result) async {
     try {
       final storageService = getIt.get<StorageService>();
-      // await storageService.setToken(result.token!);
-      // await storageService.setUser(result.user!);
-
-
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => LauncherPage()),
-      );
+      if (result != null && result.token!.isNotEmpty && result.user != null) {
+        await storageService.setToken(result.token!);
+        await storageService.setUser(result.user!);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => LauncherPage()),
+        );
+      }
     } catch (e) {
       print('Error handling successful login: $e');
-      _openLoginModule();
     }
   }
 
   void _handleLoginError(LoginModuleResult result) {
-    // نمایش خطا به کاربر
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(result.error ?? 'خطا در ورود'),
@@ -109,9 +113,8 @@ class _HomeWrapperState extends State<HomeWrapper> {
 
   @override
   Widget build(BuildContext context) {
-
     if (_isCheckingLogin) {
-      return const SplashScreenPage ();
+      return const SplashScreenPage();
     }
 
     if (_currentUser != null) {

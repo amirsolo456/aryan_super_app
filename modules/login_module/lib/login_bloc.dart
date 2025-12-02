@@ -9,7 +9,6 @@ import 'package:models_package/Data/Auth/Login/dto.dart' as Login;
 import 'package:models_package/Data/Auth/User/dto.dart' as User;
 import 'package:models_package/Data/Auth/User/dto.dart';
 import 'package:services_package/login_service.dart';
-import 'package:services_package/storage_service.dart';
 import 'package:services_package/user_exist.dart';
 
 import 'login_manager_service.dart';
@@ -19,16 +18,16 @@ part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   final LoginService _loginService = GetIt.instance<LoginService>();
-  final StorageService _storageService = GetIt.instance<StorageService>();
   final UserExistService _userExistService = GetIt.instance<UserExistService>();
   final LoginModuleManager _moduleManager =
       GetIt.instance<LoginModuleManager>();
-
+  final String _deviveToken;
   final int _networkMode;
   final Login.LoginRequest finalRequest = Login.LoginRequest();
 
-  LoginBloc({required int networkMode})
+  LoginBloc({required int networkMode, required String deviceToken})
     : _networkMode = networkMode,
+      _deviveToken = deviceToken,
       super(LoginInitialState()) {
     on<LoginInitialEvent>(_onInitialEvent);
     on<LoginUsernameEvent>(_onUsernameEvent);
@@ -56,17 +55,19 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   ) async {
     User.Response? response = null;
     if (_networkMode == 0) {
-      response = await _userExistService.CheckIfExist(
-        User.Request(userName: event.username, deviceToken: ''),
-      );
-      if (response != null) {
-        if (response.result!.isNotEmpty &&
-            response.result!.toLowerCase().contains('success')) {
-          finalRequest.userName = event.username;
-          emit(LoginPasswordState(event.username));
-        } else {
-          finalRequest.userName = null;
-          emit(LoginSignUpState(event.username));
+      if (_deviveToken != '') {
+        response = await _userExistService.CheckIfExist(
+          User.Request(userName: event.username, deviceToken: _deviveToken),
+        );
+        if (response != null) {
+          if (response.result!.isNotEmpty &&
+              response.result!.toLowerCase().contains('success')) {
+            finalRequest.userName = event.username;
+            emit(LoginPasswordState(event.username));
+          } else {
+            finalRequest.userName = null;
+            emit(LoginSignUpState(event.username));
+          }
         }
       }
     } else if (_networkMode == 1) {
@@ -203,7 +204,6 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
     Emitter<LoginStates> emit,
   ) {
     emit(LoginSuccessState(event.moduleResult));
-
     _moduleManager.notifyResult(event.moduleResult);
   }
 
@@ -212,11 +212,10 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
     String password,
   ) async {
     try {
-      final deviceToken = await _storageService.getDeviceToken();
       final request = Login.LoginRequest(
         userName: username,
         password: password,
-        deviceToken: deviceToken,
+        deviceToken: _deviveToken,
         isRefreshToken: false,
         managementAccountId: 1,
         langId: 1,
@@ -231,11 +230,8 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
           token: response.accessToken!,
           refreshToken: response.refreshToken!,
           firstName: username,
-          // You might want to get the actual first name from the response
           fullName: username,
         );
-        await _storageService.setToken(userDto.token!);
-        await _storageService.setUser(userDto);
 
         return LoginModuleResult(
           success: true,
@@ -261,8 +257,7 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
 
   Future<bool> checkUserExists(String username) async {
     try {
-      final deviceToken = await _storageService.getDeviceToken();
-      final request = Request(userName: username, deviceToken: deviceToken);
+      final request = Request(userName: username, deviceToken: _deviveToken);
       final response = await _userExistService.CheckIfExist(request);
 
       return response?.data != null;

@@ -63,12 +63,6 @@ class ApiClient extends IApiClient {
         data: data,
         setToken: setToken,
       );
-
-      if (result != null &&
-          (result.result == "Failed" || result.result == "Pending") &&
-          (result.error == null || result.error!.isEmpty)) {
-        // await _exceptionHandler(fallbackMessage ?? Exception("خطا"));
-      }
     } catch (e) {
       result =
           BaseResponse<D>.error(e is Exception ? e : Exception(e.toString()))
@@ -117,108 +111,152 @@ class ApiClient extends IApiClient {
     Object? data,
     bool? setToken,
   }) async {
-    final T finalReslt =
-        BaseResponse<D>.error(Exception('خطایی رخ داده است')) as T;
-    http.Response response;
-
     try {
       final executor = SafeExqueter<bool>.fromString(
         baseUrl,
         errorMessage: "Base URL خالیه",
       );
 
-      final bool isValid = await executor.execute((val) async {
-        return val != null && val.isNotEmpty;
-      });
-      if (!isValid) {
-        finalReslt.exception = Exception("Base URL invalid");
-        return finalReslt;
-      }
-
       final bool isBaseUrlValid = await executor.execute((baseUrl) async {
         return baseUrl != null && baseUrl.isNotEmpty;
       });
-      if (isBaseUrlValid == false) {
-        finalReslt.exception = Exception("BaseUrl Is invalid");
-        return finalReslt;
+
+      if (!isBaseUrlValid) {
+        return BaseResponse<D>.error(Exception("BaseUrl Is invalid")) as T;
       }
 
-      final Uri uri = Uri.https('$baseUrl$url');
-      final client = RetryClient(http.Client());
-      final headers = <String, String>{'Content-Type': 'application/json'};
-      final bool useToken = setToken ?? false;
+      // 2. Validate HTTP method
+      if (method == HttpMethods.unknown) {
+        return BaseResponse<D>.error(Exception("Method Is invalid")) as T;
+      }
 
+      // 3. Prepare headers
+      final headers = <String, String>{'Content-Type': 'application/json'};
+
+      // 4. Handle token if needed
+      final bool useToken = setToken ?? false;
       if (useToken) {
-        final token = await _getTokenIfNeeded(setToken ?? true);
-        bool hasToken = await executor.execute((token) async {
-          return token != null && token.isNotEmpty;
-        });
-        if (hasToken == false) {
-          finalReslt.exception = Exception("Token invalid");
-          return finalReslt;
+        final token = await _getTokenIfNeeded(true);
+        if (token == null || token.isEmpty) {
+          return BaseResponse<D>.error(Exception("Token invalid")) as T;
         }
         headers[HttpHeaders.authorizationHeader] = 'Bearer $token';
       }
 
-      bool httpmothod = await executor.execute((method) async {
-        return method != null && method != HttpMethods.unknown;
-      });
-      if (httpmothod == false) {
-        finalReslt.exception = Exception("Methos Is invalid");
-        return finalReslt;
-      }
+      // 5. Prepare URI
+      final Uri uri = Uri.https(baseUrl, url);
 
-      switch (method.prefix) {
-        case 'Get':
+      // 6. Prepare request body
+      final String? body = data != null ? json.encode(data) : null;
+
+      // 7. Execute request
+      final client = RetryClient(http.Client());
+      http.Response response;
+
+      switch (method) {
+        case HttpMethods.get:
           response = await client.get(uri, headers: headers);
           break;
-        case 'Post':
-          response = await client.post(
-            uri,
-            headers: headers,
-            body: data?.toString(),
-          );
+        case HttpMethods.post:
+          response = await client.post(uri, headers: headers, body: body);
           break;
-        case "Put":
-          response = await client.put(
-            uri,
-            headers: headers,
-            body: data?.toString(),
-          );
+        case HttpMethods.put:
+          response = await client.put(uri, headers: headers, body: body);
           break;
-        case "Delete":
+        case HttpMethods.delete:
           response = await client.delete(uri, headers: headers);
           break;
         default:
-          finalReslt.exception = Exception('Unsupported HTTP method');
-          return finalReslt;
+          return BaseResponse<D>.error(Exception('Unsupported HTTP method'))
+              as T;
       }
 
-      HttpException? exception = apiExceptionValidator(response);
+      // 8. Handle response and potential token refresh
+      final HttpException? exception = apiExceptionValidator(response);
+
       if (exception != null) {
-        if (exception.httpStatus.code == UnauthorizedHttpException) {
-          final tcs = Completer<T?>();
-          _pendingRequests.add(() async {
-            final result = await sendObjectRequestAsync<T, D>(
-              url,
-              method,
-              data,
-              setToken,
-              Exception(),
-            );
-            if (!tcs.isCompleted) tcs.complete(result);
-          });
-
+        if (exception.httpStatus.code == UnauthorizedHttpException &&
+            useToken) {
+          // Try to refresh token and retry
           if (await refreshToken()) {
-            return await tcs.future;
+            // Get new token after refresh
+            final newToken = await _getTokenIfNeeded(true);
+            if (newToken != null && newToken.isNotEmpty) {
+              headers[HttpHeaders.authorizationHeader] = 'Bearer $newToken';
+
+              // Retry the original request with new token
+              return await _retryRequest<T, D>(
+                client: client,
+                uri: uri,
+                method: method,
+                headers: headers,
+                body: body,
+              );
+            }
           }
+          return BaseResponse<D>.error(exception) as T;
         }
+        return BaseResponse<D>.error(exception) as T;
       }
-      return await json.decode(response.body) as T;
+
+      // 9. Parse successful response
+      try {
+        final decoded = json.decode(response.body);
+
+        // Handle different response types
+        if (decoded is Map<String, dynamic>) {
+          // You might want to add a fromJson factory in BaseResponse
+          return BaseResponse<D>.fromjson(decoded) as T;
+        } else {
+          // Handle other response types if needed
+          return BaseResponse<D>.success(decoded) as T;
+        }
+      } catch (e) {
+        return BaseResponse<D>.error(
+              Exception('Failed to parse response: ${e.toString()}'),
+            )
+            as T;
+      }
     } catch (e) {
       return BaseResponse<D>.error(e is Exception ? e : Exception(e.toString()))
           as T;
     }
+  }
+
+  // Helper method for retrying requests
+  Future<T> _retryRequest<T extends BaseResponse<D>, D>({
+    required RetryClient client,
+    required Uri uri,
+    required HttpMethods method,
+    required Map<String, String> headers,
+    required String? body,
+  }) async {
+    http.Response response;
+
+    switch (method) {
+      case HttpMethods.get:
+        response = await client.get(uri, headers: headers);
+        break;
+      case HttpMethods.post:
+        response = await client.post(uri, headers: headers, body: body);
+        break;
+      case HttpMethods.put:
+        response = await client.put(uri, headers: headers, body: body);
+        break;
+      case HttpMethods.delete:
+        response = await client.delete(uri, headers: headers);
+        break;
+      default:
+        throw Exception('Unsupported HTTP method');
+    }
+
+    final HttpException? exception = apiExceptionValidator(response);
+    if (exception != null) {
+      return BaseResponse<D>.error(exception) as T;
+    }
+
+    final decoded = json.decode(response.body);
+    return BaseResponse<D>.fromjson(decoded) as T;
   }
 
   Future<bool> refreshToken() async {

@@ -4,6 +4,7 @@ import 'package:models_package/Base/language.dart';
 import 'package:models_package/Data/Auth/User/dto.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+
 import 'Interfaces/istorage_service.dart';
 
 class StorageService implements IStorageService {
@@ -31,10 +32,11 @@ class StorageService implements IStorageService {
   Future<Database> _initDb() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, _storageKey);
+    await deleteDatabase(path);
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute(
           '''
@@ -106,7 +108,7 @@ class StorageService implements IStorageService {
 
   @override
   Future<void> setDeviceToken(String token) async {
-    return await _setValue(_deviceTokenkey,token);
+    return await _setValue(_deviceTokenkey, token);
   }
 
   @override
@@ -115,7 +117,8 @@ class StorageService implements IStorageService {
     if (value == null || value.isEmpty) return null;
 
     try {
-      final Map<String, dynamic> map = jsonDecode(value) as Map<String, dynamic>;
+      final Map<String, dynamic> map =
+          jsonDecode(value) as Map<String, dynamic>;
       return Language.fromJson(map);
     } catch (e) {
       return null;

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -15,11 +17,11 @@ import 'login_manager_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  HttpOverrides.global = MyHttpOverrides();
   setupServices();
   GetIt.I.registerLazySingleton(() => LoginModuleManager());
-  StorageService storageService = getIt.get<StorageService>();
-  Language? initialLocal = await storageService.getLanguage();
+
+  Language? initialLocal;
   if (initialLocal == null)
     initialLocal = Language(
       id: 0,
@@ -27,21 +29,36 @@ void main() async {
       bigName: 'IR',
       languageCode: 'fa',
     );
-  runApp(MyApp(initialLocale: Locale(initialLocal.languageCode ?? 'fa')));
+  runApp(
+    MyApp(
+      initialLocale: Locale(initialLocal.languageCode ?? 'fa'),
+      deviceToken: '',
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   final Locale initialLocale;
+  final String deviceToken;
+  final int runMode = 0;
 
-  const MyApp({super.key, required this.initialLocale});
+  const MyApp({
+    super.key,
+    required this.initialLocale,
+    required this.deviceToken,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final Locale local = Locale(initialLocale.languageCode);
     ThemeManager.init();
     StorageService storageService = getIt.get<StorageService>();
     return MultiBlocProvider(
       providers: [
-        BlocProvider<LoginBloc>(create: (_) => LoginBloc(networkMode: 0)),
+        BlocProvider<LoginBloc>(
+          create: (_) =>
+              LoginBloc(networkMode: runMode, deviceToken: deviceToken),
+        ),
         BlocProvider<LanguageButtonStandAloneCubit>(
           create: (_) => LanguageButtonStandAloneCubit(
             initialLocale: initialLocale,
@@ -64,10 +81,19 @@ class MyApp extends StatelessWidget {
             theme: ThemeColorsManager(.light).aryanTheme,
             darkTheme: ThemeColorsManager(.dark).aryanTheme,
             themeMode: ThemeManager.themeMode,
-            home: const LoginPage(),
+            home: LoginPage(deviceToken: deviceToken, locale: local),
           );
         },
       ),
     );
+  }
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }

@@ -23,7 +23,6 @@ void setupServices() {
   );
 
   getIt.registerSingleton<StorageService>(_storage);
-
   final apiClient = ApiClient(storage: _storage, appSettings: _apisetting);
   final _otp = OtpService(apiClient);
   getIt.registerSingleton<ApiSettings>(_apisetting);
