@@ -1,159 +1,45 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:ui';
 
 import '/Resources/Styles/Colors/dark.dart' as dark;
 import '/Resources/Styles/Colors/light.dart' as light;
-import '../Styles/Colors/dark.dart';
-import '../Styles/Colors/light.dart';
-
-class ThemeManager {
-  static final ValueNotifier<ThemeMode> mode = ValueNotifier<ThemeMode>(
-    ThemeMode.light,
-  );
-
-  static ThemeColorsManager get colors =>
-      ThemeColorsManager(ThemeManager.themeMode);
-
-  static SharedPreferences? _prefs;
-  static const _prefKey = 'app_theme_mode';
-
-  static Future<void> init({ThemeMode fallback = ThemeMode.light}) async {
-    _prefs = await SharedPreferences.getInstance();
-    final saved = _prefs!.getString(_prefKey);
-    if (saved == 'dark') {
-      mode.value = ThemeMode.dark;
-    } else if (saved == 'system') {
-      mode.value = ThemeMode.system;
-    } else if (saved == 'light') {
-      mode.value = ThemeMode.light;
-    } else {
-      mode.value = fallback;
-    }
-  }
-
-  static ThemeMode get themeMode => mode.value;
-
-  static Future<void> setTheme(ThemeMode newMode, {bool persist = true}) async {
-    mode.value = newMode;
-    if (persist) {
-      _prefs ??= await SharedPreferences.getInstance();
-      await _prefs!.setString(
-        _prefKey,
-        newMode == ThemeMode.dark
-            ? 'dark'
-            : newMode == ThemeMode.system
-            ? 'system'
-            : 'light',
-      );
-    }
-  }
-
-  static Future<void> toggle() async {
-    final next = themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
-    await setTheme(next);
-  }
-
-  static String get currentThemeString => themeMode == ThemeMode.light
-      ? 'Light Theme'
-      : themeMode == ThemeMode.dark
-      ? 'Dark Theme'
-      : 'System';
-
-  static Brightness get currentThemeBrightness {
-    switch (themeMode) {
-      case ThemeMode.dark:
-        return Brightness.dark;
-      case ThemeMode.light:
-        return Brightness.light;
-      case ThemeMode.system:
-      default:
-        return WidgetsBinding.instance.window.platformBrightness;
-    }
-  }
-
-  static IconData get currentThemeIcon {
-    switch (themeMode) {
-      case ThemeMode.light:
-        return Icons.dark_mode;
-      case ThemeMode.dark:
-        return Icons.light_mode;
-      case ThemeMode.system:
-      default:
-        return Icons.brightness_auto;
-    }
-  }
-}
 
 class ThemeColorsManager {
-  final ThemeMode? themeMode;
+  final Brightness brightness;
+  ThemeColorsManager(this.brightness);
 
-  ThemeColorsManager([this.themeMode]);
+  Color get primary => brightness == Brightness.dark
+      ? dark.FontColors.primary
+      : light.FontColors.primary;
 
-  ThemeMode get _mode => themeMode ?? ThemeManager.themeMode;
+  Color get secondary => brightness == Brightness.dark
+      ? dark.FontColors.secondary
+      : light.FontColors.secondary;
 
-  bool get isDark => effectiveBrightness == Brightness.dark;
+  Color get darkPrimary => brightness == Brightness.dark
+      ? dark.FontColors.darkPrimary
+      : light.FontColors.darkPrimary;
 
-  Brightness get effectiveBrightness {
-    final mode = _mode;
-    if (mode == ThemeMode.system) {
+  Color get aryanText => brightness == Brightness.dark
+      ? dark.FontColors.aryanText
+      : light.FontColors.aryanText;
 
-      try {
-        return WidgetsBinding.instance.platformDispatcher.platformBrightness;
-      } catch (_) {
-        return Brightness.light;
-      }
-    }
-    return mode == ThemeMode.dark ? Brightness.dark : Brightness.light;
-  }
-
-  ThemeColorsManager.fromBrightness(Brightness brightness)
-    : themeMode = brightness == Brightness.dark
-          ? ThemeMode.dark
-          : ThemeMode.light;
-
-  ThemeData get aryanTheme =>
-      isDark ? DarkColorTheme.darkTheme : LightColorTheme.lightTheme;
-
-  Color get darkPrimary =>
-      isDark ? dark.FontColors.darkPrimary : light.FontColors.darkPrimary;
-
-  Color get hintColor => isDark
-      ? dark.FontColors.aryanTextHintColor
-      : light.FontColors.aryanTextHintColor;
-
-  Color get aryanText =>
-      isDark ? dark.FontColors.aryanText : light.FontColors.aryanText;
-
-  Color get listTitlePrimary => isDark
+  Color get listTitlePrimary => brightness == Brightness.dark
       ? dark.FontColors.listTitlePrimary
       : light.FontColors.listTitlePrimary;
 
-  Color get listContentTitlePrimary => isDark
+  Color get listContentTitlePrimary => brightness == Brightness.dark
       ? dark.FontColors.listContentTitlePrimary
       : light.FontColors.listContentTitlePrimary;
 
-  Color get listContentPrimary => isDark
+  Color get listContentPrimary => brightness == Brightness.dark
       ? dark.FontColors.listContentSecondary
       : light.FontColors.listContentSecondary;
 
-  Color get aryanBorder => isDark
+  Color get aryanBorder => brightness == Brightness.dark
       ? dark.FontColors.aryanTextBorderColor
       : light.FontColors.aryanTextBorderColor;
 
-  Color get aryanOrdinaryWhite =>
-      isDark ? dark.FontColors.ordinaryWhite : light.FontColors.ordinaryWhite;
-
-  Color get primary =>
-      isDark ? dark.FontColors.primary : light.FontColors.primary;
-
-  Color get secondary =>
-      isDark ? dark.FontColors.secondary : light.FontColors.secondary;
-
-
-  Color get subColor =>
-      isDark ? dark.FontColors.subColor : light.FontColors.secondary;
-
-  Color get exitColor =>
-      isDark ? dark.FontColors.exit : light.FontColors.exit;
-
+  Color get aryanOrdinaryWhite => brightness == Brightness.dark
+      ? dark.FontColors.ordinaryWhite
+      : light.FontColors.ordinaryWhite;
 }
