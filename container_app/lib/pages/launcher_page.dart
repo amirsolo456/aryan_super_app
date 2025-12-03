@@ -4,24 +4,25 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:ui_components_package/erp_app_componenets/common/Buttons/language_button_standalone/language_button_stand_alone_cubit.dart';
 
-
-
 class ShellApp extends StatelessWidget {
-  const ShellApp({super.key});
+  final Map<String, dynamic> loginSession;
+
+  const ShellApp({super.key, required this.loginSession});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Super App Launcher',
-      home: LauncherPage(),
+      home: LauncherPage(loginSession: loginSession),
       theme: ThemeData(primarySwatch: Colors.blue),
     );
   }
 }
 
 class LauncherPage extends StatelessWidget {
-  LauncherPage({super.key});
+  final Map<String, dynamic> loginSession;
 
+  LauncherPage({super.key, required this.loginSession});
 
   Language _localeToLanguage(Locale locale) {
     final lang = locale.languageCode;
@@ -31,20 +32,32 @@ class LauncherPage extends StatelessWidget {
     final bigName = country;
     final id = lang == 'fa' ? 0 : 1;
 
-    return Language(id: id, smallName: smallName, completeName: completeName, bigName: bigName);
+    return Language(
+      id: id,
+      smallName: smallName,
+      completeName: completeName,
+      bigName: bigName,
+    );
   }
-
 
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<LanguageButtonStandAloneCubit>().state;
     final languageModel = _localeToLanguage(locale);
     final options = <_AppOption>[
-      _AppOption('Login Page', Icons.login, () => LauncherPage()),
+      _AppOption(
+        'Login Page',
+        Icons.login,
+        () => LauncherPage(loginSession: loginSession),
+      ),
       _AppOption('ERP App', Icons.business, () {
-        return erp_app.buildERPApp(languageModel);
+        return erp_app.buildERPApp(loginDatas: loginSession);
       }),
-      _AppOption('Other', Icons.widgets, () => const Scaffold(body: Center(child: Text('Other App')))),
+      _AppOption(
+        'Other',
+        Icons.widgets,
+        () => const Scaffold(body: Center(child: Text('Other App'))),
+      ),
     ];
     return Scaffold(
       appBar: AppBar(title: const Text('Super App Launcher')),

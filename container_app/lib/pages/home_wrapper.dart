@@ -2,8 +2,11 @@ import 'package:container_app/pages/launcher_page.dart';
 import 'package:container_app/pages/splash_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:login_module/login_page.dart';
+import 'package:models_package/Base/language.dart';
 import 'package:models_package/Base/login_module.dart';
+import 'package:models_package/Base/operation_result.dart';
 import 'package:models_package/Data/Auth/User/dto.dart';
 import 'package:services_package/setup_services.dart';
 import 'package:services_package/storage_service.dart';
@@ -44,7 +47,7 @@ class _HomeWrapperState extends State<HomeWrapper> {
         });
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _openLoginModule(0,devToken,Locale(lang!.languageCode ?? 'fa'));
+          _openLoginModule(0, devToken, Locale(lang!.languageCode ?? 'fa'));
         });
       }
     } catch (e) {
@@ -55,39 +58,68 @@ class _HomeWrapperState extends State<HomeWrapper> {
     }
   }
 
-  Future<void> _openLoginModule(int netWorMode,String deviceToken,Locale local) async {
+  Future<void> _openLoginModule(
+    int netWorMode,
+    String deviceToken,
+    Locale local,
+  ) async {
     final result = await Navigator.of(context).push<LoginModuleResult>(
       MaterialPageRoute(
-        builder: (context) => LoginPage(netMode: netWorMode,deviceToken: deviceToken,locale:local ,),
+        builder: (context) => LoginPage(
+          netMode: netWorMode,
+          deviceToken: deviceToken,
+          locale: local,
+        ),
         fullscreenDialog: true,
       ),
     );
 
-
     if (result != null && result.success) {
       await _handleSuccessfulLogin(result);
     } else if (result != null && !result.success) {
-
       _handleLoginError(result);
-      _openLoginModule(netWorMode,deviceToken,local);
+      _openLoginModule(netWorMode, deviceToken, local);
     } else {
-      _openLoginModule(netWorMode,deviceToken,local);
+      _openLoginModule(netWorMode, deviceToken, local);
     }
   }
 
   Future<void> _handleSuccessfulLogin(LoginModuleResult result) async {
     try {
-      final storageService = getIt.get<StorageService>();
-
       if (result.token!.isNotEmpty && result.user != null) {
-        await storageService.setLoginModuleResult(result);
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => LauncherPage()),
-        );
+        final storageService = getIt.get<StorageService>();
+        final save = await saveData(result, storageService);
+        if (save.isSuccess) {
+          final datas = await getData(storageService);
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => LauncherPage(loginSession: datas)),
+          );
+        } else {}
       }
     } catch (e) {
       print('Error handling successful login: $e');
     }
+  }
+
+  Future<Map<String, dynamic>> getData(StorageService storageService) async {
+    return await storageService.loadLoginSession();
+  }
+
+  Future<OperationResult> saveData(
+    LoginModuleResult result,
+    StorageService storageService,
+  ) async {
+    if (result == null || result.token == null || result.user == null) {
+      return OperationResult.failure(message: "داده‌های ورودی ناقص است");
+    }
+
+    return await storageService.setLoginSession(
+      token: result.token!,
+      language: Language(id: 0, languageCode: 'fa'),
+      user: result.user!,
+      loginResult: result,
+      selectedManagement: result.selectedManagementAccount,
+    );
   }
 
   void _handleLoginError(LoginModuleResult result) {
@@ -102,18 +134,17 @@ class _HomeWrapperState extends State<HomeWrapper> {
 
   @override
   Widget build(BuildContext context) {
-
     if (_isCheckingLogin) {
-      return const SplashScreenPage ();
+      return const SplashScreenPage();
     }
 
-    if (_currentUser != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => LauncherPage()),
-        );
-      });
-    }
+    // if (_currentUser != null) {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     Navigator.of(context).pushReplacement(
+    //       MaterialPageRoute(builder: (context) => LauncherPage()),
+    //     );
+    //   });
+    // }
 
     return Scaffold(
       backgroundColor: Colors.white,

@@ -50,19 +50,6 @@ class BaseResponse<D> {
         totalCount: json["TotalCount"],
         result: json["Failed"],
       );
-
-      // List<D>? dataList;
-      // if (BaseResponse.data != null && BaseResponse.data is List) {
-      //   dataList = (BaseResponse.data as List)
-      //       .map((item) =>  fromDataJson(item as Map<String, dynamic>))
-      //       .map((item) =>  fromDataJson(item as Map<String, dynamic>))
-      //       .toList();
-      // }
-      // return dataList;
-      //   data: parsedData,
-      //   totalCount: json["TotalCount"],
-      //   result: json["Result"],
-      // );
     } catch (e) {
       return BaseResponse<D>(
         data: null,

@@ -132,9 +132,11 @@ class MainApp extends StatelessWidget {
   }
 }
 
-Widget buildERPApp({Language? lang, required LoginModuleResult loginDatas}) {
-  if (lang == null)
-    lang = Language(
+Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
+  if (loginDatas == null) return SizedBox();
+
+  if (loginDatas['language'] == null)
+    loginDatas['language'] = Language(
       languageCode: 'fa',
       smallName: 'fa',
       id: 0,
@@ -155,17 +157,15 @@ Widget buildERPApp({Language? lang, required LoginModuleResult loginDatas}) {
       BlocProvider(create: (_) => ProfileBloc()),
       BlocProvider(create: (_) => PersonListBloc(apiMiddleware: apiMiddleware)),
     ],
-    child: PartOfContainerApp(initialLanguage: lang,loginModuleResult: loginDatas,),
+    child: PartOfContainerApp(loginModuleResult: loginDatas),
   );
 }
 
 class PartOfContainerApp extends StatelessWidget {
-  final Language initialLanguage;
-  final LoginModuleResult loginModuleResult;
+  final Map<String, dynamic> loginModuleResult;
 
   const PartOfContainerApp({
     super.key,
-    required this.initialLanguage,
     required this.loginModuleResult,
   });
 

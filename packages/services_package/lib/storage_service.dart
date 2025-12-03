@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:models_package/Base/language.dart';
 import 'package:models_package/Base/login_module.dart';
+import 'package:models_package/Base/operation_result.dart';
 import 'package:models_package/Data/Auth/Login/dto.dart';
 import 'package:models_package/Data/Auth/User/dto.dart';
 import 'package:path/path.dart';
@@ -183,44 +184,69 @@ class StorageService implements IStorageService {
     await _setValue(_loginResultKey, '');
   }
 
+  @override
   Future<LoginModuleResult?> loadLastLoginSession() async {
     final storageService = StorageService();
 
-    // بررسی آیا session ذخیره شده وجود دارد
     final lastResult = await storageService.getLoginModuleResult();
 
     if (lastResult != null && lastResult.success) {
-      // بررسی منقضی نشدن token (اختیاری)
       final token = await storageService.getToken();
       if (token != null) {
         return lastResult;
       }
     }
-
     return null;
   }
 
-  Future<void> saveLoginSession({
+  @override
+  Future<OperationResult> setLoginSession({
     required UserDto user,
     required String token,
+    required Language language,
     ManagementAccounts? selectedManagement,
     LoginModuleResult? loginResult,
   }) async {
-    await setUser(user);
-    await setToken(token);
+    try {
+      await setUser(user);
+      await setToken(token);
+      await setLanguage(language);
 
-    if (selectedManagement != null) {
-      await setSelectedManagement(selectedManagement);
-    }
+      if (selectedManagement != null) {
+        await setSelectedManagement(selectedManagement);
+      }
 
-    if (loginResult != null) {
-      await setLoginModuleResult(loginResult);
+      if (loginResult != null) {
+        await setLoginModuleResult(loginResult);
+      }
+
+      return OperationResult.success(
+        message: "اطلاعات ورود با موفقیت ذخیره شد",
+        data: {'user': user, 'tokenLength': token.length, 'language': language},
+      );
+    } catch (e, stackTrace) {
+      String errorMessage;
+
+      if (e is FormatException) {
+        errorMessage = "خطا در فرمت داده‌های ورودی";
+      } else if (e is UnsupportedError) {
+        errorMessage = "عملیات مورد نظر پشتیبانی نمی‌شود";
+      } else {
+        errorMessage = "خطا در ذخیره اطلاعات ورود";
+      }
+
+      return OperationResult.failure(
+        message: "$errorMessage: ${e.toString()}",
+        data: {'exception': e, 'stackTrace': stackTrace, 'user': user},
+      );
     }
   }
 
+  @override
   Future<Map<String, dynamic>> loadLoginSession() async {
     final user = await getUser();
     final token = await getToken();
+    final language = await getLanguage();
     final selectedManagement = await getSelectedManagement();
     final loginResult = await getLoginModuleResult();
 
@@ -229,6 +255,7 @@ class StorageService implements IStorageService {
       'token': token,
       'selectedManagement': selectedManagement,
       'loginResult': loginResult,
+      'language': language,
     };
   }
 
@@ -237,5 +264,6 @@ class StorageService implements IStorageService {
     await _setValue(_userTokenKey, '');
     await _setValue(_selectedManagementKey, '');
     await _setValue(_loginResultKey, '');
+    await _setValue(_languageKey, '');
   }
 }
