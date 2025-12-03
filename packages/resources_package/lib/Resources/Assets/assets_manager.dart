@@ -18,12 +18,10 @@ final class AryanAssets {
   static const String userDevices = 'assets/images/user_devices.png';
   static const String userSignOut = 'assets/images/user_sign_out.png';
   static const String userTitle = 'assets/images/user_title.png';
-  static const String userOtherAccounts =
-      'assets/images/user_other_accounts.png';
+  static const String userOtherAccounts = 'assets/images/user_other_accounts.png';
   static const String userSettings = 'assets/images/user_settings.png';
   static const String userWallet = 'assets/images/user_wallet.png';
-  static const String userPasswordChange =
-      'assets/images/user_password_change.png';
+  static const String userPasswordChange = 'assets/images/user_password_change.png';
   static const String sort = 'assets/images/sort.png';
   static const String filterNone = 'assets/images/filternone.png';
   static const String filterSigning = 'assets/images/filtersigning.png';
@@ -43,6 +41,11 @@ final class AryanAssets {
   static const String errorIcon = 'assets/images/error_icon.png';
   static const String questionBoxIcon = 'assets/images/question_box_icon.png';
   static const String defaultImage = 'assets/images/aryan_image_error.png';
-  static const String defaultImage256Px =
-      'assets/images/aryan_image_error_256px.png';
+  static const String defaultImage256Px = 'assets/images/aryan_image_error_256px.png';
+
+
+
+
+
+
 }
