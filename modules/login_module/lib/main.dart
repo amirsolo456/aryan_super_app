@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:login_module/login_page.dart';
+import 'package:login_module/services/snackbar_service.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:resources_package/Resources/Theme/theme_manager.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
@@ -13,13 +14,14 @@ import 'package:services_package/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/common/Buttons/language_button_standalone/language_button_stand_alone_cubit.dart';
 
 import 'login_bloc.dart';
-import 'login_manager_service.dart';
+import 'services/login_manager_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   setupServices();
   GetIt.I.registerLazySingleton(() => LoginModuleManager());
+  GetIt.I.registerLazySingleton(() => SnackBarService());
 
   Language? initialLocal;
   if (initialLocal == null)
@@ -70,6 +72,7 @@ class MyApp extends StatelessWidget {
         builder: (context, locale) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
+            scaffoldMessengerKey: SnackBarService.messengerKey,
             locale: locale,
             supportedLocales: const [Locale('fa', 'IR'), Locale('en', 'US')],
             localizationsDelegates: const [
@@ -81,7 +84,11 @@ class MyApp extends StatelessWidget {
             theme: ThemeColorsManager(.light).aryanTheme,
             darkTheme: ThemeColorsManager(.dark).aryanTheme,
             themeMode: ThemeManager.themeMode,
-            home: LoginPage(deviceToken: deviceToken, locale: local),
+            home: LoginPage(
+              deviceToken: deviceToken,
+              locale: local,
+              netMode: runMode,
+            ),
           );
         },
       ),

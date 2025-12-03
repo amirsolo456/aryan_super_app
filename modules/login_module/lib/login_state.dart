@@ -41,14 +41,26 @@ class LoginLoadingState extends LoginStates {
   LoginLoadingState(this.message);
 }
 
-class LoginErrorState extends LoginStates {
+class LoginCriticalErrorState extends LoginStates {
+  final Exception? _exception;
+
+  LoginCriticalErrorState(this._exception);
+}
+
+class LoginApiErrorState extends LoginStates {
   final LoginModuleResult moduleResult;
 
-  LoginErrorState(this.moduleResult);
+  LoginApiErrorState(this.moduleResult);
 }
 
 class LoginSuccessState extends LoginStates {
   final LoginModuleResult moduleResult;
 
   LoginSuccessState(this.moduleResult);
+}
+
+class LoginManagementPickerState extends LoginStates {
+  final LoginModuleResult result;
+
+  LoginManagementPickerState(this.result);
 }

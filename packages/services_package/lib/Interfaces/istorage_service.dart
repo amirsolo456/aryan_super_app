@@ -1,9 +1,5 @@
-
-
-import 'package:flutter/material.dart';
-
-
 import 'package:models_package/Base/language.dart';
+import 'package:models_package/Base/login_module.dart';
 import 'package:models_package/Data/Auth/User/dto.dart';
 
 abstract class IStorageService {
@@ -19,6 +15,7 @@ abstract class IStorageService {
 
   Future<void> setLanguage(Language token);
   Future<Language?> getLanguage();
-  // Future<Locale?> readLocale();
-  // Future<Language?> saveLocale(Locale locale);
+
+  Future<void> setLoginModuleResult(LoginModuleResult result);
+  Future<LoginModuleResult?> getLoginModuleResult();
 }

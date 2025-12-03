@@ -1,7 +1,7 @@
-import 'package:models_package/Data/Auth/User/dto.dart';
-import 'Interfaces/iuser_exist.dart';
 import 'package:get_it/get_it.dart';
+import 'package:models_package/Data/Auth/User/dto.dart';
 
+import 'Interfaces/iuser_exist.dart';
 import 'api_client_service.dart';
 
 class UserExistService extends IUserExistService {
@@ -17,7 +17,9 @@ class UserExistService extends IUserExistService {
             HttpMethods.post,
             request,
             false,
-            Exception(''),
+            Exception(""),
+            (json) =>
+                Response.fromJson(json, (item) => ResponseData.fromJson(item)),
           );
     } catch (ex) {}
 

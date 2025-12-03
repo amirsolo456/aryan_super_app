@@ -80,6 +80,11 @@ flutter:
     - assets/images/small_go_caret.png
     - assets/images/aryan_image_error.png
     - assets/images/aryan_image_error_256px.png
+    - assets/images/success_icon.png
+    - assets/images/info_icon.png
+    - assets/images/error_icon.png
+    - assets/images/question_box_icon.png
+
 
   generate: true
   # To add assets to your package, add an assets section, like this:

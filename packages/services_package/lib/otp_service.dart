@@ -1,4 +1,5 @@
 import 'package:models_package/Data/Auth/Otp/dto.dart';
+
 import 'Interfaces/iotp_service.dart';
 import 'api_client_service.dart';
 
@@ -19,6 +20,7 @@ class OtpService implements IOtpService {
             request.toJson(),
             false,
             Exception('a'),
+            Response.fromJson,
           );
       return response;
     } catch (e) {
@@ -36,6 +38,7 @@ class OtpService implements IOtpService {
             request,
             false,
             Exception('a'),
+            Response.fromJson,
           );
       return response;
     } catch (e) {

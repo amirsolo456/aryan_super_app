@@ -1,6 +1,6 @@
 // -------------------- Api Middleware --------------------
-import 'package:models_package/Data/Com/Person/dto.dart';
 import 'package:models_package/Data/Auth/Menu/dto.dart' as menu;
+import 'package:models_package/Data/Com/Person/dto.dart';
 
 import '../api_client_service.dart';
 import 'fake_data_service.dart';
@@ -29,6 +29,7 @@ class ApiClientMiddlewareService {
             request ?? Request(),
             setToken,
             Exception("خطا در دریافت اطلاعات"),
+            Response.fromJson,
           );
       return response ?? FakeDataService.getFakePersons();
     } catch (e) {
@@ -37,11 +38,11 @@ class ApiClientMiddlewareService {
   }
 
   Future<menu.Response> sendRequestForMenuWithFallback(
-      String url,
-      HttpMethods method, {
-        menu.Request? request,
-        bool setToken = false,
-      }) async {
+    String url,
+    HttpMethods method, {
+    menu.Request? request,
+    bool setToken = false,
+  }) async {
     if (apiClient.appSettings.baseUrl.isEmpty ||
         apiClient.appSettings.baseUrl == '') {
       await Future.delayed(Duration(seconds: 2));

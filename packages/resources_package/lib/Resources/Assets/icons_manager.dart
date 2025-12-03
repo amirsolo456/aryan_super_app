@@ -121,6 +121,10 @@ class _AppImages {
     AryanAssets.smallGoCaret,
     AryanAssets.defaultImage,
     AryanAssets.defaultImage256Px,
+    AryanAssets.errorIcon,
+    AryanAssets.successIcon,
+    AryanAssets.infoIcon,
+    AryanAssets.questionBoxIcon,
   ];
 
   /// Map keyed by simple name (helps dynamic lookup)
@@ -159,6 +163,10 @@ class _AppImages {
     'smallGoCaret': AryanAssets.smallGoCaret,
     'defaultImage': AryanAssets.defaultImage,
     'defaultImage256Px': AryanAssets.defaultImage256Px,
+    'successIcon': AryanAssets.successIcon,
+    'infoIcon': AryanAssets.infoIcon,
+    'errorIcon': AryanAssets.errorIcon,
+    'questionBoxIcon': AryanAssets.questionBoxIcon,
   };
 
   /// Shortcut to create an Image widget from a known path

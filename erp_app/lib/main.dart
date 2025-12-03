@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:models_package/Base/language.dart';
+import 'package:models_package/Base/login_module.dart';
 import 'package:provider/provider.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
 import 'package:services_package/Interfaces/apiclient_middleware_service.dart';
@@ -131,7 +132,16 @@ class MainApp extends StatelessWidget {
   }
 }
 
-Widget buildERPApp(Language lang) {
+Widget buildERPApp({Language? lang, required LoginModuleResult loginDatas}) {
+  if (lang == null)
+    lang = Language(
+      languageCode: 'fa',
+      smallName: 'fa',
+      id: 0,
+      bigName: 'IR',
+      completeName: 'fa_IR',
+    );
+
   final apiClient = getIt.get<ApiClient>();
   final apiMiddleware = ApiClientMiddlewareService(apiClient: apiClient);
   init();
@@ -145,25 +155,22 @@ Widget buildERPApp(Language lang) {
       BlocProvider(create: (_) => ProfileBloc()),
       BlocProvider(create: (_) => PersonListBloc(apiMiddleware: apiMiddleware)),
     ],
-    child: PartOfContainerApp(initialLanguage: lang),
+    child: PartOfContainerApp(initialLanguage: lang,loginModuleResult: loginDatas,),
   );
 }
 
 class PartOfContainerApp extends StatelessWidget {
   final Language initialLanguage;
+  final LoginModuleResult loginModuleResult;
 
-  const PartOfContainerApp({super.key, required this.initialLanguage});
+  const PartOfContainerApp({
+    super.key,
+    required this.initialLanguage,
+    required this.loginModuleResult,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // final storageService = getIt.get<StorageService>();
-    // final Locale appLocalization;
-    // final StorageService storageService;
-    // if (getIt.isRegistered<StorageService>()) {
-    //   storageService = getIt.get<StorageService>();
-    //   Language lang = storageService.getLanguage();
-    // }
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       locale: const Locale('fa', 'IR'),
@@ -174,16 +181,7 @@ class PartOfContainerApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-
       title: 'Erp',
-      // locale: Locale(initialLanguage.languageCode.toString()),
-      // localizationsDelegates: const [
-      //   AppLocalizations.delegate,
-      //   GlobalMaterialLocalizations.delegate,
-      //   GlobalWidgetsLocalizations.delegate,
-      //   GlobalCupertinoLocalizations.delegate,
-      // ],
-      // supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),

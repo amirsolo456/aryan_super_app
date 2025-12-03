@@ -1,5 +1,3 @@
-
-
 import '../../../Base/base_request.dart';
 import '../../../Base/base_response.dart';
 
@@ -56,64 +54,67 @@ class LoginRequest extends BaseRequest {
 }
 
 class LoginResponse extends BaseResponse<ResponseData> {
+  bool? isExpire;
+  int? status;
   String? accessToken;
-  int? expiresIn;
   String? tokenType;
   String? refreshToken;
-  String? scope;
-  bool? isMFA;
+  UserSession? userSession;
   bool? isMMA;
-  List<ManagementAccounts>? managementAccounts;
   String? cacheKey;
+  List<ManagementAccounts>? managementAccounts;
 
   LoginResponse({
+    this.isExpire,
+    this.status,
     this.accessToken,
-    this.expiresIn,
     this.tokenType,
     this.refreshToken,
-    this.scope,
-    this.isMFA,
+    this.userSession,
     this.isMMA,
-    this.managementAccounts,
     this.cacheKey,
+    this.managementAccounts,
   });
 
-  factory LoginResponse.fromJson(Map<String, dynamic> json) {
-    return LoginResponse(
-      accessToken: json['accessToken'] as String?,
-      expiresIn: json['expiresIn'] as int?,
-      tokenType: json['tokenType'] as String?,
-      refreshToken: json['refreshToken'] as String?,
-      scope: json['scope'] as String?,
-      isMFA: json['isMFA'] as bool?,
-      isMMA: json['isMMA'] as bool?,
-      managementAccounts: json['managementAccounts'] != null
-          ? (json['managementAccounts'] as List)
-                .map((e) => ManagementAccounts.fromJson(e))
-                .toList()
-          : null,
-      cacheKey: json['cacheKey'] as String?,
-    );
+  LoginResponse.fromJson(Map<String, dynamic> json,
+      ResponseData Function(Map<String, dynamic>?) fromJsonT,) {
+    result = json['Result'];
+    data = null;
+    totalCount = 0;
+    isExpire = json['IsExpire'];
+    status = json['status'];
+    accessToken = json['access_token'] as String?;
+    tokenType = json['token_type'] as String?;
+    refreshToken = json['refresh_token'] as String?;
+    userSession = json['UserSession'] != null
+        ? UserSession.fromJson(json['UserSession'])
+        : null;
+    isMMA = json['IsMMA'] as bool?;
+    managementAccounts = json['ManagementAccounts'] != null
+        ? (json['ManagementAccounts'] as List)
+        .map((e) => ManagementAccounts.fromJson(e))
+        .toList()
+        : null;
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'accessToken': accessToken,
-      'expiresIn': expiresIn,
-      'tokenType': tokenType,
-      'refreshToken': refreshToken,
-      'scope': scope,
-      'isMFA': isMFA,
-      'isMMA': isMMA,
-      'managementAccounts': managementAccounts?.map((e) => e.toJson()).toList(),
-      'cacheKey': cacheKey,
+      'IsExpire': isExpire,
+      'Result': result,
+      'status': status,
+      'access_token': accessToken,
+      'token_type': tokenType,
+      'refresh_token': refreshToken,
+      'UserSession': userSession?.toJson(),
+      'IsMMA': isMMA,
+      'ManagementAccounts': managementAccounts?.map((e) => e.toJson()).toList(),
     };
   }
 }
 
 class LoginResponseNextStep extends BaseResponse<ResponseData> {
   String? accessToken;
-  int? expiresIn;
+  bool? expiresIn;
   String? tokenType;
   String? refreshToken;
   String? scope;
@@ -122,7 +123,9 @@ class LoginResponseNextStep extends BaseResponse<ResponseData> {
   List<ManagementAccounts>? managementAccounts;
   UserSession? userSession;
 
+
   LoginResponseNextStep({
+    super.result,
     this.accessToken,
     this.expiresIn,
     this.tokenType,
@@ -134,22 +137,23 @@ class LoginResponseNextStep extends BaseResponse<ResponseData> {
     this.userSession,
   });
 
-  factory LoginResponseNextStep.fromJson(Map<String, dynamic> json) {
+  factory LoginResponseNextStep.fromJson(Map<String, dynamic> json,
+      ResponseData Function(Map<String, dynamic>?) fromJsonT,) {
     return LoginResponseNextStep(
-      accessToken: json['accessToken'] as String?,
-      expiresIn: json['expiresIn'] as int?,
-      tokenType: json['tokenType'] as String?,
-      refreshToken: json['refreshToken'] as String?,
-      scope: json['scope'] as String?,
-      isMFA: json['isMFA'] as bool?,
-      isMMA: json['isMMA'] as bool?,
-      managementAccounts: json['managementAccounts'] != null
-          ? (json['managementAccounts'] as List)
-                .map((e) => ManagementAccounts.fromJson(e))
-                .toList()
-          : null,
-      userSession: json['userSession'] != null
-          ? UserSession.fromJson(json['userSession'])
+      accessToken: json['access_token'] as String?,
+      result: json['Result'] as String?,
+      expiresIn: json['IsExpire'] as bool?,
+      tokenType: json['token_type'] as String?,
+      refreshToken: json['refresh_token'] as String?,
+      scope: json['Scope'] as String?,
+      isMFA: json['IsMFA'] as bool?,
+      isMMA: json['IsMMA'] as bool?,
+      managementAccounts: json['ManagementAccounts'] != null
+          ? (json['ManagementAccounts'] as List)
+          .map((e) => ManagementAccounts.fromJson(e))
+          .toList() : null,
+      userSession: json['UserSession'] != null
+          ? UserSession.fromJson(json['UserSession'])
           : null,
     );
   }
@@ -157,14 +161,14 @@ class LoginResponseNextStep extends BaseResponse<ResponseData> {
   Map<String, dynamic> toJson() {
     return {
       'accessToken': accessToken,
-      'expiresIn': expiresIn,
-      'tokenType': tokenType,
-      'refreshToken': refreshToken,
-      'scope': scope,
-      'isMFA': isMFA,
-      'isMMA': isMMA,
-      'managementAccounts': managementAccounts?.map((e) => e.toJson()).toList(),
-      'userSession': userSession?.toJson(),
+      'IsExpire': expiresIn,
+      'token_Type': tokenType,
+      'refresh_Token': refreshToken,
+      'Scope': scope,
+      'IsMFA': isMFA,
+      'IsMMA': isMMA,
+      'ManagementAccounts': managementAccounts?.map((e) => e.toJson()).toList(),
+      'UserSession': userSession?.toJson(),
     };
   }
 }
@@ -179,29 +183,30 @@ class UserSession {
 
   factory UserSession.fromJson(Map<String, dynamic> json) {
     return UserSession(
-      userInfo: json['userInfo'] != null
-          ? UserInfo.fromJson(json['userInfo'])
+      userInfo: json['UserInfo'] != null
+          ? UserInfo.fromJson(json['UserInfo'])
           : null,
-      yearInfo: json['yearInfo'],
-      roleDto: json['roleDto'] != null
-          ? (json['roleDto'] as List).map((e) => RoleDto.fromJson(e)).toList()
+      yearInfo: json['YearInfo'],
+      roleDto: json['RoleDto'] != null
+          ? (json['RoleDto'] as List).map((e) => RoleDto.fromJson(e)).toList()
           : null,
-      langId: json['langId'] as int?,
+      langId: json['LangId'] as int?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'userInfo': userInfo?.toJson(),
-      'yearInfo': yearInfo,
-      'roleDto': roleDto?.map((e) => e.toJson()).toList(),
-      'langId': langId,
+      'UserInfo': userInfo?.toJson(),
+      'YearInfo': yearInfo,
+      'RoleDto': roleDto?.map((e) => e.toJson()).toList(),
+      'LangId': langId,
     };
   }
 }
 
 class UserInfo {
   String? userName;
+  bool? isAdmin;
   int? userId;
   int? userType;
   String? userPic;
@@ -210,6 +215,7 @@ class UserInfo {
 
   UserInfo({
     this.userName,
+    this.isAdmin,
     this.userId,
     this.userType,
     this.userPic,
@@ -219,49 +225,54 @@ class UserInfo {
 
   factory UserInfo.fromJson(Map<String, dynamic> json) {
     return UserInfo(
-      userName: json['userName'] as String?,
-      userId: json['userId'] as int?,
-      userType: json['userType'] as int?,
-      userPic: json['userPic'] as String?,
-      packageId: json['packageId'] as int?,
-      packageExpireDate: json['packageExpireDate'] as String?,
+      userName: json['UserName'] as String?,
+      isAdmin: json['IsAdmin'] as bool?,
+      userId: json['UserId'] as int?,
+      userType: json['UserType'] as int?,
+      userPic: json['UserPic'] as String?,
+      packageId: json['PackageId'] as int?,
+      packageExpireDate: json['PackageExpireDate'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'userName': userName,
-      'userId': userId,
-      'userType': userType,
-      'userPic': userPic,
-      'packageId': packageId,
-      'packageExpireDate': packageExpireDate,
+      'UserName': userName,
+      'IsAdmin': isAdmin,
+      'UserId': userId,
+      'UserType': userType,
+      'UserPic': userPic,
+      'PackageId': packageId,
+      'PackageExpireDate': packageExpireDate,
     };
   }
 }
 
 class RoleDto {
   int? roleId;
+  bool? isSupporter;
   String? roleName;
   List<Places>? places;
 
-  RoleDto({this.roleId, this.roleName, this.places});
+  RoleDto({this.roleId, this.roleName, this.places,this.isSupporter});
 
   factory RoleDto.fromJson(Map<String, dynamic> json) {
     return RoleDto(
-      roleId: json['roleId'] as int?,
-      roleName: json['roleName'] as String?,
-      places: json['places'] != null
-          ? (json['places'] as List).map((e) => Places.fromJson(e)).toList()
+      roleId: json['RoleId'] as int?,
+      isSupporter: json['IsSupporter'] as bool?,
+      roleName: json['RoleName'] as String?,
+      places: json['Places'] != null
+          ? (json['Places'] as List).map((e) => Places.fromJson(e)).toList()
           : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'roleId': roleId,
-      'roleName': roleName,
-      'places': places?.map((e) => e.toJson()).toList(),
+      'RoleId': roleId,
+      'RoleName': roleName,
+      'IsSupporter': isSupporter,
+      'Places': places?.map((e) => e.toJson()).toList(),
     };
   }
 }
@@ -275,17 +286,17 @@ class Places {
 
   factory Places.fromJson(Map<String, dynamic> json) {
     return Places(
-      placeId: json['placeId'] as int?,
-      placeShortCut: json['placeShortCut'] as String?,
-      placeDesc: json['placeDesc'] as String?,
+      placeId: json['PlaceId'] as int?,
+      placeShortCut: json['PlaceShortCut'] as String?,
+      placeDesc: json['PlaceDesc'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'placeId': placeId,
-      'placeShortCut': placeShortCut,
-      'placeDesc': placeDesc,
+      'PlaceId': placeId,
+      'PlaceShortCut': placeShortCut,
+      'PlaceDesc': placeDesc,
     };
   }
 }
@@ -293,27 +304,39 @@ class Places {
 class ManagementAccounts {
   int? managementAccountId;
   String? managementAccountDesc;
+  int? credit;
+  String? expireDate;
+  int? packageId;
   bool? inActive;
 
   ManagementAccounts({
     this.managementAccountId,
     this.managementAccountDesc,
+    this.credit,
+    this.expireDate,
+    this.packageId,
     this.inActive,
   });
 
   factory ManagementAccounts.fromJson(Map<String, dynamic> json) {
     return ManagementAccounts(
-      managementAccountId: json['managementAccountId'] as int?,
-      managementAccountDesc: json['managementAccountDesc'] as String?,
-      inActive: json['inActive'] as bool?,
+      managementAccountId: json['ManagementAccountId'] as int?,
+      managementAccountDesc: json['ManagementAccountDesc'] as String?,
+      credit: json['Credit'] as int?,
+      expireDate: json['ExpireDate'] as String?,
+      packageId: json['PackageId'] as int?,
+      inActive: json['InActive'] as bool?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'managementAccountId': managementAccountId,
-      'managementAccountDesc': managementAccountDesc,
-      'inActive': inActive,
+      'ManagementAccountId': managementAccountId,
+      'ManagementAccountDesc': managementAccountDesc,
+      'Credit': credit,
+      'ExpireDate': expireDate,
+      'PackageId': packageId,
+      'InActive': inActive,
     };
   }
 }

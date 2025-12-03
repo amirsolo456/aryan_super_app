@@ -30,6 +30,15 @@ enum LoginResultType {
   cancelled,
   networkError,
   validationError,
+  managementAccountPick,
+}
+
+enum MessageMode {
+  successMode,
+  errorMode,
+  infoMode,
+  questionBoxMode,
+  defaultMode,
 }
 
 enum OpenedType { none, open, save, error, approve, reject }

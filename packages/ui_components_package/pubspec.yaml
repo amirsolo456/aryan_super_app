@@ -19,7 +19,9 @@ dependencies:
     path: ../models_package
   services_package:
     path: ../services_package
-
+  smswatcher: ^0.0.3
+  permission_handler: ^12.0.1
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

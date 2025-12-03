@@ -1,4 +1,4 @@
-class BaseResponse<T> {
+class BaseResponse<D> {
   BaseResponse({
     this.result = "Failed",
     this.status,
@@ -14,13 +14,13 @@ class BaseResponse<T> {
   int? status;
   String? error;
   Exception? exception;
-  List<T>? data;
+  List<D>? data;
   String? additionalInfo;
   int totalCount;
   int? key;
 
   factory BaseResponse.error(Exception e, {String? message}) {
-    return BaseResponse<T>(
+    return BaseResponse<D>(
       result: "Failed",
       error: message ?? e.toString(),
       exception: e,
@@ -28,10 +28,48 @@ class BaseResponse<T> {
   }
 
   factory BaseResponse.success(String? message) {
-    return BaseResponse<T>(result: "Success", error: message);
+    return BaseResponse<D>(result: "Success", error: message);
   }
 
-  factory BaseResponse.fromjson(Map<String, dynamic> decode) {
-    return BaseResponse<T>(result: "Json", error: '', exception: null);
+  factory BaseResponse.fromjson(
+    Map<String, dynamic> json, {
+    D Function(Map<String, dynamic>)? fromDataJson,
+  }) {
+    List<D>? parsedData;
+
+    try {
+      if (json["Data"] != null && fromDataJson != null) {
+        if (json["Data"] is List) {
+          parsedData = (json["Data"] as List)
+              .map((e) => fromDataJson(e as Map<String, dynamic>))
+              .toList();
+        }
+      }
+      return BaseResponse<D>(
+        data: parsedData,
+        totalCount: json["TotalCount"],
+        result: json["Failed"],
+      );
+
+      // List<D>? dataList;
+      // if (BaseResponse.data != null && BaseResponse.data is List) {
+      //   dataList = (BaseResponse.data as List)
+      //       .map((item) =>  fromDataJson(item as Map<String, dynamic>))
+      //       .map((item) =>  fromDataJson(item as Map<String, dynamic>))
+      //       .toList();
+      // }
+      // return dataList;
+      //   data: parsedData,
+      //   totalCount: json["TotalCount"],
+      //   result: json["Result"],
+      // );
+    } catch (e) {
+      return BaseResponse<D>(
+        data: null,
+        totalCount: json["TotalCount"],
+        exception: Exception(e.toString()),
+        result: json["Failed"],
+      );
+    }
   }
 }

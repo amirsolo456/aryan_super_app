@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:login_module/services/html_text_parser.dart';
+import 'package:login_module/services/modal_manager.dart';
+import 'package:login_module/services/snackbar_service.dart';
 import 'package:resources_package/Resources/Assets/assets_manager.dart';
 import 'package:resources_package/Resources/Assets/icons_manager.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
 import 'package:resources_package/resources/Theme/theme_manager.dart';
 import 'package:resources_package/resources/styles/styles.dart';
+import 'package:services_package/setup_services.dart';
 import 'package:ui_components_package/erp_app_componenets/common/Buttons/language_button_standalone/language_button_stand_alone.dart';
 import 'package:ui_components_package/erp_app_componenets/common/aryan_logo.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Buttons/dynamic_button.dart';
@@ -13,19 +17,24 @@ import 'package:ui_components_package/erp_app_componenets/mobile/Inputs/secondar
 import 'package:ui_components_package/erp_app_componenets/mobile/Inputs/verification.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'html_text_parser.dart';
 import 'login_bloc.dart';
 
 class LoginPage extends StatelessWidget {
-  final String deviceToken;
+  final int netMode;
   final Locale locale;
-  final int runMode = 0;
-  const LoginPage({super.key, required this.locale, required this.deviceToken});
+  final String deviceToken;
+
+  const LoginPage({
+    super.key,
+    required this.locale,
+    required this.deviceToken,
+    required this.netMode,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => LoginBloc(networkMode: runMode, deviceToken: deviceToken),
+      create: (_) => LoginBloc(networkMode: netMode, deviceToken: deviceToken),
       child: const LoginPageBody(),
     );
   }
@@ -229,7 +238,6 @@ class _LoginPageBodyState extends State<LoginPageBody> {
           ),
           VerificationWidget(),
         ],
-        // textDirection: TextDirection.rtl,
       ),
     );
   }
@@ -257,7 +265,7 @@ class _LoginPageBodyState extends State<LoginPageBody> {
     );
   }
 
-  Widget _buildErrorState(LoginErrorState state) {
+  Widget _buildErrorState(LoginCriticalErrorState state) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -269,14 +277,6 @@ class _LoginPageBodyState extends State<LoginPageBody> {
         children: [
           const Icon(Icons.error_outline, color: Colors.red),
           const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              state.moduleResult.error ?? '',
-              style: AryanText.primButtonTextStyle().copyWith(
-                color: Colors.red,
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -340,10 +340,11 @@ class _LoginPageBodyState extends State<LoginPageBody> {
 
   Widget _buildContent(LoginStates state, BuildContext context) {
     Widget content;
+    SnackBarService messengerService = getIt.get<SnackBarService>();
 
     if (state is LoginLoadingState) {
       content = _buildLoadingState(state);
-    } else if (state is LoginErrorState) {
+    } else if (state is LoginCriticalErrorState) {
       content = _buildErrorState(state);
     } else if (state is LoginUsernameState || state is LoginInitialState) {
       final username = state is LoginUsernameState ? state.username : '';
@@ -379,23 +380,169 @@ class _LoginPageBodyState extends State<LoginPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginStates>(
+    return BlocConsumer<LoginBloc, LoginStates>(
       listener: (context, state) {
+        if (state is LoginManagementPickerState) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (dialogContext) => ManagementPickerModal(
+                result: state.result,
+                accounts: state.result.managementAccount ?? [],
+                onAccountSelected: (account) {
+                  final updatedResult = state.result.copyWith(
+                    selectedAccount: account,
+                    success: true,
+                  );
+                  context.read<LoginBloc>().add(
+                    LoginManagementSelectedEvent(updatedResult,account),
+                  );
+                },
+              ),
+            );
+          });
+        }
+
+        // if (state is LoginManagementPickerState) {
+        //   WidgetsBinding.instance.addPostFrameCallback((_) {
+        //     showDialog(
+        //       context: context,
+        //       barrierDismissible: false,
+        //       builder: (context) =>
+        //           ManagementPickerModal(
+        //             result: state.result,
+        //             accounts: state.result.managementAccounts ??
+        //                 [],
+        //           ),
+        //     );
+        //   });
+        // }
+
         if (state is LoginSuccessState) {
           Navigator.of(context).pop(state.moduleResult);
         }
+        /* if (state is LoginManagementPickerState) {
 
-        if (state is LoginErrorState && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.moduleResult.error ?? ''),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+                // استفاده از WidgetsBinding برای اطمینان از build کامل
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => ManagementPickerModal(
+                      result: state.result, // انتقال result به مودال
+                      accounts: state.result.managementAccounts ?? [],
+                    ),
+                  );
+                });
+
+            builder: (context, state) {
+              return Scaffold(
+                body: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text("سلام امیر!", style: TextStyle(fontSize: 22)),
+                    SizedBox(height: 20),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: state.res.length,
+                        itemBuilder: (context, index) {
+                          final account = accounts[index];
+                          return Card(
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: ListTile(
+                              title: Text(
+                                account.managementAccountDesc ??
+                                    "نام حساب ندارد",
+                              ),
+                              trailing: Icon(Icons.arrow_forward_ios),
+                              onTap: () {
+                                final updatedResult = state.result.copyWith(
+                                  selectedAccount: account,
+                                );
+
+                                innerContext.read<LoginBloc>().add(
+                                  LoginSuccessEvent(state.result),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text("بستن"),
+                    ),
+                  ],
+                ),
+              );
+            },*/
+        // );
+
+        /*          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) {
+              final accounts =
+                  state.result.managementAccounts ?? []; // لیست مدیریت اکانت‌ها
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.6,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("سلام امیر!", style: TextStyle(fontSize: 22)),
+                      SizedBox(height: 20),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: accounts.length,
+                          itemBuilder: (context, index) {
+                            final account = accounts[index];
+                            return Card(
+                              margin: EdgeInsets.symmetric(vertical: 8),
+                              child: ListTile(
+                                title: Text(
+                                  account.managementAccountDesc ??
+                                      "نام حساب ندارد",
+                                ),
+                                trailing: Icon(Icons.arrow_forward_ios),
+                                onTap: () {
+                                  final updatedResult = state.result.copyWith(selectedAccount: account);
+
+                                  innerContext.read<LoginBloc>().add(
+                                    LoginSuccessEvent(state.result),
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text("بستن"),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );*/
+
+        if (state is LoginCriticalErrorState && mounted) {}
       },
-      child: BlocBuilder<LoginBloc, LoginStates>(
-        builder: (context, state) {
+
+      builder: (context, state) {
+        if (state is! LoginManagementPickerState) {
           return Scaffold(
             appBar: (state is LoginUsernameState || state is LoginInitialState)
                 ? AppBar(
@@ -422,8 +569,54 @@ class _LoginPageBodyState extends State<LoginPageBody> {
                   ),
             body: _buildBody(state, context),
           );
-        },
-      ),
+        } else {
+          final pickerState = state as LoginManagementPickerState;
+          final accounts = pickerState.result.managementAccount ?? [];
+
+          return Scaffold(
+            body: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("سلام امیر!", style: TextStyle(fontSize: 22)),
+                SizedBox(height: 20),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: accounts.length,
+                    itemBuilder: (context, index) {
+                      final account = accounts[index];
+                      return Card(
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        child: ListTile(
+                          title: Text(
+                            account.managementAccountDesc ?? "نام حساب ندارد",
+                          ),
+                          trailing: Icon(Icons.arrow_forward_ios),
+                          onTap: () {
+                            final updatedResult = pickerState.result.copyWith(
+                              selectedAccount: account,
+                            );
+
+                            context.read<LoginBloc>().add(
+                              LoginSuccessEvent(updatedResult),
+                            );
+
+                            Navigator.pop(context);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("بستن"),
+                ),
+              ],
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -440,9 +633,11 @@ class _LoginPageBodyState extends State<LoginPageBody> {
                 const AryanLogo(),
                 const SizedBox(height: 20),
                 _buildContent(state, context),
-                if (state is! LoginLoadingState && state is! LoginErrorState)
+                if (state is! LoginLoadingState &&
+                    state is! LoginCriticalErrorState)
                   const SizedBox(height: 50),
-                if (state is! LoginLoadingState && state is! LoginErrorState)
+                if (state is! LoginLoadingState &&
+                    state is! LoginCriticalErrorState)
                   _buildLoginButton(context, state),
               ],
             ),

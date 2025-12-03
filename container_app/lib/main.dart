@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
-import 'package:login_module/login_manager_service.dart';
+import 'package:login_module/services/login_manager_service.dart';
+import 'package:login_module/services/snackbar_service.dart';
+
 import 'package:models_package/Base/language.dart';
 import 'package:resources_package/Resources/Theme/theme_manager.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
@@ -21,6 +23,8 @@ void main() async {
   setupServices();
   Locale initialLocale = Locale('fa');
   GetIt.I.registerLazySingleton(() => LoginModuleManager());
+  GetIt.I.registerLazySingleton(() => SnackBarService());
+
   ThemeManager.init();
   await Firebase.initializeApp(
     options: const FirebaseOptions(

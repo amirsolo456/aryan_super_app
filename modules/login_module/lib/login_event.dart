@@ -48,12 +48,29 @@ class LoginLoadingEvent extends LoginEvents {
   LoginLoadingEvent(this.isLoading, [this.message]);
 }
 
-class LoginErrorEvent extends LoginEvents {
+class LoginCriticalErrorEvent extends LoginEvents {
+  final Exception? _exception;
+  LoginCriticalErrorEvent(this._exception);
+}
+
+class LoginApiErrorEvent extends LoginEvents {
   final LoginModuleResult moduleResult;
-  LoginErrorEvent(this.moduleResult);
+  LoginApiErrorEvent(this.moduleResult);
 }
 
 class LoginSuccessEvent extends LoginEvents {
   final LoginModuleResult moduleResult;
   LoginSuccessEvent(this.moduleResult);
+}
+
+class LoginOpenManagementPickerEvent extends LoginEvents {
+  final LoginModuleResult result;
+  LoginOpenManagementPickerEvent(this.result);
+}
+
+class LoginManagementSelectedEvent extends LoginEvents {
+  final LoginModuleResult result;
+  final Login.ManagementAccounts selectedManager;
+
+  LoginManagementSelectedEvent(this.result, this.selectedManager);
 }

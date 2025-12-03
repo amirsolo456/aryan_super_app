@@ -30,15 +30,21 @@ class Response extends BaseResponse<ResponseData> {
     this.data = data ?? [];
   }
 
-  factory Response.fromJson(Map<String, dynamic> json) {
-    var list = <ResponseData>[];
-    if (json['data'] != null) {
-      list = (json['data'] as List)
-          .map((x) => ResponseData.fromJson(x))
+  Response.fromJson(Map<String, dynamic> json,
+      ResponseData Function(Map<String, dynamic>) fromJsonT,) {
+    if (json['Data'] is List) {
+      result = json['Result'];
+      totalCount = json['TotalCount'];
+      data = (json['Data'] as List)
+          .map((e) => fromJsonT(e as Map<String, dynamic>))
           .toList();
+    } else if (json['Data'] is Map) {
+      data = [fromJsonT(json['Data'])];
+    } else {
+      data = [];
     }
-    return Response(data: list);
   }
+
 
   Map<String, dynamic> toJson() {
     return {
@@ -63,9 +69,9 @@ class ResponseData {
 
   factory ResponseData.fromJson(Map<String, dynamic> json) {
     return ResponseData(
-      exist: json['exist'] as bool? ?? false,
-      inactive: json['inactive'] as bool? ?? false,
-      invited: json['invited'] as bool? ?? false,
+      exist: json['Exist'] as bool? ?? false,
+      inactive: json['Inactive'] as bool? ?? false,
+      invited: json['Invited'] as bool? ?? false,
       isSelected: json['isSelected'] as bool? ?? false,
     );
   }
@@ -104,6 +110,33 @@ class UserDto {
     this.type,
     required this.refreshToken,
   });
+
+  // متد copyWith
+  UserDto copyWith({
+    int? id ,
+    String? userName,
+    String? password,
+    String? firstName,
+    String? lastName,
+    String? fullName,
+    String? imageUrl,
+    String? token,
+    String? type,
+    String? refreshToken,
+  }) {
+    return UserDto(
+      id: id ?? this.id,
+      userName: userName ?? this.userName,
+      password: password ?? this.password,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      fullName: fullName ?? this.fullName,
+      imageUrl: imageUrl ?? this.imageUrl,
+      token: token ?? this.token,
+      type: type ?? this.type,
+      refreshToken: refreshToken ?? this.refreshToken,
+    );
+  }
 
   factory UserDto.fromJson(Map<String, dynamic> json) {
     return UserDto(

@@ -23,6 +23,7 @@ abstract interface class IApiClient {
     C? data,
     bool? setToken,
     Exception? fallbackMessage,
+    T Function(Map<String, dynamic>) fromJsonD,
   );
 
   Future<T?> sendObjectRequestAsync<T extends BaseResponse<D>, D>(
@@ -31,6 +32,7 @@ abstract interface class IApiClient {
     Object? data,
     bool? setToken,
     Exception? fallbackMessage,
+    T Function(Map<String, dynamic>) fromJsonD,
   );
 }
 
@@ -53,6 +55,7 @@ class ApiClient extends IApiClient {
     Object? data,
     bool? setToken,
     Exception? fallbackMessage,
+    T Function(Map<String, dynamic>)  fromJsonD,
   ) async {
     T? result;
     try {
@@ -62,6 +65,7 @@ class ApiClient extends IApiClient {
         method: method,
         data: data,
         setToken: setToken,
+        fromJsonD: fromJsonD,
       );
     } catch (e) {
       result =
@@ -80,6 +84,7 @@ class ApiClient extends IApiClient {
     C? data,
     bool? setToken,
     Exception? fallbackMessage,
+    T Function(Map<String, dynamic>) fromJsonD,
   ) async {
     T? result;
     try {
@@ -89,6 +94,7 @@ class ApiClient extends IApiClient {
         method: method,
         data: data,
         setToken: setToken,
+        fromJsonD: fromJsonD,
       );
 
       if (result != null &&
@@ -110,8 +116,11 @@ class ApiClient extends IApiClient {
     required HttpMethods method,
     Object? data,
     bool? setToken,
+    required T Function(Map<String, dynamic>) fromJsonD,
   }) async {
     try {
+      String? baseUrl = appSettings.baseUrl;
+
       final executor = SafeExqueter<bool>.fromString(
         baseUrl,
         errorMessage: "Base URL خالیه",
@@ -144,7 +153,8 @@ class ApiClient extends IApiClient {
       }
 
       // 5. Prepare URI
-      final Uri uri = Uri.https(baseUrl, url);
+      final uriBuilder = ApiUriBuilder(baseUrl);
+      final Uri uri = uriBuilder.build(url);
 
       // 6. Prepare request body
       final String? body = data != null ? json.encode(data) : null;
@@ -171,7 +181,6 @@ class ApiClient extends IApiClient {
               as T;
       }
 
-      // 8. Handle response and potential token refresh
       final HttpException? exception = apiExceptionValidator(response);
 
       if (exception != null) {
@@ -179,7 +188,6 @@ class ApiClient extends IApiClient {
             useToken) {
           // Try to refresh token and retry
           if (await refreshToken()) {
-            // Get new token after refresh
             final newToken = await _getTokenIfNeeded(true);
             if (newToken != null && newToken.isNotEmpty) {
               headers[HttpHeaders.authorizationHeader] = 'Bearer $newToken';
@@ -203,22 +211,19 @@ class ApiClient extends IApiClient {
       try {
         final decoded = json.decode(response.body);
 
-        // Handle different response types
         if (decoded is Map<String, dynamic>) {
-          // You might want to add a fromJson factory in BaseResponse
-          return BaseResponse<D>.fromjson(decoded) as T;
+          return await fromJsonD(decoded) as T;
         } else {
-          // Handle other response types if needed
-          return BaseResponse<D>.success(decoded) as T;
+          return await fromJsonD(decoded) as T;
         }
       } catch (e) {
-        return BaseResponse<D>.error(
+        return BaseResponse<T>.error(
               Exception('Failed to parse response: ${e.toString()}'),
             )
             as T;
       }
     } catch (e) {
-      return BaseResponse<D>.error(e is Exception ? e : Exception(e.toString()))
+      return BaseResponse<T>.error(e is Exception ? e : Exception(e.toString()))
           as T;
     }
   }
@@ -431,8 +436,6 @@ class RequestWrapper {
   RequestWrapper({this.useAsQueryString = false, this.data});
 }
 
-String baseUrl = '';
-
 // --------------------- Interfaces ---------------------
 
 abstract class IExceptionNotifier {
@@ -449,4 +452,26 @@ class ApiSettings {
     required this.loginUrl,
     required this.appDefaults,
   });
+}
+
+class ApiUriBuilder {
+  final String baseUrl;
+
+  ApiUriBuilder(this.baseUrl);
+
+  Uri build(String endpoint) {
+    // Clean up base URL
+    String cleanedBase = baseUrl.trim();
+
+    // Ensure it ends with slash for proper concatenation
+    if (!cleanedBase.endsWith('/')) {
+      cleanedBase = '$cleanedBase/';
+    }
+
+    // Remove double slashes that might occur
+    final String fullUrl =
+        '$cleanedBase${endpoint.replaceFirst(RegExp(r'^/'), '')}';
+
+    return Uri.parse(fullUrl.replaceAll(RegExp(r'(?<!:)/+'), '/'));
+  }
 }

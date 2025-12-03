@@ -2,11 +2,9 @@ import 'package:container_app/pages/launcher_page.dart';
 import 'package:container_app/pages/splash_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:login_module/login_page.dart';
 import 'package:models_package/Base/login_module.dart';
 import 'package:models_package/Data/Auth/User/dto.dart';
-import 'package:resources_package/l10n/app_localizations.dart';
 import 'package:services_package/setup_services.dart';
 import 'package:services_package/storage_service.dart';
 
@@ -29,69 +27,60 @@ class _HomeWrapperState extends State<HomeWrapper> {
 
   Future<void> _checkExistingLogin() async {
     try {
-      final storageService = GetIt.I.get<StorageService>();
-      final token =  await storageService.getToken();
+      final storageService = getIt.get<StorageService>();
+      final token = await storageService.getToken();
       final user = await storageService.getUser();
-      final deviceToken = await storageService.getDeviceToken() ?? '';
-      final language = await storageService.getLanguage();
+      final lang = await storageService.getLanguage();
+      final String devToken = await storageService.getDeviceToken() ?? '';
 
-      try {
-        if (token != null && user != null) {
-          setState(() {
-            _currentUser = user;
-            _isCheckingLogin = false;
-          });
-        } else {
-          setState(() {
-            _isCheckingLogin = false;
-          });
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _openLoginModule(
-              deviceToken,
-              Locale(language!.languageCode ?? 'fa'),
-            );
-          });
-        }
-      } catch (e) {
-        print('Error checking login: $e');
+      if (token != null && user != null) {
+        setState(() {
+          _currentUser = user;
+          _isCheckingLogin = false;
+        });
+      } else {
         setState(() {
           _isCheckingLogin = false;
         });
+
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _openLoginModule(deviceToken, Locale(language!.languageCode ?? 'fa'));
+          _openLoginModule(0,devToken,Locale(lang!.languageCode ?? 'fa'));
         });
       }
     } catch (e) {
       print('Error checking login: $e');
+      setState(() {
+        _isCheckingLogin = false;
+      });
     }
   }
 
-  Future<void> _openLoginModule(String deviceToken, Locale language) async {
+  Future<void> _openLoginModule(int netWorMode,String deviceToken,Locale local) async {
     final result = await Navigator.of(context).push<LoginModuleResult>(
       MaterialPageRoute(
-        builder: (context) =>
-            LoginPage(deviceToken: deviceToken, locale: language),
+        builder: (context) => LoginPage(netMode: netWorMode,deviceToken: deviceToken,locale:local ,),
         fullscreenDialog: true,
       ),
     );
 
+
     if (result != null && result.success) {
       await _handleSuccessfulLogin(result);
     } else if (result != null && !result.success) {
+
       _handleLoginError(result);
-      _openLoginModule(deviceToken, Locale(language.languageCode ?? 'fa'));
+      _openLoginModule(netWorMode,deviceToken,local);
     } else {
-      _openLoginModule(deviceToken, Locale(language.languageCode ?? 'fa'));
+      _openLoginModule(netWorMode,deviceToken,local);
     }
   }
 
   Future<void> _handleSuccessfulLogin(LoginModuleResult result) async {
     try {
       final storageService = getIt.get<StorageService>();
-      if (result != null && result.token!.isNotEmpty && result.user != null) {
-        await storageService.setToken(result.token!);
-        await storageService.setUser(result.user!);
+
+      if (result.token!.isNotEmpty && result.user != null) {
+        await storageService.setLoginModuleResult(result);
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => LauncherPage()),
         );
@@ -113,8 +102,9 @@ class _HomeWrapperState extends State<HomeWrapper> {
 
   @override
   Widget build(BuildContext context) {
+
     if (_isCheckingLogin) {
-      return const SplashScreenPage();
+      return const SplashScreenPage ();
     }
 
     if (_currentUser != null) {
@@ -125,8 +115,6 @@ class _HomeWrapperState extends State<HomeWrapper> {
       });
     }
 
-
-    //Hesaraki Change
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
@@ -136,17 +124,12 @@ class _HomeWrapperState extends State<HomeWrapper> {
             const CircularProgressIndicator(),
             const SizedBox(height: 20),
             Text(
-
-
-              AppLocalizations.of(context)!.password,
+              'در حال انتقال...',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
         ),
       ),
     );
-
-
-    //Hesaraki Change
   }
 }

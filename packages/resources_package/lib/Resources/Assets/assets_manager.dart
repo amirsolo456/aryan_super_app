@@ -38,6 +38,10 @@ final class AryanAssets {
   static const String eyesClose = 'assets/images/eyes_close.png';
   static const String eyesOpen = 'assets/images/eyes_open.png';
   static const String smallGoCaret = 'assets/images/small_go_caret.png';
+  static const String successIcon = 'assets/images/success_icon.png';
+  static const String infoIcon = 'assets/images/info_icon.png';
+  static const String errorIcon = 'assets/images/error_icon.png';
+  static const String questionBoxIcon = 'assets/images/question_box_icon.png';
   static const String defaultImage = 'assets/images/aryan_image_error.png';
   static const String defaultImage256Px =
       'assets/images/aryan_image_error_256px.png';
