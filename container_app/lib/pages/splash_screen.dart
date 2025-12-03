@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:login_module/login_page.dart';
 import 'package:ui_components_package/erp_app_componenets/common/aryan_logo.dart';
 import 'home_wrapper.dart';
 
 class SplashScreenPage extends StatefulWidget {
-  const SplashScreenPage({super.key});
+  final int mode;
+
+  const SplashScreenPage({super.key, required this.mode});
 
   @override
   State<SplashScreenPage> createState() => _SplashScreenState();
@@ -16,8 +19,8 @@ class _SplashScreenState extends State<SplashScreenPage>
   late Animation<double> _opacity;
 
   bool _loaderVisible = false;
-  bool _minimumTimeElapsed = false;
   bool _isNavigating = false;
+  bool _minimumTimeElapsed = false;
 
   @override
   void initState() {
@@ -46,7 +49,11 @@ class _SplashScreenState extends State<SplashScreenPage>
     Future.delayed(const Duration(seconds: 5), () {
       if (!mounted) return;
       setState(() => _minimumTimeElapsed = true);
-      _navigateToHomeWrapper();
+      if (widget.mode == 0)
+         _navigateToHomeWrapper();
+      else{
+        _navigateToLogin();
+      }
     });
   }
 
@@ -61,10 +68,10 @@ class _SplashScreenState extends State<SplashScreenPage>
 
       setState(() => _loaderVisible = true);
     } catch (e) {
-      print('Animation error: $e');
-      if (_minimumTimeElapsed && !_isNavigating) {
-        _navigateToHomeWrapper();
-      }
+      // print('Animation error: $e');
+      // if (_minimumTimeElapsed && !_isNavigating) {
+      //   _navigateToHomeWrapper();
+      // }
     }
   }
 
@@ -77,7 +84,21 @@ class _SplashScreenState extends State<SplashScreenPage>
 
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const HomeWrapper()),
-        (route) => false,
+            (route) => false,
+      );
+    });
+  }
+
+  void _navigateToLogin() {
+    if (_isNavigating || !mounted) return;
+    _isNavigating = true;
+
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (!mounted) return;
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginPage(locale: Locale('fa'),deviceToken: '',netMode: 0,)),
+            (route) => false,
       );
     });
   }
@@ -96,25 +117,26 @@ class _SplashScreenState extends State<SplashScreenPage>
       body: Center(
         child: AnimatedBuilder(
           animation: _controller,
-          builder: (context, child) => Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Transform.translate(
-                offset: Offset(0, _translateY.value),
-                child: Opacity(opacity: _opacity.value, child: AryanLogo()),
+          builder: (context, child) =>
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Transform.translate(
+                    offset: Offset(0, _translateY.value),
+                    child: Opacity(opacity: _opacity.value, child: AryanLogo()),
+                  ),
+                  const SizedBox(height: 40),
+                  if (_loaderVisible)
+                    const CircularProgressIndicator(
+                      color: Colors.black,
+                      strokeAlign: 3,
+                      padding: EdgeInsetsGeometry.all(5),
+                      strokeCap: StrokeCap.round,
+                      trackGap: 1,
+                      strokeWidth: 3,
+                    ),
+                ],
               ),
-              const SizedBox(height: 40),
-              if (_loaderVisible)
-                const CircularProgressIndicator(
-                  color: Colors.black,
-                  strokeAlign: 3,
-                  padding: EdgeInsetsGeometry.all(5),
-                  strokeCap: StrokeCap.round,
-                  trackGap: 1,
-                  strokeWidth: 3,
-                ),
-            ],
-          ),
         ),
       ),
     );

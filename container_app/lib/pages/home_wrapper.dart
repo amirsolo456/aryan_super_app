@@ -17,7 +17,7 @@ class HomeWrapper extends StatefulWidget {
 }
 
 class _HomeWrapperState extends State<HomeWrapper> {
-  Widget _currentScreen = const SplashScreenPage();
+  Widget _currentScreen = const SplashScreenPage(mode: 0);
 
   @override
   void initState() {

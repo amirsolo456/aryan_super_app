@@ -1,7 +1,7 @@
 // -------------------- Fake Data Service --------------------
 
-import 'package:models_package/Data/Com/Person/dto.dart';
 import 'package:models_package/Data/Auth/Menu/dto.dart' as menu;
+import 'package:models_package/Data/Com/Person/dto.dart';
 
 class FakeDataService {
   static Response getFakePersons() {

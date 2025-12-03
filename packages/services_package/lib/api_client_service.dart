@@ -55,11 +55,10 @@ class ApiClient extends IApiClient {
     Object? data,
     bool? setToken,
     Exception? fallbackMessage,
-    T Function(Map<String, dynamic>)  fromJsonD,
+    T Function(Map<String, dynamic>) fromJsonD,
   ) async {
     T? result;
     try {
-      Object defaults = appSettings.appDefaults;
       result = await _internalSendRequest<T, D>(
         url: url,
         method: method,
@@ -68,9 +67,12 @@ class ApiClient extends IApiClient {
         fromJsonD: fromJsonD,
       );
     } catch (e) {
-      result =
-          BaseResponse<D>.error(e is Exception ? e : Exception(e.toString()))
-              as T;
+      result = fromJsonD({
+        "result": "Failed",
+        "error": e.toString(),
+        "data": [],
+        "status": 500,
+      });
     }
     return result;
   }
