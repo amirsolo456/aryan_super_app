@@ -20,8 +20,8 @@ import 'package:ui_components_package/erp_app_componenets/common/Buttons/languag
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
-  init();
-  setupServices();
+  initStandAlone();
+  // setupServices();
 
   Locale initialLocale = Locale('fa');
   GetIt.I.registerLazySingleton(() => LoginModuleManager());
@@ -37,7 +37,7 @@ void main() async {
       databaseURL: "https://aryanerp-e996e-default-rtdb.firebaseio.com",
       storageBucket: "aryanerp-e996e.firebasestorage.app",
       androidClientId:
-      "511210742680-xxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
+          "511210742680-xxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
     ),
   );
 
@@ -50,9 +50,8 @@ void main() async {
 
       if (_lang != null) {
         initialLocale = Locale(_lang.languageCode ?? 'fa');
-      }
-      else {
-        await storageService.setLanguage(Language(id : 0, languageCode: 'fa'));
+      } else {
+        await storageService.setLanguage(Language(id: 0, languageCode: 'fa'));
       }
     }
   } catch (e) {
@@ -73,11 +72,10 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) =>
-              LanguageButtonStandAloneCubit(
-                initialLocale: initialLocal,
-                storage: GetIt.I<StorageService>(),
-              ),
+          create: (_) => LanguageButtonStandAloneCubit(
+            initialLocale: initialLocal,
+            storage: GetIt.I<StorageService>(),
+          ),
         ),
       ],
       child: BlocBuilder<LanguageButtonStandAloneCubit, Locale>(
@@ -95,7 +93,7 @@ class MyApp extends StatelessWidget {
             theme: ThemeColorsManager(.light).aryanTheme,
             darkTheme: ThemeColorsManager(.dark).aryanTheme,
             themeMode: ThemeManager.themeMode,
-            home: SplashScreenPage(),
+            home: SplashScreenPage(mode: 0,),
           );
         },
       ),

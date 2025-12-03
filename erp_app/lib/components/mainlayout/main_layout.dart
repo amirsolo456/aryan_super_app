@@ -9,7 +9,7 @@ import 'package:ui_components_package/erp_app_componenets/mobile/Components/list
 import '../../feature/add_new/add-new_page.dart';
 import '../../feature/dashboard_page/dashboard/dashboard.dart';
 import '../../feature/default_page/default_page.dart';
-import '../../feature/menu/presentation/pages/menu_page.dart';
+import '../../feature/menu/pages/menu_page.dart';
 import '../../feature/open_page/Open_Page.dart';
 import '../../feature/profile/profile.dart';
 

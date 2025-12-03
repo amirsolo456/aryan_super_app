@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/menu_entity.dart';
+import 'package:models_package/Data/Auth/Menu/dto.dart';
+
 
 
 abstract class MenuState extends Equatable {
@@ -22,7 +23,7 @@ class MenuLoading extends MenuState {
 
 
 class MenuLoaded extends MenuState {
-  final List<MenuEntity> menus;
+  final List<ResponseData> menus;
   const MenuLoaded(this.menus);
 
 

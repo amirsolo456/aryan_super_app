@@ -1,8 +1,6 @@
+import 'package:container_app/pages/splash_screen.dart';
 import 'package:erp_app/main.dart' as erp_app;
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:models_package/Base/language.dart';
-import 'package:ui_components_package/erp_app_componenets/common/Buttons/language_button_standalone/language_button_stand_alone_cubit.dart';
 
 class ShellApp extends StatelessWidget {
   final Map<String, dynamic> loginSession;
@@ -28,11 +26,7 @@ class LauncherPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // final locale = context.watch<LanguageButtonStandAloneCubit>().state;
     final options = <_AppOption>[
-      _AppOption(
-        'Login Page',
-        Icons.login,
-        () => LauncherPage(loginSession: loginSession),
-      ),
+      _AppOption('Login Page', Icons.login, () => SplashScreenPage(mode: 1,)),
       _AppOption('ERP App', Icons.business, () {
         return erp_app.buildERPApp(loginDatas: loginSession);
       }),

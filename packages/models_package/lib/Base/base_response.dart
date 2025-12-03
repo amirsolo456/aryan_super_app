@@ -19,11 +19,16 @@ class BaseResponse<D> {
   int totalCount;
   int? key;
 
-  factory BaseResponse.error(Exception e, {String? message}) {
+  factory BaseResponse.error(Exception e) {
     return BaseResponse<D>(
-      result: "Failed",
-      error: message ?? e.toString(),
-      exception: e,
+      result: 'failed',
+      status: 0,
+      error: e.toString(),
+      exception: Exception(e.toString()),
+      data: [],
+      additionalInfo: '',
+      totalCount: 500,
+      key: null,
     );
   }
 

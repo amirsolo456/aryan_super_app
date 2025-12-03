@@ -1,14 +1,14 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meta/meta.dart';
+import 'package:models_package/Data/Auth/Menu/dto.dart';
+import 'package:services_package/auth/menu/menu_service.dart';
 
 
-import '../../domain/usecases/get_menu.dart';
 import 'menu_event.dart';
 import 'menu_state.dart';
 
 
 class MenuBloc extends Bloc<MenuEvent, MenuState> {
-  final GetMenuUseCase getMenuUseCase;
+  final MenuService getMenuUseCase;
 
 
   MenuBloc({required this.getMenuUseCase}) : super(const MenuInitial()) {
@@ -19,12 +19,14 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   Future<void> _onLoadMenu(LoadMenuEvent event, Emitter<MenuState> emit) async {
     emit(const MenuLoading());
     try {
-      final menus = await getMenuUseCase();
+      final menus = await getMenuUseCase.getMenu(Request(menuType: 1));
 
-      // اگر Data خالی بود، همان MenuLoaded با لیست خالی بفرست
-      emit(MenuLoaded(menus));
+      if(menus  == null || menus.data == null){
+        emit(MenuError('Menu Is Null'));
+            return;
+      }
+      emit(MenuLoaded(menus!.data ?? []));
     } catch (e) {
-      // پیام خطای سرور یا Exception دیگر را نمایش بده
       emit(MenuError(e.toString()));
     }
   }

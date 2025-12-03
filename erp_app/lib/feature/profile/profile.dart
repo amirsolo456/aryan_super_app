@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
-import '../../core/local_storge/delToken.dart';
 
 
 class ProfilePage extends StatefulWidget {
