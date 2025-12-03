@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
+import '../../core/local_storge/delToken.dart';
+
 
 class ProfilePage extends StatefulWidget {
   final bool refreshData;
@@ -46,11 +48,20 @@ class _ProfilePageState extends State<ProfilePage> {
     'assets/images/user_sign_out.png',
     package: 'resources_package',
   );
-  final TextStyle itemsStyle = GoogleFonts.abel(
+  final TextStyle itemsProfileStyle = GoogleFonts.abel(
     color: Color(0xFF585858),
     fontSize: 14,
     fontWeight: FontWeight.w500,
   );
+
+  final TextStyle itemsWalletStyle = GoogleFonts.abel(
+    color: Color(0xFFb1b1b1),
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+  );
+
+
+
 
   @override
   void initState() {
@@ -75,19 +86,43 @@ class _ProfilePageState extends State<ProfilePage> {
               textDirection: TextDirection.rtl,
               child: Column(
                 children: [
+                  
+                  //مشخصات کاربری
+                  ListTile(
+                    title: Text(
+                      AppLocalizations.of(context)!.usersTitle,
+                      style: itemsProfileStyle,
+                    ),
+                    horizontalTitleGap: 10,
+                    leading: userInfoIcon,
+                  ),
+
+                  Divider(height: 10, color: Color(0xFFB1B1B1)),
+
+                  //تغییر رمز عبور
                   ListTile(
                     title: Text(
                       AppLocalizations.of(context)!.userPasswordChange,
-                      style: itemsStyle,
+                      style: itemsProfileStyle,
                     ),
                     horizontalTitleGap: 10,
                     leading: userPasswordChange,
                   ),
                   Divider(height: 10, color: Color(0xFFB1B1B1)),
-                  ListTile(
+
+                  //کیف پول
+                  ListTile(trailing: SizedBox(
+                    width:70,
+                    child: Row(
+                      children: [
+                        Text(AppLocalizations.of(context)!.rial,style: itemsWalletStyle,),
+                        Text(" 0.00 ",style: itemsWalletStyle,),
+                      ],
+                    ),
+                  ),
                     title: Text(
                       AppLocalizations.of(context)!.userWallet,
-                      style: itemsStyle,
+                      style: itemsProfileStyle,
                     ),
                     horizontalTitleGap: 10,
                     leading: userWallet,
@@ -96,38 +131,28 @@ class _ProfilePageState extends State<ProfilePage> {
                   ListTile(
                     title: Text(
                       AppLocalizations.of(context)!.userSettings,
-                      style: itemsStyle,
+                      style: itemsProfileStyle,
                     ),
                     horizontalTitleGap: 10,
                     leading: userSettings,
                   ),
                   Divider(height: 10, color: Color(0xFFB1B1B1)),
-                  ListTile(
-                    title: Text(
-                      AppLocalizations.of(context)!.userOtherAccounts,
-                      style: itemsStyle,
-                    ),
+                  // ListTile(
+                  //   title: Text(
+                  //     AppLocalizations.of(context)!.userOtherAccounts,
+                  //     style: itemsStyle,
+                  //   ),
+                  //
+                  //   horizontalTitleGap: 10,
+                  //   leading: userOtherAccounts,
+                  // ),
+                  // Divider(height: 10, color: Color(0xFFB1B1B1)),
 
-                    horizontalTitleGap: 10,
-                    leading: userOtherAccounts,
-                  ),
-                  Divider(height: 10, color: Color(0xFFB1B1B1)),
 
-                  ListTile(
-                    title: Text(
-                      AppLocalizations.of(context)!.usersTitle,
-                      style: itemsStyle,
-                    ),
-                    contentPadding: EdgeInsets.only(right: 30),
-                    horizontalTitleGap: 10,
-                    leading: userInfoIcon,
-                  ),
-
-                  Divider(height: 10, color: Color(0xFFB1B1B1)),
                   ListTile(
                     title: Text(
                       AppLocalizations.of(context)!.usersDevices,
-                      style: itemsStyle,
+                      style: itemsProfileStyle,
                     ),
                     horizontalTitleGap: 10,
                     leading: userDevices,
@@ -162,6 +187,10 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void onSignoutPressed() {
+    print("Press Exit");
+
+    // clearToken();
+
     // Navigator.push(
     //   context,
     //   MaterialPageRoute(builder: (context) => LoginPage()),

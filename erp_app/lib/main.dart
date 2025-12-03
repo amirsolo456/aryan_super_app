@@ -99,7 +99,7 @@ Widget build(BuildContext context) {
           scaffoldBackgroundColor: Colors.white,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         ),
-        home: const MainLayoutPage(),
+        home:  MainLayoutPage(token: null  ),
       );
     },
   );
@@ -127,7 +127,7 @@ class MainApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
       ),
-      home: const MainLayoutPage(),
+      home:  MainLayoutPage(token: null),
     );
   }
 }
@@ -186,7 +186,7 @@ class PartOfContainerApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
       ),
-      home: const MainLayoutPage(),
+      home: MainLayoutPage(token: null),
     );
   }
 }
