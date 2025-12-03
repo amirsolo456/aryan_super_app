@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:models_package/Base/base_request.dart';
 import 'package:models_package/Base/language.dart';
-import 'package:models_package/Base/login_module.dart';
 import 'package:provider/provider.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
 import 'package:services_package/Interfaces/apiclient_middleware_service.dart';
@@ -143,10 +143,14 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
       bigName: 'IR',
       completeName: 'fa_IR',
     );
+  init();
+  setupServices();
+  final defaults = Defaults(
 
+  );
   final apiClient = getIt.get<ApiClient>();
   final apiMiddleware = ApiClientMiddlewareService(apiClient: apiClient);
-  init();
+
   return MultiBlocProvider(
     providers: [
       Provider<LoginService>(
@@ -164,17 +168,18 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
 class PartOfContainerApp extends StatelessWidget {
   final Map<String, dynamic> loginModuleResult;
 
-  const PartOfContainerApp({
-    super.key,
-    required this.loginModuleResult,
-  });
+  const PartOfContainerApp({super.key, required this.loginModuleResult});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      locale: const Locale('fa', 'IR'),
-      supportedLocales: const [Locale('fa', 'IR'), Locale('en', 'US')],
+      locale: Locale(
+        (loginModuleResult['language'] ??
+                Language(id: 0, languageCode: 'fa') as Language)
+            .languageCode,
+      ),
+      supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
