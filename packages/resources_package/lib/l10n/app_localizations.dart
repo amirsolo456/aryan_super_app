@@ -304,6 +304,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A 4-digit code has been sent to the number [0912 202 5458].\n'**
   String get userOtpValidationTitle;
+
+  /// No description provided for @loginError.
+  ///
+  /// In en, this message translates to:
+  /// **'Exception On Login'**
+  String get loginError;
+
+  /// No description provided for @loginLoadingText.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing  ...'**
+  String get loginLoadingText;
+
+  /// No description provided for @loginProcessingText.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing  ...'**
+  String get loginProcessingText;
+
+  /// No description provided for @loginIncorrectUserOrPass.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect Username Or Password.'**
+  String get loginIncorrectUserOrPass;
+
+  /// No description provided for @serverConnectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Server Connection Error'**
+  String get serverConnectionError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

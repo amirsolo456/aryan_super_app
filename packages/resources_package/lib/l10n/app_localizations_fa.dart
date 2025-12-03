@@ -114,4 +114,19 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get userOtpValidationTitle => 'کد 4رقمی به شماره [5458 202 0912] ارسال شد.';
+
+  @override
+  String get loginError => 'خطا در ورود';
+
+  @override
+  String get loginLoadingText => 'درحال بررسی ...';
+
+  @override
+  String get loginProcessingText => 'درحال پردازش ...';
+
+  @override
+  String get loginIncorrectUserOrPass => 'نام کاربری یا رمز عبور نادرست است.';
+
+  @override
+  String get serverConnectionError => 'خطا در برقراری ارتباط با سرور.';
 }

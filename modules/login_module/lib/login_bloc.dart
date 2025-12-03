@@ -214,32 +214,26 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
         );
 
         if (response.managementAccounts != null) {
-          return LoginModuleResult(
-            success: false,
-            cachedKey: response.cacheKey,
-            user: userDto,
-            managementAccount: response.managementAccounts,
-            resultType: LoginResultType.managementAccountPick,
-          );
-          // if (response.managementAccounts!.length > 1) {
-          //   return LoginModuleResult(
-          //     success: false,
-          //     error: 'managementAccount = null',
-          //     managementAccount: response.managementAccounts,
-          //     resultType: LoginResultType.managementAccountPick,
-          //   );
-          // } else {
-          //   return LoginModuleResult(
-          //     success: true,
-          //     cachedKey: response.cacheKey,
-          //     selectedManagementAccount:
-          //         response.managementAccounts!.firstOrNull,
-          //     managementAccount: response.managementAccounts,
-          //     token: response.accessToken,
-          //     user: userDto,
-          //     resultType: LoginResultType.success,
-          //   );
-          // }
+          if (response.managementAccounts!.length > 1) {
+            return LoginModuleResult(
+              success: false,
+              cachedKey: response.cacheKey,
+              user: userDto,
+              managementAccount: response.managementAccounts,
+              resultType: LoginResultType.managementAccountPick,
+            );
+          } else {
+            return LoginModuleResult(
+              success: true,
+              cachedKey: response.cacheKey,
+              selectedManagementAccount:
+                  response.managementAccounts!.firstOrNull,
+              managementAccount: response.managementAccounts,
+              token: response.accessToken,
+              user: userDto,
+              resultType: LoginResultType.success,
+            );
+          }
         } else {
           return LoginModuleResult(
             success: false,
@@ -257,7 +251,7 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
     } catch (e) {
       return LoginModuleResult(
         success: false,
-        error: 'خطا در ارتباط با سرور: ${e.toString()}',
+        error: 'serverConnectionError',
         resultType: LoginResultType.networkError,
       );
     }
@@ -347,7 +341,6 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
       UserDto user = prev.user!.copyWith(
         token: result.accessToken ?? '',
         refreshToken: result.refreshToken ?? '',
-
       );
 
       final updated = LoginModuleResult(

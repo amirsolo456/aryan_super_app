@@ -53,6 +53,7 @@ class _LoginPageBodyState extends State<LoginPageBody> {
   final GlobalKey<FormState> _passformKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _passRecformKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _userformKey = GlobalKey<FormState>();
+  final SnackBarService _snackBarService = getIt.get<SnackBarService>();
 
   String get _validationMsg =>
       AppLocalizations.of(context)?.passwordValidationMsg ?? '';
@@ -396,226 +397,96 @@ class _LoginPageBodyState extends State<LoginPageBody> {
                     success: true,
                   );
                   context.read<LoginBloc>().add(
-                    LoginManagementSelectedEvent(updatedResult,account),
+                    LoginManagementSelectedEvent(updatedResult, account),
                   );
                 },
               ),
             );
           });
         }
-
-        // if (state is LoginManagementPickerState) {
-        //   WidgetsBinding.instance.addPostFrameCallback((_) {
-        //     showDialog(
-        //       context: context,
-        //       barrierDismissible: false,
-        //       builder: (context) =>
-        //           ManagementPickerModal(
-        //             result: state.result,
-        //             accounts: state.result.managementAccounts ??
-        //                 [],
-        //           ),
-        //     );
-        //   });
-        // }
-
         if (state is LoginSuccessState) {
           Navigator.of(context).pop(state.moduleResult);
         }
-        /* if (state is LoginManagementPickerState) {
 
-                // استفاده از WidgetsBinding برای اطمینان از build کامل
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => ManagementPickerModal(
-                      result: state.result, // انتقال result به مودال
-                      accounts: state.result.managementAccounts ?? [],
-                    ),
-                  );
-                });
-
-            builder: (context, state) {
-              return Scaffold(
-                body: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text("سلام امیر!", style: TextStyle(fontSize: 22)),
-                    SizedBox(height: 20),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: state.res.length,
-                        itemBuilder: (context, index) {
-                          final account = accounts[index];
-                          return Card(
-                            margin: EdgeInsets.symmetric(vertical: 8),
-                            child: ListTile(
-                              title: Text(
-                                account.managementAccountDesc ??
-                                    "نام حساب ندارد",
-                              ),
-                              trailing: Icon(Icons.arrow_forward_ios),
-                              onTap: () {
-                                final updatedResult = state.result.copyWith(
-                                  selectedAccount: account,
-                                );
-
-                                innerContext.read<LoginBloc>().add(
-                                  LoginSuccessEvent(state.result),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text("بستن"),
-                    ),
-                  ],
-                ),
-              );
-            },*/
-        // );
-
-        /*          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) {
-              final accounts =
-                  state.result.managementAccounts ?? []; // لیست مدیریت اکانت‌ها
-              return Dialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.6,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text("سلام امیر!", style: TextStyle(fontSize: 22)),
-                      SizedBox(height: 20),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: accounts.length,
-                          itemBuilder: (context, index) {
-                            final account = accounts[index];
-                            return Card(
-                              margin: EdgeInsets.symmetric(vertical: 8),
-                              child: ListTile(
-                                title: Text(
-                                  account.managementAccountDesc ??
-                                      "نام حساب ندارد",
-                                ),
-                                trailing: Icon(Icons.arrow_forward_ios),
-                                onTap: () {
-                                  final updatedResult = state.result.copyWith(selectedAccount: account);
-
-                                  innerContext.read<LoginBloc>().add(
-                                    LoginSuccessEvent(state.result),
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text("بستن"),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );*/
-
-        if (state is LoginCriticalErrorState && mounted) {}
+        if (state is LoginCriticalErrorState && mounted) {
+          _snackBarService.showError(state.exception.toString());
+        }
       },
 
       builder: (context, state) {
-        if (state is! LoginManagementPickerState) {
-          return Scaffold(
-            appBar: (state is LoginUsernameState || state is LoginInitialState)
-                ? AppBar(
-                    primary: true,
-                    scrolledUnderElevation: 0.0,
-                    automaticallyImplyLeading: false,
-                    backgroundColor: Colors.white,
-                    animateColor: false,
-                    title: const LanguageButtonStandAlone(),
-                  )
-                : AppBar(
-                    toolbarHeight: 50,
-                    primary: true,
-                    animateColor: false,
-                    backgroundColor: Colors.white,
-                    scrolledUnderElevation: 0.0,
-                    leading: CustomDynamicButton(
-                      icon: const Icon(Icons.arrow_back),
-                      useDefaultAnimation: false,
-                      onPressed: () =>
-                          context.read<LoginBloc>().add(_getBackPressed(state)),
-                    ),
-                    actions: const [LanguageButtonStandAlone()],
+        return Scaffold(
+          appBar: (state is LoginUsernameState || state is LoginInitialState)
+              ? AppBar(
+                  primary: true,
+                  scrolledUnderElevation: 0.0,
+                  automaticallyImplyLeading: false,
+                  backgroundColor: Colors.white,
+                  animateColor: false,
+                  title: const LanguageButtonStandAlone(),
+                )
+              : AppBar(
+                  toolbarHeight: 50,
+                  primary: true,
+                  animateColor: false,
+                  backgroundColor: Colors.white,
+                  scrolledUnderElevation: 0.0,
+                  leading: CustomDynamicButton(
+                    icon: const Icon(Icons.arrow_back),
+                    useDefaultAnimation: false,
+                    onPressed: () =>
+                        context.read<LoginBloc>().add(_getBackPressed(state)),
                   ),
-            body: _buildBody(state, context),
-          );
-        } else {
-          final pickerState = state as LoginManagementPickerState;
-          final accounts = pickerState.result.managementAccount ?? [];
-
-          return Scaffold(
-            body: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("سلام امیر!", style: TextStyle(fontSize: 22)),
-                SizedBox(height: 20),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: accounts.length,
-                    itemBuilder: (context, index) {
-                      final account = accounts[index];
-                      return Card(
-                        margin: EdgeInsets.symmetric(vertical: 8),
-                        child: ListTile(
-                          title: Text(
-                            account.managementAccountDesc ?? "نام حساب ندارد",
-                          ),
-                          trailing: Icon(Icons.arrow_forward_ios),
-                          onTap: () {
-                            final updatedResult = pickerState.result.copyWith(
-                              selectedAccount: account,
-                            );
-
-                            context.read<LoginBloc>().add(
-                              LoginSuccessEvent(updatedResult),
-                            );
-
-                            Navigator.pop(context);
-                          },
-                        ),
-                      );
-                    },
-                  ),
+                  actions: const [LanguageButtonStandAlone()],
                 ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("بستن"),
-                ),
-              ],
-            ),
-          );
-        }
+          body: _buildBody(state, context),
+        );
+        // } else {
+        //   final pickerState = state as LoginManagementPickerState;
+        //   final accounts = pickerState.result.managementAccount ?? [];
+        //
+        //   return Scaffold(
+        //     body: Column(
+        //       mainAxisSize: MainAxisSize.min,
+        //       children: [
+        //         Text("سلام امیر!", style: TextStyle(fontSize: 22)),
+        //         SizedBox(height: 20),
+        //         Expanded(
+        //           child: ListView.builder(
+        //             itemCount: accounts.length,
+        //             itemBuilder: (context, index) {
+        //               final account = accounts[index];
+        //               return Card(
+        //                 margin: EdgeInsets.symmetric(vertical: 8),
+        //                 child: ListTile(
+        //                   title: Text(
+        //                     account.managementAccountDesc ?? "نام حساب ندارد",
+        //                   ),
+        //                   trailing: Icon(Icons.arrow_forward_ios),
+        //                   onTap: () {
+        //                     final updatedResult = pickerState.result.copyWith(
+        //                       selectedAccount: account,
+        //                     );
+        //
+        //                     context.read<LoginBloc>().add(
+        //                       LoginSuccessEvent(updatedResult),
+        //                     );
+        //
+        //                     Navigator.pop(context);
+        //                   },
+        //                 ),
+        //               );
+        //             },
+        //           ),
+        //         ),
+        //         SizedBox(height: 20),
+        //         ElevatedButton(
+        //           onPressed: () => Navigator.pop(context),
+        //           child: Text("بستن"),
+        //         ),
+        //       ],
+        //     ),
+        //   );
+        // }
       },
     );
   }

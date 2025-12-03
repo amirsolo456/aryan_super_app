@@ -42,9 +42,9 @@ class LoginLoadingState extends LoginStates {
 }
 
 class LoginCriticalErrorState extends LoginStates {
-  final Exception? _exception;
+  final Exception? exception;
 
-  LoginCriticalErrorState(this._exception);
+  LoginCriticalErrorState(this.exception);
 }
 
 class LoginApiErrorState extends LoginStates {

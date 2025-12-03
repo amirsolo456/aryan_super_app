@@ -114,4 +114,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get userOtpValidationTitle => 'A 4-digit code has been sent to the number [0912 202 5458].\n';
+
+  @override
+  String get loginError => 'Exception On Login';
+
+  @override
+  String get loginLoadingText => 'Initializing  ...';
+
+  @override
+  String get loginProcessingText => 'Processing  ...';
+
+  @override
+  String get loginIncorrectUserOrPass => 'Incorrect Username Or Password.';
+
+  @override
+  String get serverConnectionError => 'Server Connection Error';
 }

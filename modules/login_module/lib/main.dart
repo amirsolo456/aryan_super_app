@@ -74,7 +74,25 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             scaffoldMessengerKey: SnackBarService.messengerKey,
             locale: locale,
-            supportedLocales: const [Locale('fa', 'IR'), Locale('en', 'US')],
+            supportedLocales: AppLocalizations.supportedLocales,
+            localeResolutionCallback: (locale, supportedLocales) {
+              if (locale == null) {
+                return supportedLocales.first;
+              }
+              for (var supportedLocale in supportedLocales) {
+                if (supportedLocale.languageCode == locale.languageCode) {
+                  if (supportedLocale.countryCode == locale.countryCode) {
+                    return supportedLocale;
+                  }
+                }
+              }
+              for (var supportedLocale in supportedLocales) {
+                if (supportedLocale.languageCode == locale.languageCode) {
+                  return supportedLocale;
+                }
+              }
+              return supportedLocales.first;
+            },
             localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
