@@ -254,7 +254,7 @@ abstract class AppLocalizations {
   /// No description provided for @addNew.
   ///
   /// In en, this message translates to:
-  /// **'Add New'**
+  /// **'اضافه کردن'**
   String get addNew;
 
   /// No description provided for @opened.
@@ -266,13 +266,13 @@ abstract class AppLocalizations {
   /// No description provided for @defaults.
   ///
   /// In en, this message translates to:
-  /// **'Defaults'**
+  /// **'پیش فرض ها'**
   String get defaults;
 
   /// No description provided for @profile.
   ///
   /// In en, this message translates to:
-  /// **'Profile'**
+  /// **'حساب کاربری'**
   String get profile;
 
   /// No description provided for @dashboard.
@@ -293,35 +293,11 @@ abstract class AppLocalizations {
   /// **'Rial'**
   String get rial;
 
-  /// No description provided for @menu.
-  ///
-  /// In en, this message translates to:
-  /// **'Menu'**
-  String get menu;
-
-  /// No description provided for @addNew.
-  ///
-  /// In en, this message translates to:
-  /// **'اضافه کردن'**
-  String get addNew;
-
   /// No description provided for @opend.
   ///
   /// In en, this message translates to:
   /// **'باز شده ها'**
   String get opend;
-
-  /// No description provided for @defaults.
-  ///
-  /// In en, this message translates to:
-  /// **'پیش فرض ها'**
-  String get defaults;
-
-  /// No description provided for @profile.
-  ///
-  /// In en, this message translates to:
-  /// **'حساب کاربری'**
-  String get profile;
 
   /// No description provided for @userSignupLabel.
   ///

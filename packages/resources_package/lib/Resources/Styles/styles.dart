@@ -1,25 +1,64 @@
 import 'package:flutter/material.dart';
 
 import '../Theme/theme_manager.dart';
+import 'font_size.dart';
 
 abstract class AryanText {
-  static final ThemeColorsManager defaultColors = ThemeColorsManager(
-    Brightness.light,
-  );
+  static ThemeColorsManager get defaultColors =>
+      ThemeColorsManager(ThemeManager.themeMode);
 
   static TextStyle primaryStyle([ThemeColorsManager? colors]) {
     colors ??= defaultColors;
     return TextStyle(
-      fontSize: 24,
+      fontSize: AryanSizes.primaryFontSize24,
       fontWeight: FontWeight.bold,
       fontFamily: 'IRANSansX',
       color: colors.primary,
     );
   }
+
+
+  //Hesaraki Change
+
+  static TextStyle objectStyle([ThemeColorsManager? colors]) {
+    colors ??= defaultColors;
+    return TextStyle(
+      fontSize: AryanSizes.primaryFontSize14,
+      fontWeight: FontWeight.w500,
+      fontFamily: 'IRANSansX',
+      color: colors.primary,
+    );
+  }
+
+
+  static TextStyle subItemStyle([ThemeColorsManager? colors]) {
+    colors ??= defaultColors;
+    return TextStyle(
+      fontSize: AryanSizes.subFontSize14,
+      fontWeight: FontWeight.w500,
+      fontFamily: 'IRANSansX',
+      color: colors.primary,
+    );
+  }
+
+
+
+  static TextStyle exitStyle([ThemeColorsManager? colors]) {
+    colors ??= defaultColors;
+    return TextStyle(
+      fontSize: AryanSizes.subFontSize14,
+      fontWeight: FontWeight.w500,
+      fontFamily: 'IRANSansX',
+      color: colors.exitColor ,
+    );
+  }
+
+  //Hesaraki Change
+
   static TextStyle primButtonTextStyle([ThemeColorsManager? colors]) {
     colors ??= defaultColors;
     return TextStyle(
-      fontSize: 24,
+      fontSize: AryanSizes.primButtonTextFontSize24,
       fontWeight: FontWeight.bold,
       fontFamily: 'IRANSansX',
       color: colors.aryanOrdinaryWhite,
@@ -29,7 +68,7 @@ abstract class AryanText {
   static TextStyle listTitleStyle([ThemeColorsManager? colors]) {
     colors ??= defaultColors;
     return TextStyle(
-      fontSize: 24,
+      fontSize: AryanSizes.listTitleFontSize24,
       fontWeight: FontWeight.bold,
       color: colors.listTitlePrimary,
     );
@@ -38,7 +77,7 @@ abstract class AryanText {
   static TextStyle listContentTitleStyle([ThemeColorsManager? colors]) {
     colors ??= defaultColors;
     return TextStyle(
-      fontSize: 24,
+      fontSize: AryanSizes.listContentTitleFontSize24,
       fontWeight: FontWeight.bold,
       color: colors.listContentTitlePrimary,
     );
@@ -47,8 +86,9 @@ abstract class AryanText {
   static TextStyle listContentStyle([ThemeColorsManager? colors]) {
     colors ??= defaultColors;
     return TextStyle(
-      fontSize: 24,
+      fontSize: AryanSizes.darkTextStyleFontSize24,
       fontWeight: FontWeight.bold,
+      fontFamily: 'Yekan',
       color: colors.listContentPrimary,
     );
   }
@@ -56,8 +96,9 @@ abstract class AryanText {
   static TextStyle darkStyle([ThemeColorsManager? colors]) {
     colors ??= defaultColors;
     return TextStyle(
-      fontSize: 24,
+      fontSize: AryanSizes.darkTextStyleFontSize24,
       fontWeight: FontWeight.bold,
+      fontFamily: 'Yekan',
       color: colors.listTitlePrimary,
     );
   }
@@ -65,114 +106,13 @@ abstract class AryanText {
   static TextStyle secondary([ThemeColorsManager? colors]) {
     colors ??= defaultColors;
     return TextStyle(
-      fontSize: 16,
+      fontSize: AryanSizes.listTileFontSize14,
+      leadingDistribution: TextLeadingDistribution.proportional,
+      fontStyle: FontStyle.normal,
+      height: 1,
       fontWeight: FontWeight.w500,
-      fontFamily: 'IRANSansX',
-      color: colors.secondary,
-    );
-  }
-
-  static Widget secondaryPasswordTextFormWithToggle({
-    ThemeColorsManager? colors,
-    TextEditingController? controller,
-    String? hintText,
-    String? Function(String?)? validator,
-    void Function(String)? onChanged,
-  }) {
-    colors ??= defaultColors;
-
-    final ValueNotifier<bool> obscureNotifier = ValueNotifier<bool>(true);
-    final Widget _closePass = Image.asset(
-      'assets/images/eyes_close.png',
-      package: 'resources_package',
-      width: 24,
-      height: 24,
-    );
-
-    final Widget _openPass = Image.asset(
-      'assets/images/eyes_open.png',
-      package: 'resources_package',
-      width: 24,
-      height: 24,
-    );
-    return ValueListenableBuilder<bool>(
-      valueListenable: obscureNotifier,
-      builder: (context, obscure, child) {
-        return TextFormField(
-          controller: controller,
-          validator: validator,
-          onChanged: onChanged,
-          obscureText: obscure,
-          style: AryanText.secondary(colors),
-          textAlign: TextAlign.right,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Colors.black, width: 2),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Colors.red, width: 1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Colors.red, width: 2),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            suffixIcon: IconButton(
-              icon: obscure ? _openPass : _closePass,
-              // color: colors.secondary,
-              onPressed: () {
-                obscureNotifier.value = !obscureNotifier.value;
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  static TextFormField secondaryUsernameTextForm({
-    ThemeColorsManager? colors,
-    TextEditingController? controller,
-    String? hintText,
-    String? Function(String?)? validator,
-    void Function(String)? onChanged,
-    void Function()? onTap,
-    bool obscureText = false,
-  }) {
-    colors ??= defaultColors;
-    return TextFormField(
-      controller: controller,
-      validator: validator,
-      onChanged: onChanged,
-      onTap: onTap,
-      obscureText: obscureText,
-      style: secondary(colors),
-      textAlign: TextAlign.right,
-      decoration: InputDecoration(
-        hintText: hintText,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: colors.aryanBorder, width: 1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.black, width: 2),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.red, width: 1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.red, width: 2),
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
+      fontFamily: 'Yekan',
+      color: colors.primary,
     );
   }
 }

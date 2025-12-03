@@ -8,18 +8,10 @@ class DarkColorTheme {
     scaffoldBackgroundColor: FontColors.darkBackground,
     primaryColor: FontColors.darkTextPrimary,
     textTheme: TextTheme(
-      bodyLarge: TextStyle(
-        color: FontColors.darkTextPrimary,
-        fontSize: AryanSizes.largeFontSize16,
-      ),
-      bodyMedium: TextStyle(
-        color: FontColors.darkTextSecondary,
-        fontSize: AryanSizes.mediumFontSize14,
-      ),
-      bodySmall: TextStyle(
-        color: FontColors.darkTextSecondary,
-        fontSize: AryanSizes.smallFontSize12,
-      ),
+
+      bodyLarge: TextStyle(color: FontColors.darkTextPrimary, fontSize: AryanSizes.largeFontSize16),
+      bodyMedium: TextStyle(color: FontColors.darkTextSecondary, fontSize: AryanSizes.mediumFontSize14),
+      bodySmall: TextStyle(color: FontColors.darkTextSecondary, fontSize: AryanSizes.smallFontSize12),
     ),
 
     inputDecorationTheme: InputDecorationTheme(
@@ -79,12 +71,17 @@ class FontColors {
   static const Color _subColor = Color(0xFFB1B1aa);
   static const Color _borderSelectNavIcon = Color(0xfff36666);
 
+
+
   static Color get divider => _divider;
   static Color get exit => _exitColor;
   static Color get subColor => _subColor;
   static Color get borderSelectNavIcon => _borderSelectNavIcon;
 
   //Hesaraki Changes
+
+
+
 
   // Dark getters
   static Color get darkBackground => _darkBackground;
@@ -110,9 +107,11 @@ class FontColors {
 
   static Color get aryanLinkColor => _linkColor;
 
+
   static Color get ordinaryWhite => _white;
 
   static Color get counterTheme => _counterTheme;
 
   static Color get selectNavIcon => _borderSelectNavIcon;
+
 }

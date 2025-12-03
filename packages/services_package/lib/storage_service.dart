@@ -1,5 +1,6 @@
-
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:models_package/Base/language.dart';
 import 'package:models_package/Base/login_module.dart';
 import 'package:models_package/Base/operation_result.dart';
@@ -22,8 +23,7 @@ class StorageService implements IStorageService {
       _userTokenKey = 'user_Token',
       _deviceTokenkey = 'device_Token',
       _languageKey = 'language_Data',
-      _selectedManagementKey =
-          'selected_Management', // کلید جدید برای مدیریت انتخاب شده
+      _selectedManagementKey = 'selected_Management',
       _loginResultKey = 'login_Result',
       _storageKey = 'app_storage.db';
 
@@ -35,26 +35,58 @@ class StorageService implements IStorageService {
     return _db!;
   }
 
+  Future<void> _createDatabase(Database db, int version) async {
+    print('🔨 ساخت دیتابیس جدید');
+    await db.execute('''
+    CREATE TABLE $_tableKey(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      key TEXT UNIQUE NOT NULL,
+      value TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  ''');
+
+    await db.execute('CREATE INDEX idx_key ON $_tableKey(key)');
+    print('✅ ساختار دیتابیس ایجاد شد');
+  }
+
+  Future<bool> _tableExists(Database db, String tableName) async {
+    final result = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='$tableName'",
+    );
+    return result.isNotEmpty;
+  }
+
   Future<Database> _initDb() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, _storageKey);
-    await deleteDatabase(path);
+
+    // بررسی وجود دیتابیس
+    final dbFile = File(path);
+    final dbExists = await dbFile.exists();
 
     return await openDatabase(
       path,
       version: 2,
-      onCreate: (db, version) async {
-        await db.execute(
-          '''
-          CREATE TABLE ''' +
-              _tableKey +
-              '''(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            key TEXT UNIQUE,
-            value TEXT
-          )
-        ''',
-        );
+      onCreate: _createDatabase,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        print('🔄 آپگرید از نسخه $oldVersion به $newVersion');
+
+        // مهاجرت از نسخه 1 به 2
+        if (oldVersion < 2) {
+          final tableExists = await _tableExists(db, _tableKey);
+          if (!tableExists) {
+            await _createDatabase(db, newVersion);
+          } else {
+            // در اینجا می‌توانید تغییرات ساختاری را اعمال کنید
+            // مثلاً اضافه کردن ستون جدید
+            // await db.execute('ALTER TABLE $_tableKey ADD COLUMN new_column TEXT');
+          }
+        }
+      },
+      onOpen: (db) {
+        print('📖 دیتابیس باز شد');
       },
     );
   }
@@ -64,6 +96,7 @@ class StorageService implements IStorageService {
     await db.insert(_tableKey, {
       'key': key,
       'value': value,
+      'updated_at': DateTime.now().toIso8601String(),
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
@@ -91,8 +124,13 @@ class StorageService implements IStorageService {
   Future<UserDto?> getUser() async {
     final value = await _getValue(_userDataKey);
     if (value == null || value.isEmpty) return null;
-    final Map<String, dynamic> map = jsonDecode(value);
-    return UserDto.fromJson(map);
+    try {
+      final Map<String, dynamic> map = jsonDecode(value);
+      return UserDto.fromJson(map);
+    } catch (e) {
+      print('❌ خطا در خواندن کاربر: $e');
+      return null;
+    }
   }
 
   @override
@@ -108,9 +146,7 @@ class StorageService implements IStorageService {
   }
 
   @override
-  Future<String?> getDeviceToken() async {
-    return await _getValue(_deviceTokenkey);
-  }
+  Future<String?> getDeviceToken() async => await _getValue(_deviceTokenkey);
 
   @override
   Future<void> setDeviceToken(String token) async {
@@ -123,17 +159,17 @@ class StorageService implements IStorageService {
     if (value == null || value.isEmpty) return null;
 
     try {
-      final Map<String, dynamic> map =
-          jsonDecode(value) as Map<String, dynamic>;
+      final Map<String, dynamic> map = jsonDecode(value);
       return Language.fromJson(map);
     } catch (e) {
+      print('❌ خطا در خواندن زبان: $e');
       return null;
     }
   }
 
   @override
-  Future<void> setLanguage(Language token) async {
-    await _setValue(_languageKey, jsonEncode(token.toJson()));
+  Future<void> setLanguage(Language language) async {
+    await _setValue(_languageKey, jsonEncode(language.toJson()));
   }
 
   Future<void> setSelectedManagement(ManagementAccounts management) async {
@@ -148,6 +184,7 @@ class StorageService implements IStorageService {
       final Map<String, dynamic> map = jsonDecode(value);
       return ManagementAccounts.fromJson(map);
     } catch (e) {
+      print('❌ خطا در خواندن مدیریت: $e');
       return null;
     }
   }
@@ -161,7 +198,7 @@ class StorageService implements IStorageService {
     try {
       await _setValue(_loginResultKey, jsonEncode(result.toJson()));
     } catch (e) {
-      print('Error saving login result: $e');
+      print('❌ خطا در ذخیره نتیجه لاگین: $e');
       throw e;
     }
   }
@@ -175,7 +212,7 @@ class StorageService implements IStorageService {
       final Map<String, dynamic> map = jsonDecode(value);
       return LoginModuleResult.fromJson(map);
     } catch (e) {
-      print('Error loading login result: $e');
+      print('❌ خطا در خواندن نتیجه لاگین: $e');
       return null;
     }
   }
@@ -186,15 +223,12 @@ class StorageService implements IStorageService {
 
   @override
   Future<LoginModuleResult?> loadLastLoginSession() async {
-    final storageService = StorageService();
+    final token = await getToken();
+    if (token == null) return null;
 
-    final lastResult = await storageService.getLoginModuleResult();
-
+    final lastResult = await getLoginModuleResult();
     if (lastResult != null && lastResult.success) {
-      final token = await storageService.getToken();
-      if (token != null) {
-        return lastResult;
-      }
+      return lastResult;
     }
     return null;
   }
@@ -222,7 +256,11 @@ class StorageService implements IStorageService {
 
       return OperationResult.success(
         message: "اطلاعات ورود با موفقیت ذخیره شد",
-        data: {'user': user, 'tokenLength': token.length, 'language': language},
+        data: {
+          'user': user.userName,
+          'tokenLength': token.length,
+          'language': language.languageCode,
+        },
       );
     } catch (e, stackTrace) {
       String errorMessage;
@@ -237,7 +275,11 @@ class StorageService implements IStorageService {
 
       return OperationResult.failure(
         message: "$errorMessage: ${e.toString()}",
-        data: {'exception': e, 'stackTrace': stackTrace, 'user': user},
+        data: {
+          'exception': e,
+          'stackTrace': stackTrace.toString(),
+          'user': user.userName,
+        },
       );
     }
   }
@@ -245,15 +287,17 @@ class StorageService implements IStorageService {
   @override
   Future<Map<String, dynamic>> loadLoginSession() async {
     final user = await getUser();
-    final token = await getToken();
+
+    final token = (user != null && user.token != null ?? user!.token, "");
+
     final language = await getLanguage();
-    final selectedManagement = await getSelectedManagement();
+    // final selectedManagementKey = await getSelectedManagement();
     final loginResult = await getLoginModuleResult();
 
     return {
       'user': user,
       'token': token,
-      'selectedManagement': selectedManagement,
+      // 'selectedManagementKey': selectedManagementKey,
       'loginResult': loginResult,
       'language': language,
     };
@@ -265,5 +309,11 @@ class StorageService implements IStorageService {
     await _setValue(_selectedManagementKey, '');
     await _setValue(_loginResultKey, '');
     await _setValue(_languageKey, '');
+  }
+
+  // متد کمکی برای دیباگ
+  Future<List<Map<String, dynamic>>> getAllData() async {
+    final db = await _database;
+    return await db.query(_tableKey);
   }
 }

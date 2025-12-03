@@ -30,6 +30,7 @@
   "defaults": "Defaults",
   "profile": "Profile",
   "dashboard": "Dashboard",
+
   "languagesDisplayName": "",
 
   "rial": "Rial",
@@ -68,5 +69,4 @@
   "loginProcessingText": "Processing  ...",
   "loginIncorrectUserOrPass": "Incorrect Username Or Password.",
   "serverConnectionError": "Server Connection Error"
-
 }

@@ -1,8 +1,6 @@
 import 'package:container_app/pages/launcher_page.dart';
 import 'package:container_app/pages/splash_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:login_module/login_page.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:models_package/Base/login_module.dart';
@@ -19,148 +17,136 @@ class HomeWrapper extends StatefulWidget {
 }
 
 class _HomeWrapperState extends State<HomeWrapper> {
-  UserDto? _currentUser;
-  bool _isCheckingLogin = true;
+  Widget _currentScreen = const SplashScreenPage();
 
   @override
   void initState() {
     super.initState();
-    _checkExistingLogin();
+    _initializeApp();
   }
 
-  Future<void> _checkExistingLogin() async {
+  Future<void> _initializeApp() async {
     try {
       final storageService = getIt.get<StorageService>();
       final token = await storageService.getToken();
       final user = await storageService.getUser();
       final lang = await storageService.getLanguage();
-      final String devToken = await storageService.getDeviceToken() ?? '';
+      final devToken = await storageService.getDeviceToken() ?? '';
 
       if (token != null && user != null) {
-        setState(() {
-          _currentUser = user;
-          _isCheckingLogin = false;
-        });
-      } else {
-        setState(() {
-          _isCheckingLogin = false;
-        });
+        final datas = await storageService.loadLoginSession();
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _openLoginModule(0, devToken, Locale(lang!.languageCode ?? 'fa'));
-        });
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => LauncherPage(loginSession: datas ?? {}),
+            ),
+          );
+        }
+      } else {
+
+        if (mounted) {
+          _showLoginPage(
+            netWorkMode: 0,
+            deviceToken: devToken,
+            locale: Locale(lang?.languageCode ?? 'fa'),
+          );
+        }
       }
     } catch (e) {
-      print('Error checking login: $e');
-      setState(() {
-        _isCheckingLogin = false;
-      });
+      print('Error initializing app: $e');
+      if (mounted) {
+        setState(() {
+          _currentScreen = _buildErrorScreen(e.toString());
+        });
+      }
     }
   }
 
-  Future<void> _openLoginModule(
-    int netWorMode,
-    String deviceToken,
-    Locale local,
-  ) async {
-    final result = await Navigator.of(context).push<LoginModuleResult>(
-      MaterialPageRoute(
-        builder: (context) => LoginPage(
-          netMode: netWorMode,
-          deviceToken: deviceToken,
-          locale: local,
+  void _showLoginPage({
+    required int netWorkMode,
+    required String deviceToken,
+    required Locale locale,
+  }) {
+    setState(() {
+      _currentScreen = LoginPage(
+        netMode: netWorkMode,
+        deviceToken: deviceToken,
+        locale: locale,
+
+      );
+    });
+  }
+
+  Future<void> _onLoginSuccess(LoginModuleResult result) async {
+    try {
+      final storageService = getIt.get<StorageService>();
+      final saveResult = await storageService.setLoginSession(
+        token: result.token!,
+        language: Language(id: 0, languageCode: 'fa'),
+        user: result.user!,
+        loginResult: result,
+        selectedManagement: result.selectedManagementAccount,
+      );
+
+      if (saveResult.isSuccess && mounted) {
+        final datas = await storageService.loadLoginSession();
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => LauncherPage(loginSession: datas ?? {}),
+          ),
+        );
+      } else {
+        _showSnackBar('خطا در ذخیره اطلاعات: ${saveResult.message}');
+      }
+    } catch (e) {
+      _showSnackBar('خطای سیستمی: $e');
+    }
+  }
+
+  Widget _buildErrorScreen(String error) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 50),
+              const SizedBox(height: 20),
+              Text(
+                'خطا در راه‌اندازی برنامه',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                error,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _initializeApp,
+                child: const Text('تلاش مجدد'),
+              ),
+            ],
+          ),
         ),
-        fullscreenDialog: true,
       ),
     );
-
-    if (result != null && result.success) {
-      await _handleSuccessfulLogin(result);
-    } else if (result != null && !result.success) {
-      _handleLoginError(result);
-      _openLoginModule(netWorMode, deviceToken, local);
-    } else {
-      _openLoginModule(netWorMode, deviceToken, local);
-    }
   }
 
-  Future<void> _handleSuccessfulLogin(LoginModuleResult result) async {
-    try {
-      if (result.token!.isNotEmpty && result.user != null) {
-        final storageService = getIt.get<StorageService>();
-        final save = await saveData(result, storageService);
-        if (save.isSuccess) {
-          final datas = await getData(storageService);
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => LauncherPage(loginSession: datas)),
-          );
-        } else {}
-      }
-    } catch (e) {
-      print('Error handling successful login: $e');
-    }
-  }
-
-  Future<Map<String, dynamic>> getData(StorageService storageService) async {
-    return await storageService.loadLoginSession();
-  }
-
-  Future<OperationResult> saveData(
-    LoginModuleResult result,
-    StorageService storageService,
-  ) async {
-    if (result == null || result.token == null || result.user == null) {
-      return OperationResult.failure(message: "داده‌های ورودی ناقص است");
-    }
-
-    return await storageService.setLoginSession(
-      token: result.token!,
-      language: Language(id: 0, languageCode: 'fa'),
-      user: result.user!,
-      loginResult: result,
-      selectedManagement: result.selectedManagementAccount,
-    );
-  }
-
-  void _handleLoginError(LoginModuleResult result) {
+  void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(result.error ?? 'خطا در ورود'),
+        content: Text(message),
         backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isCheckingLogin) {
-      return const SplashScreenPage();
-    }
-
-    // if (_currentUser != null) {
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     Navigator.of(context).pushReplacement(
-    //       MaterialPageRoute(builder: (context) => LauncherPage()),
-    //     );
-    //   });
-    // }
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 20),
-            Text(
-              'در حال انتقال...',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ],
-        ),
-      ),
-    );
+    return _currentScreen;
   }
 }

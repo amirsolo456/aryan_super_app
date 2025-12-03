@@ -99,7 +99,7 @@ Widget build(BuildContext context) {
           scaffoldBackgroundColor: Colors.white,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         ),
-        home:  MainLayoutPage(token: null  ),
+        home:  MainLayoutPage(   ),
       );
     },
   );
@@ -127,7 +127,7 @@ class MainApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
       ),
-      home:  MainLayoutPage(token: null),
+      home:  MainLayoutPage( ),
     );
   }
 }
@@ -143,11 +143,12 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
       bigName: 'IR',
       completeName: 'fa_IR',
     );
-  init();
-  setupServices();
-  final defaults = Defaults(
 
-  );
+
+  // init();
+  // final defaults = Defaults(
+  //
+  // );d
   final apiClient = getIt.get<ApiClient>();
   final apiMiddleware = ApiClientMiddlewareService(apiClient: apiClient);
 
@@ -191,7 +192,7 @@ class PartOfContainerApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
       ),
-      home: MainLayoutPage(token: null),
+      home: MainLayoutPage( ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:container_app/pages/splash_screen.dart';
+import 'package:erp_app/core/network/injection_container.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +20,9 @@ import 'package:ui_components_package/erp_app_componenets/common/Buttons/languag
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
-
+  init();
   setupServices();
+
   Locale initialLocale = Locale('fa');
   GetIt.I.registerLazySingleton(() => LoginModuleManager());
   GetIt.I.registerLazySingleton(() => SnackBarService());

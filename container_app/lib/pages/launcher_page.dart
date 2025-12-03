@@ -24,26 +24,9 @@ class LauncherPage extends StatelessWidget {
 
   LauncherPage({super.key, required this.loginSession});
 
-  Language _localeToLanguage(Locale locale) {
-    final lang = locale.languageCode;
-    final country = locale.countryCode ?? '';
-    final smallName = lang;
-    final completeName = country.isNotEmpty ? '${lang}_$country' : lang;
-    final bigName = country;
-    final id = lang == 'fa' ? 0 : 1;
-
-    return Language(
-      id: id,
-      smallName: smallName,
-      completeName: completeName,
-      bigName: bigName,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final locale = context.watch<LanguageButtonStandAloneCubit>().state;
-    final languageModel = _localeToLanguage(locale);
+    // final locale = context.watch<LanguageButtonStandAloneCubit>().state;
     final options = <_AppOption>[
       _AppOption(
         'Login Page',
