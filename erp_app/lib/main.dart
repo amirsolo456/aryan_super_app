@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:models_package/Base/enums.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:provider/provider.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
@@ -26,7 +27,6 @@ void main() async {
   HttpOverrides.global = MyHttpOverrides();
   initStandAlone();
   initPartition();
-  // setupServices();
 
   final apiClient = getIt.get<ApiClient>();
   final apiMiddleware = ApiClientMiddlewareService(apiClient: apiClient);
@@ -34,9 +34,10 @@ void main() async {
 
   final lang =
       await storageService.getLanguage() ??
-          Language(
-              id: 0, smallName: 'fa', completeName: 'fa_IR', bigName: 'IR');
+      Language(id: 0, smallName: 'fa', completeName: 'fa_IR', bigName: 'IR');
 
+  // final can = await CheckDatasForStandAlone(storageService);
+  final can = true;
   runApp(
     MultiBlocProvider(
       providers: [
@@ -49,76 +50,58 @@ void main() async {
           create: (_) => PersonListBloc(apiMiddleware: apiMiddleware),
         ),
 
-        BlocProvider(create: (_) =>
-        sl<MenuBloc>()
-          ..add(LoadMenuEvent())),
+        BlocProvider(create: (_) => sl<MenuBloc>()..add(LoadMenuEvent())),
       ],
       child: MainApp(initialLanguage: lang),
     ),
   );
 }
 
-@override
-Widget build(BuildContext context) {
-  final storageService = getIt.get<StorageService>();
-
-  return FutureBuilder<Language?>(
-    future: storageService.getLanguage(),
-    builder: (context, snapshot) {
-      final lang =
-          snapshot.data ??
-              Language(
-                id: 0,
-                smallName: 'fa',
-                completeName: 'fa_IR',
-                bigName: 'IR',
-              );
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Aryan Front',
-        locale: Locale(lang.languageCode.toString()),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
-        theme: ThemeData(
-          fontFamily: 'IRanSans',
-          fontFamilyFallback: ['Vazirmatn', 'Tahoma', 'sans-serif'],
-          scaffoldBackgroundColor: Colors.white,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
-        ),
-        home: MainLayoutPage(),
-      );
-    },
-  );
+Future<bool> CheckDatasForStandAlone(StorageService storage) async {
+  try {
+    Map<String,dynamic> result = await storage.loadLoginSession();
+    if (result[SessionKeys.loginResult.key] == null) return false;
+    if (result[SessionKeys.token.key] == null) return false;
+    if (result[SessionKeys.selectedManagement.key] == null) return false;
+    if (result[SessionKeys.user.key] == null) return false;
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
+
 
 class MainApp extends StatelessWidget {
   final Language initialLanguage;
+  final bool invalidSession;
 
-  const MainApp({super.key, required this.initialLanguage});
+  const MainApp({
+    super.key,
+    required this.initialLanguage,
+    this.invalidSession = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      locale: Locale(initialLanguage.languageCode.toString()),
+      locale: Locale(initialLanguage.languageCode ?? "fa"),
+      supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
-      theme: ThemeData(
-        fontFamily: 'IRanSans',
-        scaffoldBackgroundColor: Colors.white,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
-      ),
-      home: MainLayoutPage(),
+      home: invalidSession
+          ? Scaffold(
+              body: Center(
+                child: Text(
+                  'اطلاعات معتبر نمی‌باشد، لطفاً از ابتدا وارد شوید.',
+                ),
+              ),
+            )
+          : MainLayoutPage(),
     );
   }
 }
@@ -126,8 +109,8 @@ class MainApp extends StatelessWidget {
 Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
   if (loginDatas == null) return SizedBox();
 
-  if (loginDatas['language'] == null)
-    loginDatas['language'] = Language(
+  if (loginDatas[SessionKeys.language.key] == null)
+    loginDatas[SessionKeys.language.key] = Language(
       languageCode: 'fa',
       smallName: 'fa',
       id: 0,
@@ -137,17 +120,18 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
 
   initPartition();
   final storageService = getIt.get<StorageService>();
-  final isOk = storageService.setLoginSession(
-    user: loginDatas['user'],
-    token: loginDatas['token'],
-    language: loginDatas['language'],
-    loginResult: loginDatas['loginResult']
-  ).then((isOk) {
-    if (!isOk.isSuccess) {
-      return SizedBox();
-    }
-  });
-
+  final isOk = storageService
+      .setLoginSession(
+        user: loginDatas[SessionKeys.user.key],
+        token: loginDatas[SessionKeys.token.key],
+        language: loginDatas[SessionKeys.language.key],
+        loginResult: loginDatas[SessionKeys.loginResult.key],
+      )
+      .then((isOk) {
+        if (!isOk.isSuccess) {
+          return SizedBox();
+        }
+      });
 
   final apiClient = getIt.get<ApiClient>();
   final apiMiddleware = ApiClientMiddlewareService(apiClient: apiClient);
@@ -158,9 +142,7 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
         create: (_) =>
             LoginService(client: apiClient, storage: StorageService()),
       ),
-      BlocProvider(create: (_) =>
-      sl<MenuBloc>()
-        ..add(LoadMenuEvent())),
+      BlocProvider(create: (_) => sl<MenuBloc>()..add(LoadMenuEvent())),
       BlocProvider(create: (_) => ProfileBloc()),
       BlocProvider(create: (_) => PersonListBloc(apiMiddleware: apiMiddleware)),
     ],
@@ -178,8 +160,8 @@ class PartOfContainerApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       locale: Locale(
-        (loginModuleResult['language'] ??
-            Language(id: 0, languageCode: 'fa') as Language)
+        (loginModuleResult[SessionKeys.language.key] ??
+                Language(id: 0, languageCode: 'fa') as Language)
             .languageCode,
       ),
       supportedLocales: AppLocalizations.supportedLocales,

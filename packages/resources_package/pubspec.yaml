@@ -78,6 +78,7 @@ flutter:
     - assets/images/eyes_close.png
     - assets/images/eyes_open.png
     - assets/images/small_go_caret.png
+    - assets/images/small_go_caret_rtl.png
     - assets/images/aryan_image_error.png
     - assets/images/aryan_image_error_256px.png
     - assets/images/success_icon.png

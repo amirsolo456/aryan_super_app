@@ -10,17 +10,18 @@ class LoginModuleResult {
   final DateTime timestamp;
   final LoginResultType resultType;
   final String? cachedKey;
+  final int networkMode;
   final ManagementAccounts? selectedManagementAccount;
   final List<ManagementAccounts>? managementAccount;
 
   LoginModuleResult.success({
     required this.user,
     required this.token,
+    required this.networkMode,
     required String cachedKey,
     required List<ManagementAccounts>? managementAccount,
     required ManagementAccounts selectedManagementAccount,
-  })
-      : success = true,
+  }) : success = true,
         cachedKey = cachedKey ?? null,
         selectedManagementAccount = selectedManagementAccount ?? null,
         managementAccount = managementAccount ?? null,
@@ -32,6 +33,7 @@ class LoginModuleResult {
       : success = false,
         user = null,
         token = null,
+        networkMode = 0,
         timestamp = DateTime.now(),
         cachedKey = null,
         managementAccount = null,
@@ -43,6 +45,7 @@ class LoginModuleResult {
     required this.success,
     this.token,
     this.user,
+    this.networkMode = 0,
     this.error,
     this.cachedKey,
     this.managementAccount,
@@ -51,22 +54,23 @@ class LoginModuleResult {
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 
-  Map<String, dynamic> toJson() =>
-      {
-        'success': success,
-        'token': token,
-        'user': user?.toJson(),
-        'error': error,
-        'cachedKey': cachedKey,
-        'managementAccount': managementAccount,
-        'selectedManagementAccount': selectedManagementAccount,
-        'resultType': resultType.index,
-        'timestamp': timestamp.toIso8601String(),
-      };
+  Map<String, dynamic> toJson() => {
+    'success': success,
+    'token': token,
+    'user': user?.toJson(),
+    'error': error,
+    'networkMode': networkMode,
+    'cachedKey': cachedKey,
+    'managementAccount': managementAccount,
+    'selectedManagementAccount': selectedManagementAccount,
+    'resultType': resultType.index,
+    'timestamp': timestamp.toIso8601String(),
+  };
 
   factory LoginModuleResult.fromJson(Map<String, dynamic> json) {
     return LoginModuleResult(
       success: json['success'] as bool? ?? false,
+      networkMode: json['networkMode'] as int ?? 0,
       token: json['token'] as String?,
       user: json['user'] != null ? UserDto.fromJson(json['user']) : null,
       error: json['error'] as String?,
@@ -101,8 +105,8 @@ class LoginModuleResult {
       token: token ?? this.token,
       user: user ?? this.user,
       error: error ?? this.error,
-      selectedManagementAccount: selectedAccount ??
-          this.selectedManagementAccount,
+      selectedManagementAccount:
+      selectedAccount ?? this.selectedManagementAccount,
       managementAccount: managementAccounts ?? this.managementAccount,
       cachedKey: cachedKey ?? this.cachedKey,
       resultType: resultType ?? this.resultType,

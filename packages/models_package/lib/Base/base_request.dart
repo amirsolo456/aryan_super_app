@@ -32,62 +32,62 @@ class BaseRequest {
 
   factory BaseRequest.fromJson(Map<String, dynamic> json) {
     return BaseRequest(
-      url: json['url'] ?? '',
-      id: json['id'],
-      repoViewId: json['repoViewId'],
-      ids: json['ids'] != null ? List<int>.from(json['ids']) : null,
-      fullSearchPhrase: json['fullSearchPhrase'],
-      pagingInfo: json['pagingInfo'] != null
-          ? PagingInfo.fromJson(json['pagingInfo'])
+      url: json['Url'] ?? '',
+      id: json['Id'],
+      repoViewId: json['RepoViewId'],
+      ids: json['Ids'] != null ? List<int>.from(json['Ids']) : null,
+      fullSearchPhrase: json['FullSearchPhrase'],
+      pagingInfo: json['PagingInfo'] != null
+          ? PagingInfo.fromJson(json['PagingInfo'])
           : null,
-      orderInfo: json['orderInfo'] != null
-          ? (json['orderInfo'] as List)
+      orderInfo: json['OrderInfo'] != null
+          ? (json['OrderInfo'] as List)
                 .map((e) => OrderInfo.fromJson(e))
                 .toList()
           : null,
-      filters: json['filters'] != null
-          ? Filters.fromJson(json['filters'])
+      filters: json['Filters'] != null
+          ? Filters.fromJson(json['Filters'])
           : null,
-      showTags: json['showTags'],
-      showMode: json['showMode'],
-      showBookmarked: json['showBookmarked'],
-      defaults: json['defaults'] != null
-          ? Defaults.fromJson(json['defaults'])
+      showTags: json['ShowTags'],
+      showMode: json['ShowMode'],
+      showBookmarked: json['ShowBookmarked'],
+      defaults: json['Defaults'] != null
+          ? Defaults.fromJson(json['Defaults'])
           : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'url': url,
-      if (id != null) 'id': id,
-      if (repoViewId != null) 'repoViewId': repoViewId,
-      if (ids != null) 'ids': ids,
-      if (fullSearchPhrase != null) 'fullSearchPhrase': fullSearchPhrase,
-      'pagingInfo': pagingInfo.toJson(),
-      'orderInfo': orderInfo.map((e) => e.toJson()).toList(),
-      'filters': filters.toJson(),
-      if (showTags != null) 'showTags': showTags,
-      if (showMode != null) 'showMode': showMode,
-      if (showBookmarked != null) 'showBookmarked': showBookmarked,
-      'defaults': defaults.toJson(),
+      'Url': url,
+      if (id != null) 'Id': id,
+      if (repoViewId != null) 'RepoViewId': repoViewId,
+      if (ids != null) 'Ids': ids,
+      if (fullSearchPhrase != null) 'FullSearchPhrase': fullSearchPhrase,
+      'PagingInfo': pagingInfo.toJson(),
+      'OrderInfo': orderInfo.map((e) => e.toJson()).toList(),
+      'Filters': filters.toJson(),
+      if (showTags != null) 'ShowTags': showTags,
+      if (showMode != null) 'ShowMode': showMode,
+      if (showBookmarked != null) 'ShowBookmarked': showBookmarked,
+      'Defaults': defaults.toJson(),
     };
   }
 
-  Map<String,dynamic> tojson() {
+  Map<String, dynamic> tojson() {
     return {
-      'url': url,
-      if (id != null) 'id': id,
-      if (repoViewId != null) 'repoViewId': repoViewId,
-      if (ids != null) 'ids': ids,
-      if (fullSearchPhrase != null) 'fullSearchPhrase': fullSearchPhrase,
-      'pagingInfo': pagingInfo.toJson(),
-      'orderInfo': orderInfo.map((e) => e.toJson()).toList(),
-      'filters': filters.toJson(),
-      if (showTags != null) 'showTags': showTags,
-      if (showMode != null) 'showMode': showMode,
-      if (showBookmarked != null) 'showBookmarked': showBookmarked,
-      'defaults': defaults.toJson(),
+      'Url': url,
+      if (id != null) 'Id': id,
+      if (repoViewId != null) 'RepoViewId': repoViewId,
+      if (ids != null) 'Ids': ids,
+      if (fullSearchPhrase != null) 'FullSearchPhrase': fullSearchPhrase,
+      'PagingInfo': pagingInfo.toJson(),
+      'OrderInfo': orderInfo.map((e) => e.toJson()).toList(),
+      'Filters': filters.toJson(),
+      if (showTags != null) 'ShowTags': showTags,
+      if (showMode != null) 'ShowMode': showMode,
+      if (showBookmarked != null) 'ShowBookmarked': showBookmarked,
+      'Defaults': defaults.toJson(),
     };
   }
 }
@@ -98,6 +98,7 @@ class Defaults {
   int placeId;
   int yearId;
   int languageId;
+  int managementAccountId;
 
   Defaults({
     this.currencyId = 0,
@@ -105,25 +106,28 @@ class Defaults {
     this.placeId = 0,
     this.yearId = 0,
     this.languageId = 0,
+    this.managementAccountId = 0,
   });
 
   factory Defaults.fromJson(Map<String, dynamic> json) {
     return Defaults(
-      currencyId: json['currencyId'] ?? 0,
-      cashierId: json['cashierId'] ?? 0,
-      placeId: json['placeId'] ?? 0,
-      yearId: json['yearId'] ?? 0,
-      languageId: json['languageId'] ?? 0,
+      currencyId: json['CurrencyId'] ?? 0,
+      managementAccountId: json['ManagementAccountId'] ?? 0,
+      cashierId: json['CashierId'] ?? 0,
+      placeId: json['PlaceId'] ?? 0,
+      yearId: json['YearId'] ?? 0,
+      languageId: json['LanguageId'] ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'currencyId': currencyId,
-      'cashierId': cashierId,
-      'placeId': placeId,
-      'yearId': yearId,
-      'languageId': languageId,
+      'CurrencyId': currencyId,
+      'ManagementAccountId': managementAccountId,
+      'CashierId': cashierId,
+      'PlaceId': placeId,
+      'YearId': yearId,
+      'LanguageId': languageId,
     };
   }
 }
@@ -161,23 +165,23 @@ class PagingInfo {
 
   factory PagingInfo.fromJson(Map<String, dynamic> json) {
     return PagingInfo(
-      onlyTotalCount: json['onlyTotalCount'] ?? false,
-      pageRecordCount: json['pageRecordCount'] ?? 11,
-      pageNumber: json['pageNumber'] ?? 1,
-      startIndex: json['startIndex'],
-      withTotalCount: json['withTotalCount'] ?? true,
-      totalRowCount: json['totalRowCount'],
+      onlyTotalCount: json['OnlyTotalCount'] ?? false,
+      pageRecordCount: json['PageRecordCount'] ?? 11,
+      pageNumber: json['PageNumber'] ?? 1,
+      startIndex: json['StartIndex'],
+      withTotalCount: json['WithTotalCount'] ?? true,
+      totalRowCount: json['TotalRowCount'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'onlyTotalCount': onlyTotalCount,
-      'pageRecordCount': pageRecordCount,
-      'pageNumber': pageNumber,
-      'startIndex': startIndex,
-      'withTotalCount': withTotalCount,
-      'totalRowCount': totalRowCount,
+      'OnlyTotalCount': onlyTotalCount,
+      'PageRecordCount': pageRecordCount,
+      'PageNumber': pageNumber,
+      'StartIndex': startIndex,
+      'WithTotalCount': withTotalCount,
+      'TotalRowCount': totalRowCount,
     };
   }
 }
@@ -189,13 +193,13 @@ class OrderInfo {
   OrderInfo({this.colName, this.asc});
 
   factory OrderInfo.fromJson(Map<String, dynamic> json) {
-    return OrderInfo(colName: json['colName'], asc: json['asc']);
+    return OrderInfo(colName: json['ColName'], asc: json['Asc']);
   }
 
   Map<String, dynamic> toJson() {
     return {
-      if (colName != null) 'colName': colName,
-      if (asc != null) 'asc': asc,
+      if (colName != null) 'ColName': colName,
+      if (asc != null) 'Asc': asc,
     };
   }
 }
@@ -213,23 +217,23 @@ class Filters {
 
   factory Filters.fromJson(Map<String, dynamic> json) {
     return Filters(
-      filterInfo: json['filterInfo'] != null
-          ? (json['filterInfo'] as List)
+      filterInfo: json['FilterInfo'] != null
+          ? (json['FilterInfo'] as List)
                 .map((e) => e != null ? FilterInfo.fromJson(e) : null)
                 .toList()
           : [],
-      showOnlyBookmarked: json['showOnlyBookmarked'] ?? false,
-      tagIdsFilter: json['tagIdsFilter'] != null
-          ? List<int>.from(json['tagIdsFilter'])
+      showOnlyBookmarked: json['ShowOnlyBookmarked'] ?? false,
+      tagIdsFilter: json['TagIdsFilter'] != null
+          ? List<int>.from(json['TagIdsFilter'])
           : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'filterInfo': filterInfo.map((e) => e?.toJson()).toList(),
-      'showOnlyBookmarked': showOnlyBookmarked,
-      if (tagIdsFilter != null) 'tagIdsFilter': tagIdsFilter,
+      'FilterInfo': filterInfo.map((e) => e?.toJson()).toList(),
+      'ShowOnlyBookmarked': showOnlyBookmarked,
+      if (tagIdsFilter != null) 'TagIdsFilter': tagIdsFilter,
     };
   }
 }
@@ -243,17 +247,17 @@ class FilterInfo {
 
   factory FilterInfo.fromJson(Map<String, dynamic> json) {
     return FilterInfo(
-      colName: json['colName'],
-      filterType: json['filterType'],
-      value: json['value'],
+      colName: json['ColName'],
+      filterType: json['FilterType'],
+      value: json['Value'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      if (colName != null) 'colName': colName,
-      if (filterType != null) 'filterType': filterType,
-      if (value != null) 'value': value,
+      if (colName != null) 'ColName': colName,
+      if (filterType != null) 'FilterType': filterType,
+      if (value != null) 'Value': value,
     };
   }
 }

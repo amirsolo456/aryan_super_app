@@ -24,6 +24,25 @@ enum NavButtonTabBarMode {
   const NavButtonTabBarMode(this.value);
 }
 
+enum SessionKeys { user, token, selectedManagement, loginResult, language }
+
+extension SessionKeysExt on SessionKeys {
+  String get key {
+    switch (this) {
+      case SessionKeys.user:
+        return "user";
+      case SessionKeys.token:
+        return "token";
+      case SessionKeys.selectedManagement:
+        return "selectedManagement";
+      case SessionKeys.loginResult:
+        return "loginResult";
+      case SessionKeys.language:
+        return "language";
+    }
+  }
+}
+
 enum LoginResultType {
   success,
   error,

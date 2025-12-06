@@ -30,19 +30,8 @@
   "defaults": "Defaults",
   "profile": "Profile",
   "dashboard": "Dashboard",
-
-  "languagesDisplayName": "",
-
   "rial": "Rial",
-  "menu": "Menu",
-  "addNew": "اضافه کردن",
-  "opend": "باز شده ها",
-  "defaults": "پیش فرض ها",
-  "profile": "حساب کاربری",
-
-
-
-
+  "languagesDisplayName": "",
   "@languagesDisplayName": {
     "description": "فارسی",
     "placeholders": {
@@ -68,5 +57,7 @@
   "loginLoadingText" : "Initializing  ...",
   "loginProcessingText": "Processing  ...",
   "loginIncorrectUserOrPass": "Incorrect Username Or Password.",
-  "serverConnectionError": "Server Connection Error"
+  "serverConnectionError": "Server Connection Error",
+  "untilSendOtpCodeAgain": "Until the code is requested again",
+  "sendOtpCodeAgain": "Send code again"
 }

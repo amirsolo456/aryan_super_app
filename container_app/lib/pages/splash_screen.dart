@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:login_module/login_page.dart';
+import 'package:models_package/Base/language.dart';
+import 'package:services_package/setup_services.dart';
+import 'package:services_package/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/common/aryan_logo.dart';
-import 'home_wrapper.dart';
+import 'login_wrapper.dart';
 
 class SplashScreenPage extends StatefulWidget {
   final int mode;
+  final int networkMode;
 
-  const SplashScreenPage({super.key, required this.mode});
+  const SplashScreenPage({
+    super.key,
+    required this.mode,
+    required this.networkMode,
+  });
 
   @override
   State<SplashScreenPage> createState() => _SplashScreenState();
@@ -17,10 +24,134 @@ class _SplashScreenState extends State<SplashScreenPage>
   late AnimationController _controller;
   late Animation<double> _translateY;
   late Animation<double> _opacity;
-
+  final storageService = getIt.get<StorageService>();
   bool _loaderVisible = false;
   bool _isNavigating = false;
   bool _minimumTimeElapsed = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // storageService.loadLoginSession().then((loginSession) => {
+    //   if(loginSession == null || loginSession['token'] == null || loginSession['loginModule'] == null){
+    //     LoginWrapper()
+    //         .navigateToLauncherPage(context, isOk)
+    //         .then((isLauncherOk) => {}),
+    //   }
+    //   else{
+    //
+    //   }
+    // });
+
+    storageService.loadLoginSession().then(
+      (loginSession) => {
+        if (loginSession == null ||
+            loginSession['token'] == null ||
+            loginSession['loginResult'] == null)
+          {
+            storageService.getDeviceToken().then(
+              (isOk) => {
+                if (isOk != null)
+                  {
+                    LoginWrapper()
+                        .navigateToLogin(
+                          context,
+                          isOk ?? "a",
+                          widget.networkMode,
+                        )
+                        .then(
+                          (loginSuccess) => {
+                            if (loginSuccess != null)
+                              {
+                                storageService
+                                    .setLoginSession(
+                                      token: loginSuccess.token ?? "",
+                                      language: Language(
+                                        id: 0,
+                                        languageCode: 'fa',
+                                      ),
+                                      user: loginSuccess.user!,
+                                      loginResult: loginSuccess,
+                                      selectedManagement: loginSuccess
+                                          .selectedManagementAccount,
+                                    )
+                                    .then(
+                                      (saveResult) => {
+                                        if (saveResult.isSuccess && mounted)
+                                          {
+                                            storageService
+                                                .loadLoginSession()
+                                                .then(
+                                                  (loaded) => {
+                                                    LoginWrapper()
+                                                        .navigateToLauncherPage(
+                                                          context,
+                                                          loaded,
+                                                        ),
+                                                  },
+                                                ),
+                                          },
+                                      },
+                                    ),
+                              },
+                          },
+                        ),
+                  },
+              },
+            ),
+          }
+        else
+          {
+            LoginWrapper()
+                .navigateToLauncherPage(context, loginSession)
+                .then((isLauncherOk) => {}),
+          },
+      },
+    );
+
+    // try {
+    //   storageService.getDeviceToken().then(
+    //     (isOk) => {
+    //       if (isOk != null)
+    //         {
+    //           LoginWrapper()
+    //               .navigateToLogin(context, isOk ?? "a", widget.networkMode)
+    //               .then(
+    //                 (loginSuccess) => {
+    //                   if (loginSuccess != null)
+    //                     {
+    //                       storageService
+    //                           .setLoginSession(
+    //                             token: loginSuccess.token ?? "",
+    //                             language: Language(id: 0, languageCode: 'fa'),
+    //                             user: loginSuccess.user!,
+    //                             loginResult: loginSuccess,
+    //                             selectedManagement:
+    //                                 loginSuccess.selectedManagementAccount,
+    //                           )
+    //                           .then(
+    //                             (saveResult) => {
+    //                               if (saveResult.isSuccess && mounted)
+    //                                 {
+    //                                   storageService.loadLoginSession().then(
+    //                                     (loaded) => {
+    //                                       LoginWrapper().navigateToLauncherPage(
+    //                                         context,
+    //                                         loaded,
+    //                                       ),
+    //                                     },
+    //                                   ),
+    //                                 },
+    //                             },
+    //                           ),
+    //                     },
+    //                 },
+    //               ),
+    //         },
+    //     },
+    //   );
+    // } catch (e) {}
+  }
 
   @override
   void initState() {
@@ -41,20 +172,10 @@ class _SplashScreenState extends State<SplashScreenPage>
       end: 1,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
-    _startMinimumTimer();
+    if (!mounted) return;
+    setState(() => _minimumTimeElapsed = true);
+    Future.delayed(const Duration(seconds: 5));
     _startAnimation();
-  }
-
-  void _startMinimumTimer() {
-    Future.delayed(const Duration(seconds: 5), () {
-      if (!mounted) return;
-      setState(() => _minimumTimeElapsed = true);
-      if (widget.mode == 0)
-         _navigateToHomeWrapper();
-      else{
-        _navigateToLogin();
-      }
-    });
   }
 
   void _startAnimation() async {
@@ -67,40 +188,7 @@ class _SplashScreenState extends State<SplashScreenPage>
       if (!mounted) return;
 
       setState(() => _loaderVisible = true);
-    } catch (e) {
-      // print('Animation error: $e');
-      // if (_minimumTimeElapsed && !_isNavigating) {
-      //   _navigateToHomeWrapper();
-      // }
-    }
-  }
-
-  void _navigateToHomeWrapper() {
-    if (_isNavigating || !mounted) return;
-    _isNavigating = true;
-
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      if (!mounted) return;
-
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const HomeWrapper()),
-            (route) => false,
-      );
-    });
-  }
-
-  void _navigateToLogin() {
-    if (_isNavigating || !mounted) return;
-    _isNavigating = true;
-
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      if (!mounted) return;
-
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginPage(locale: Locale('fa'),deviceToken: '',netMode: 0,)),
-            (route) => false,
-      );
-    });
+    } catch (e) {}
   }
 
   @override
@@ -117,26 +205,25 @@ class _SplashScreenState extends State<SplashScreenPage>
       body: Center(
         child: AnimatedBuilder(
           animation: _controller,
-          builder: (context, child) =>
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Transform.translate(
-                    offset: Offset(0, _translateY.value),
-                    child: Opacity(opacity: _opacity.value, child: AryanLogo()),
-                  ),
-                  const SizedBox(height: 40),
-                  if (_loaderVisible)
-                    const CircularProgressIndicator(
-                      color: Colors.black,
-                      strokeAlign: 3,
-                      padding: EdgeInsetsGeometry.all(5),
-                      strokeCap: StrokeCap.round,
-                      trackGap: 1,
-                      strokeWidth: 3,
-                    ),
-                ],
+          builder: (context, child) => Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Transform.translate(
+                offset: Offset(0, _translateY.value),
+                child: Opacity(opacity: _opacity.value, child: AryanLogo()),
               ),
+              const SizedBox(height: 40),
+              if (_loaderVisible)
+                const CircularProgressIndicator(
+                  color: Colors.black,
+                  strokeAlign: 3,
+                  padding: EdgeInsetsGeometry.all(5),
+                  strokeCap: StrokeCap.round,
+                  trackGap: 1,
+                  strokeWidth: 3,
+                ),
+            ],
+          ),
         ),
       ),
     );

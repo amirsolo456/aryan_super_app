@@ -166,7 +166,7 @@ class _MenuTile extends StatelessWidget {
     if (!hasChildren) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
-        child: ListTile(
+        child: ListTile(splashColor: Colors.transparent,
           dense: true,
           visualDensity: const VisualDensity(vertical: -3),
           contentPadding: const EdgeInsets.symmetric(horizontal: 12),
@@ -186,9 +186,8 @@ class _MenuTile extends StatelessWidget {
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 12),
           childrenPadding: const EdgeInsets.only(right: 20, bottom: 2),
-
+          splashColor: Colors.transparent,
           controlAffinity: ListTileControlAffinity.trailing,
-
           collapsedIconColor: Colors.black,
           iconColor: Colors.black,
           dense: true,

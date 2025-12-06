@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:http_exception/http_exception.dart';
+import 'package:models_package/Base/base_request.dart';
 
 HttpException? apiExceptionValidator(http.Response response) {
   final int statusCode = response.statusCode;
@@ -12,15 +13,27 @@ HttpException? apiExceptionValidator(http.Response response) {
 
   final Uri? uri = response.request?.url;
 
-  dynamic data;
+  dynamic data = null;
+  final contentType = response.headers['content-type']?.toLowerCase() ?? '';
+
   try {
     if (response.body.isNotEmpty) {
-      data = jsonDecode(response.body);
+      if (contentType.contains('application/json')) {
+        data = _encodeBody(response.body);
+      } else {
+        // اگر JSON نیست، متن ساده را برمی‌گردانیم
+        data = response.body;
+      }
     } else {
-      data = response.headers;    throw Exception('Server Error ${response.statusCode}');
+      data = response.headers;
     }
-  } catch (_) {
-    data = response.body.isNotEmpty ? response.body : response.headers;
+  } catch (e) {
+    // در صورت بروز هرگونه خطا، از headers استفاده کنید
+    data = {
+      'headers': response.headers,
+      'body': response.body,
+      'error': e.toString(),
+    };
   }
 
   switch (statusCode) {
@@ -33,8 +46,7 @@ HttpException? apiExceptionValidator(http.Response response) {
     case 401:
       return UnauthorizedHttpException(
         detail: 'Unauthorized',
-        data: data,
-        uri: uri,
+        data: data ?? "",
       );
     case 402:
       return PaymentRequiredHttpException(
@@ -273,4 +285,25 @@ void validateResponseStatus(http.Response response) {
   if (ex != null) {
     throw ex;
   }
+}
+
+String? _encodeBody(Object? data) {
+  if (data == null) return null;
+
+  // اگر map نبود خطا می‌گیریم
+  if (data is Map<String, dynamic>) {
+    return jsonEncode(data);
+  }
+
+  // اگر مدل سفارشی بود تبدیلش کن به map
+  if (data is BaseRequest) {
+    return jsonEncode(data.toJson());
+  }
+
+  // اگر رشته بود باید داخل map قرار بگیرد یا throw شود
+  if (data is String) {
+    throw Exception("data must be Map<String, dynamic> not String");
+  }
+
+  throw Exception("Invalid data type for request body: ${data.runtimeType}");
 }

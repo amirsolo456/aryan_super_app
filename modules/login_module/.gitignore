@@ -4,6 +4,7 @@
 .pub/
 
 .idea/
+.package/
 .vagrant/
 .sconsign.dblite
 .svn/

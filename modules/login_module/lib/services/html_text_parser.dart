@@ -5,6 +5,10 @@ class HtmlTextParserWidget extends StatelessWidget {
   final TextStyle defaultStyle;
   final TextAlign textAlign;
 
+  /// اگر مقدار bracketReplacement مشخص شود،
+  /// همه occurrences از الگوی [....] با آن مقدار جایگزین می‌شوند.
+  final String? bracketReplacement;
+
   const HtmlTextParserWidget({
     Key? key,
     required this.text,
@@ -15,14 +19,29 @@ class HtmlTextParserWidget extends StatelessWidget {
       color: Colors.black,
     ),
     this.textAlign = TextAlign.start,
+    this.bracketReplacement,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final processed = bracketReplacement != null
+        ? replaceAllBrackets(text, bracketReplacement!)
+        : text;
+
     return RichText(
       textAlign: textAlign,
-      text: TextSpan(style: defaultStyle, children: _parseText(text)),
+      text: TextSpan(style: defaultStyle, children: _parseText(processed)),
     );
+  }
+
+  /// --- utility: جایگزینی همه [... ] با مقدار replacement ---
+  static String replaceAllBrackets(String template, String replacement) {
+    return template.replaceAll(RegExp(r'\[.*?\]'), replacement);
+  }
+
+  /// اگر فقط اولین براکت را بخواهید جایگزین کنید:
+  static String replaceFirstBracket(String template, String replacement) {
+    return template.replaceFirst(RegExp(r'\[.*?\]'), replacement);
   }
 
   List<TextSpan> _parseText(String input) {
@@ -42,7 +61,6 @@ class HtmlTextParserWidget extends StatelessWidget {
         break;
       }
 
-      // متن قبل از match
       if (match.start > 0) {
         spans.add(
           TextSpan(
@@ -52,11 +70,10 @@ class HtmlTextParserWidget extends StatelessWidget {
         );
       }
 
-      // بررسی نوع tag
       if (match.group(1)!.startsWith('[b]')) {
         spans.add(
           TextSpan(
-            text: match.group(2), // متن داخل [b][/b]
+            text: match.group(2),
             style: defaultStyle.merge(
               const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
             ),
@@ -66,7 +83,7 @@ class HtmlTextParserWidget extends StatelessWidget {
         Color parsedColor = _colorFromString(match.group(3) ?? '');
         spans.add(
           TextSpan(
-            text: match.group(4), // متن داخل [color][/color]
+            text: match.group(4),
             style: defaultStyle.merge(TextStyle(color: parsedColor)),
           ),
         );
