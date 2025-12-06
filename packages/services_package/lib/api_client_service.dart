@@ -59,11 +59,22 @@ class ApiClient extends IApiClient {
   ) async {
     T? result;
     try {
+      String? token = null;
+      if (setToken ?? false) {
+        token = await _getTokenIfNeeded(true);
+      }
       result = await _internalSendRequest<T, D>(
         url: url,
         method: method,
         data: data,
-        setToken: setToken,
+        token: token,
+        fromJsonD: fromJsonD,
+      );
+      result = await _internalSendRequest<T, D>(
+        url: url,
+        method: method,
+        data: data,
+        token: token,
         fromJsonD: fromJsonD,
       );
     } catch (e) {
@@ -91,19 +102,22 @@ class ApiClient extends IApiClient {
     T? result;
     try {
       data?.defaults = appSettings.appDefaults;
+      String? token = null;
+      if (setToken ?? false) {
+        token = await _getTokenIfNeeded(true);
+      }
+
       result = await _internalSendRequest<T, D>(
         url: url,
         method: method,
         data: data,
-        setToken: setToken,
+        token: token,
         fromJsonD: fromJsonD,
       );
 
       if (result != null &&
           (result.result == "Failed" || result.result == "Pending") &&
-          (result.error == null || result.error!.isEmpty)) {
-        // await _exceptionHandler(fallbackMessage ?? Exception("خطا"));
-      }
+          (result.error == null || result.error!.isEmpty)) {}
     } catch (e) {
       result =
           BaseResponse<D>.error(e is Exception ? e : Exception(e.toString()))
@@ -117,7 +131,7 @@ class ApiClient extends IApiClient {
     required String url,
     required HttpMethods method,
     Object? data,
-    bool? setToken,
+    String? token,
     required T Function(Map<String, dynamic>) fromJsonD,
   }) async {
     try {
@@ -145,12 +159,8 @@ class ApiClient extends IApiClient {
       final headers = <String, String>{'Content-Type': 'application/json'};
 
       // 4. Handle token if needed
-      final bool useToken = setToken ?? false;
-      if (useToken) {
-        final token = await _getTokenIfNeeded(true);
-        if (token == null || token.isEmpty) {
-          return BaseResponse<D>.error(Exception("Token invalid")) as T;
-        }
+
+      if (token != null && token.isNotEmpty) {
         headers[HttpHeaders.authorizationHeader] = 'Bearer $token';
       }
 
@@ -183,33 +193,31 @@ class ApiClient extends IApiClient {
               as T;
       }
 
-      final HttpException? exception = apiExceptionValidator(response);
+      if (response.statusCode == 401) {
+        _pendingRequests.add(
+          () async => await _internalSendRequest(
+            url: url,
+            method: method,
+            fromJsonD: fromJsonD,
+          ),
+        );
+        if (await refreshToken()) {
+          final newToken = await _getTokenIfNeeded(true);
+          if (newToken != null && newToken.isNotEmpty) {
+            headers[HttpHeaders.authorizationHeader] = 'Bearer $newToken';
 
-      if (exception != null) {
-        if (exception.httpStatus.code == UnauthorizedHttpException &&
-            useToken) {
-          // Try to refresh token and retry
-          if (await refreshToken()) {
-            final newToken = await _getTokenIfNeeded(true);
-            if (newToken != null && newToken.isNotEmpty) {
-              headers[HttpHeaders.authorizationHeader] = 'Bearer $newToken';
-
-              // Retry the original request with new token
-              return await _retryRequest<T, D>(
-                client: client,
-                uri: uri,
-                method: method,
-                headers: headers,
-                body: body,
-              );
-            }
+            return await _retryRequest<T, D>(
+              client: client,
+              uri: uri,
+              method: method,
+              headers: headers,
+              body: body,
+            );
           }
-          return BaseResponse<D>.error(exception) as T;
         }
-        return BaseResponse<D>.error(exception) as T;
+        return BaseResponse<D>.error(Exception(response.statusCode.toString()))
+            as T;
       }
-
-      // 9. Parse successful response
       try {
         final decoded = json.decode(response.body);
 
@@ -224,6 +232,7 @@ class ApiClient extends IApiClient {
             )
             as T;
       }
+      // 9. Parse successful response
     } catch (e) {
       return BaseResponse<T>.error(e is Exception ? e : Exception(e.toString()))
           as T;
@@ -287,9 +296,10 @@ class ApiClient extends IApiClient {
         "DeviceToken": deviceToken,
         "Token": user.token,
       };
-
+      final uriBuilder = ApiUriBuilder(appSettings.baseUrl);
+      final Uri uri = uriBuilder.build(_loginUrl);
       final response = await _httpClient.post(
-        Uri.parse(_loginUrl),
+        uri,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(refreshRequest),
       );
@@ -309,6 +319,7 @@ class ApiClient extends IApiClient {
 
         // اجرای درخواست‌های صف‌بندی شده
         while (_pendingRequests.isNotEmpty) {
+          _pendingRequests.first.call();
           final pending = _pendingRequests.removeAt(0);
           await pending();
         }

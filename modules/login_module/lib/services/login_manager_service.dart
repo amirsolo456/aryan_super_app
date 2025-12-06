@@ -5,23 +5,24 @@ import 'package:models_package/Base/login_module.dart';
 
 class LoginModuleManager {
   static final LoginModuleManager _instance = LoginModuleManager._internal();
+
   factory LoginModuleManager() => _instance;
+
   LoginModuleManager._internal();
 
-  final StreamController<LoginModuleResult> _resultController =
-      StreamController<LoginModuleResult>.broadcast();
+  Completer<LoginModuleResult> _completer = Completer<LoginModuleResult>();
 
-  Stream<LoginModuleResult> get resultStream => _resultController.stream;
+  Future<LoginModuleResult> get result => _completer.future;
 
   void notifyResult(LoginModuleResult result) {
-    if (!_resultController.isClosed) {
-      _resultController.add(result);
+    if (!_completer.isCompleted) {
+      _completer.complete(result);
     }
   }
 
-  void reset() {
-    if (!_resultController.isClosed) {
-      _resultController.add(
+  void cancel() {
+    if (!_completer.isCompleted) {
+      _completer.complete(
         LoginModuleResult(
           success: false,
           resultType: LoginResultType.cancelled,
@@ -30,11 +31,10 @@ class LoginModuleManager {
     }
   }
 
-  void dispose() {
-    if (!_resultController.isClosed) {
-      _resultController.close();
+  void reset() {
+    // فقط اگر قبلاً کامل شده بود، یه Completer جدید بساز
+    if (_completer.isCompleted) {
+      _completer = Completer<LoginModuleResult>();
     }
   }
-
-  bool get isClosed => _resultController.isClosed;
 }

@@ -11,7 +11,7 @@ class MenuService implements IMenuService {
   @override
   Future<Response?> getMenu(Request request) async {
     final response = await apiClient
-        .sendObjectRequestAsync<Response, ResponseData>(
+        .sendRequestAsync<Response, ResponseData, Request>(
           "api/auth/menu",
           HttpMethods.post,
           request,

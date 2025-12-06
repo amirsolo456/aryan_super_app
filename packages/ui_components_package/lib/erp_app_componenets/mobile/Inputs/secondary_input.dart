@@ -14,47 +14,26 @@ abstract class AryanInputs {
     void Function(String)? onChanged,
     void Function()? onTap,
     bool obscureText = false,
+    String? obsCharacter,
+    bool isRtl = true,
   }) {
     colors ??= AryanText.defaultColors;
-    return TextFormField(
+    return aryanSecondaryFormField(
       controller: controller,
       validator: validator,
-      onChanged: onChanged,
-      onTap: onTap,
-      minLines: 1,
-      maxLines: 1,
-      cursorColor: Colors.black,
-      obscureText: obscureText,
-      keyboardType: TextInputType.number,
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      style: AryanText.secondary(colors),
-      textAlign: TextAlign.right,
-      textDirection: TextDirection.ltr,
-      selectAllOnFocus: true,
-      decoration: InputDecoration(
-        contentPadding: EdgeInsetsGeometry.all(5),
-        hintFadeDuration: Duration(milliseconds: 550),
-        hintText: hintText ?? '',
-        hintStyle: TextStyle(color: colors.hintColor, fontSize: 14),
-        fillColor: colors.aryanText,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: colors.aryanBorder, width: 1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.black, width: 2),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.red, width: 1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.red, width: 2),
-          borderRadius: BorderRadius.circular(10),
-        ),
+      ignorePointer: true,
+      correct: true,
+      suggestion: true,
+      IsRtl: isRtl,
+      decoration: aryanSecondaryInputDecoration(
+        customHintText: hintText,
+        hintColor: ThemeManager.colors.hintColor,
       ),
+      obscureText: obscureText,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      keyboardType: TextInputType.number,
+      onTap: onTap,
+      onChanged: onChanged,
     );
   }
 
@@ -70,6 +49,7 @@ abstract class AryanInputs {
     TextEditingController? controller,
     String? inputHintText,
     String? Function(String?)? validator,
+    bool isRtl = true,
     void Function(String)? onChanged,
   }) {
     final Widget _closePass = AryanAppAssets.images.imageByKey(
@@ -89,63 +69,40 @@ abstract class AryanInputs {
     return ValueListenableBuilder<bool>(
       valueListenable: obscureNotifier,
       builder: (context, obscure, child) {
-        return TextFormField(
+        return aryanSecondaryFormField(
+          IsRtl: isRtl,
           controller: controller,
           validator: validator,
-          onChanged: onChanged,
           obscureText: obscure,
-          style: AryanText.secondary(ThemeManager.colors),
-          textAlign: TextAlign.right,
-          decoration: _inputDeco(
-            inputHintText ?? '',
-            true,
-            ThemeManager.colors.hintColor,
-            ThemeManager.colors.aryanText,
-            hasIconButton: true,
-            closeIcon: _closePass,
-            openIcon: _openPass,
+          ignorePointer: false,
+          obsChar: "*",
+          onChanged: onChanged,
+          decoration: aryanSecondaryInputDecoration(
+            customHint: Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                "*********",
+                style: TextStyle(
+                  color: ThemeManager.colors.hintColor,
+                  fontSize: 15,
+                  letterSpacing: 2,
+                ),
+              ),
+            ),
+            hintColor: ThemeManager.colors.hintColor,
+            suffixIcon: IconButton(
+              icon: (obscure
+                  ? (_openPass ?? defIcon)
+                  : (_closePass ?? defIcon)),
+              highlightColor: Colors.transparent,
+              onPressed: () {
+                obscureNotifier.value = !obscureNotifier.value;
+              },
+            ),
+            customHintText: inputHintText ?? '',
           ),
         );
       },
     );
   }
-
-  static InputDecoration _inputDeco(
-    String customHintText,
-    bool obscure,
-    Color hintColor,
-    Color fillColor, {
-    bool hasIconButton = false,
-    Widget? openIcon,
-    Widget? closeIcon,
-  }) => InputDecoration(
-    hintText: customHintText,
-    hintFadeDuration: Duration(milliseconds: 550),
-    hintStyle: TextStyle(color: hintColor, fontSize: 14),
-    fillColor: fillColor,
-    contentPadding: EdgeInsetsGeometry.all(5),
-    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-    focusedBorder: OutlineInputBorder(
-      borderSide: const BorderSide(color: Colors.black, width: 2),
-      borderRadius: BorderRadius.circular(10),
-    ),
-    errorBorder: OutlineInputBorder(
-      borderSide: const BorderSide(color: Colors.red, width: 1),
-      borderRadius: BorderRadius.circular(10),
-    ),
-    focusedErrorBorder: OutlineInputBorder(
-      borderSide: const BorderSide(color: Colors.red, width: 2),
-      borderRadius: BorderRadius.circular(10),
-    ),
-
-    suffixIcon: hasIconButton
-        ? IconButton(
-            icon: (obscure ? (openIcon ?? defIcon) : (closeIcon ?? defIcon)),
-            onPressed: () {
-              obscureNotifier.value = !obscureNotifier.value;
-            },
-          )
-        : null,
-  );
 }

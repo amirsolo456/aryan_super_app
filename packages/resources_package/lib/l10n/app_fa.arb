@@ -30,21 +30,8 @@
   "defaults": "پیش فرض ها",
   "profile": "حساب کاربری",
   "dashboard": "داشبورد",
-
-
-
-
-  "languagesDisplayName": "",
-
   "rial": "ریال",
-  "menu": "منو",
-  "addNew": "اضافه کردن",
-  "opend": "بازشده ها",
-  "defaults": "پیش فرض ها",
-  "profile": "Profile",
-
-
-
+  "languagesDisplayName": "",
   "@languagesDisplayName": {
     "description": "فارسی",
     "placeholders": {
@@ -70,5 +57,7 @@
   "loginLoadingText": "درحال بررسی ...",
   "loginProcessingText": "درحال پردازش ...",
   "loginIncorrectUserOrPass": "نام کاربری یا رمز عبور نادرست است.",
-  "serverConnectionError": "خطا در برقراری ارتباط با سرور."
+  "serverConnectionError": "خطا در برقراری ارتباط با سرور.",
+  "untilSendOtpCodeAgain": " تادرخواست مجدد کد ",
+  "sendOtpCodeAgain": " درخواست مجدد کد "
 }

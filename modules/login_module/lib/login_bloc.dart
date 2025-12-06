@@ -15,28 +15,30 @@ import 'package:services_package/user_exist.dart';
 import 'services/login_manager_service.dart';
 
 part 'login_event.dart';
+
 part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   final LoginService _loginService = GetIt.instance<LoginService>();
   final UserExistService _userExistService = GetIt.instance<UserExistService>();
   final LoginModuleManager _moduleManager =
-      GetIt.instance<LoginModuleManager>();
+  GetIt.instance<LoginModuleManager>();
   final String _deviveToken;
   final int _networkMode;
   final Login.LoginRequest finalRequest = Login.LoginRequest();
 
   LoginBloc({required int networkMode, required String deviceToken})
-    : _networkMode = networkMode,
-      _deviveToken = deviceToken,
-      super(LoginInitialState()) {
+      : _networkMode = networkMode,
+        _deviveToken = deviceToken,
+        super(LoginInitialState()) {
     on<LoginInitialEvent>(_onInitialEvent);
     on<LoginUsernameEvent>(_onUsernameEvent);
     on<LoginPasswordEvent>(_onPasswordEvent);
     on<LoginRecoveryPasswordEvent>(_onRecoveryPasswordEvent);
     on<LoginOpenManagementPickerEvent>(_onOpenManagementPicker);
     on<LoginManagementSelectedEvent>(_onManagementSelected);
-    on<LoginOtpEvent>(_onOtpEvent);
+    on<LoginOtpRequestMessageEvent>(_onOtpRequestEvent);
+    on<LoginOtpValidationEvent>(_onOtpValidationEvent);
     on<LoginUserNotFoundEvent>(_onUserNotFoundEvent);
     on<LoginSignUpEvent>(_onSignUpEvent);
     on<LoginBackEvent>(_onBackEvent);
@@ -45,16 +47,16 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<void> _onInitialEvent(
-    LoginInitialEvent event,
-    Emitter<LoginStates> emit,
-  ) {
+      LoginInitialEvent event,
+      Emitter<LoginStates> emit,
+      ) {
     emit(LoginInitialState());
   }
 
   FutureOr<void> _onUsernameEvent(
-    LoginUsernameEvent event,
-    Emitter<LoginStates> emit,
-  ) async {
+      LoginUsernameEvent event,
+      Emitter<LoginStates> emit,
+      ) async {
     User.Response? response = null;
     if (_networkMode == 0) {
       if (_deviveToken != '') {
@@ -72,7 +74,7 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
           }
         }
       }
-    } else if (_networkMode == 1) {
+    } else if (_networkMode == 1 || _networkMode == 3) {
       emit(LoginPasswordState(event.username));
     } else if (_networkMode == 2) {
       finalRequest.userName = null;
@@ -81,21 +83,26 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<void> _onPasswordEvent(
-    LoginPasswordEvent event,
-    Emitter<LoginStates> emit,
-  ) async {
+      LoginPasswordEvent event,
+      Emitter<LoginStates> emit,
+      ) async {
     if (_networkMode == 0) {
       try {
         final result = await _performLogin(event.username, event.password);
         if (result.success) {
-          emit(LoginSuccessState(result));
+          safeEmit(emit, LoginSuccessState(result));
         } else {
           if (result.resultType == LoginResultType.managementAccountPick) {
-            emit(LoginManagementPickerState(result));
+            safeEmit(emit, LoginManagementPickerState(result));
+          } else {
+            safeEmit(
+              emit,
+              LoginCriticalErrorState(Exception(result.error ?? 'خطا در ورود')),
+            );
           }
         }
       } catch (e) {
-        emit(LoginCriticalErrorState(Exception(e)));
+        safeEmit(emit, LoginCriticalErrorState(Exception(e)));
       }
     } else if (_networkMode == 1) {
       await Future.delayed(Duration(milliseconds: 500));
@@ -106,50 +113,95 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
         fullName: 'asd',
       );
       final result = LoginModuleResult(
+        networkMode: _networkMode,
         success: true,
         token: simulatedUser.token,
         user: simulatedUser,
-
         resultType: LoginResultType.success,
       );
       emit(LoginSuccessState(result));
     } else if (_networkMode == 2) {
       await Future.delayed(Duration(milliseconds: 500));
       final result = LoginModuleResult(
+        networkMode: _networkMode,
         success: false,
         error: 'خطا در ورود',
         resultType: LoginResultType.error,
       );
+    } else if (_networkMode == 3) {
+      final result = LoginModuleResult(
+        networkMode: _networkMode,
+        success: true,
+        selectedManagementAccount: ManagementAccounts(
+          managementAccountId: 1,
+          inActive: false,
+          managementAccountDesc: 'amir',
+        ),
+        resultType: LoginResultType.error,
+      );
+      emit(LoginSuccessState(result));
     }
   }
 
   FutureOr<void> _onRecoveryPasswordEvent(
-    LoginRecoveryPasswordEvent event,
-    Emitter<LoginStates> emit,
-  ) {
-    emit(LoginOtpValidationState(event.username));
+      LoginRecoveryPasswordEvent event,
+      Emitter<LoginStates> emit,
+      ) {
+    emit(
+      LoginSuccessState(
+        LoginModuleResult(
+          resultType: LoginResultType.success,
+          success: true,
+          networkMode: _networkMode,
+        ),
+      ),
+    );
   }
 
-  FutureOr<void> _onOtpEvent(
-    LoginOtpEvent event,
-    Emitter<LoginStates> emit,
-  ) async {
-    emit(LoginLoadingState('در حال بررسی کد...'));
-    await Future.delayed(Duration(seconds: 2)); // شبیه‌سازی
-    emit(LoginPasswordState(event.username));
+  FutureOr<void> _onOtpRequestEvent(
+      LoginOtpRequestMessageEvent event,
+      Emitter<LoginStates> emit,
+      ) async {
+    emit(LoginLoadingState(event.username));
+    final String correctOtp = "4444";
+
+    await Future.delayed(Duration(seconds: 2));
+    emit(LoginOtpValidationState(event.username, correctOtp));
+  }
+
+  FutureOr<void> _onOtpValidationEvent(
+      LoginOtpValidationEvent event,
+      Emitter<LoginStates> emit,
+      ) async {
+    // دسترسی به state فعلی
+    final currentState = state;
+
+    if (currentState is LoginOtpValidationState) {
+      final enteredCode = event.otpCode.trim();
+      final correctCode = currentState.correctOtpCode;
+
+      if (enteredCode == correctCode) {
+        // کد درست است
+        emit(LoginRecoverPasswordState(event.username, enteredCode));
+        // یا مستقیم برو به صفحه تغییر رمز و ...
+      } else {
+        // کد اشتباه
+        emit(LoginOtpValidationState(currentState.phoneNumber, correctCode));
+      }
+    }
   }
 
   FutureOr<void> _onUserNotFoundEvent(
-    LoginUserNotFoundEvent event,
-    Emitter<LoginStates> emit,
-  ) {
+      LoginUserNotFoundEvent event,
+      Emitter<LoginStates> emit,
+      ) {
     emit(LoginSignUpState(event.username));
   }
 
   FutureOr<void> _onSignUpEvent(
-    LoginSignUpEvent event,
-    Emitter<LoginStates> emit,
-  ) {
+      LoginSignUpEvent event,
+      Emitter<LoginStates> emit,
+      ) {
     emit(LoginSignUpState(event.username));
   }
 
@@ -159,7 +211,7 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
     if (currentState is LoginPasswordState) {
       emit(LoginUsernameState(currentState.username));
     } else if (currentState is LoginRecoverPasswordState) {
-      emit(LoginUsernameState(currentState.username));
+      emit(LoginPasswordState(""));
     } else if (currentState is LoginSignUpState) {
       emit(LoginInitialState());
     } else if (currentState is LoginOtpValidationState) {
@@ -170,26 +222,31 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<void> _onLoadingEvent(
-    LoginLoadingEvent event,
-    Emitter<LoginStates> emit,
-  ) {
+      LoginLoadingEvent event,
+      Emitter<LoginStates> emit,
+      ) {
     if (event.isLoading) {
       emit(LoginLoadingState(event.message ?? 'در حال پردازش...'));
     }
   }
 
+  void safeEmit(Emitter<LoginStates> emit, LoginStates newState) {
+    if (state != newState) {
+      emit(newState);
+    }
+  }
+
   FutureOr<void> _onSuccessEvent(
-    LoginSuccessEvent event,
-    Emitter<LoginStates> emit,
-  ) {
-    emit(LoginSuccessState(event.moduleResult));
-    _moduleManager.notifyResult(event.moduleResult);
+      LoginSuccessEvent event,
+      Emitter<LoginStates> emit,
+      ) {
+    safeEmit(emit, LoginSuccessState(event.moduleResult));
   }
 
   Future<LoginModuleResult> _performLogin(
-    String username,
-    String password,
-  ) async {
+      String username,
+      String password,
+      ) async {
     try {
       final request = Login.LoginRequest(
         userName: username,
@@ -216,6 +273,7 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
         if (response.managementAccounts != null) {
           if (response.managementAccounts!.length > 1) {
             return LoginModuleResult(
+              networkMode: _networkMode,
               success: false,
               cachedKey: response.cacheKey,
               user: userDto,
@@ -224,10 +282,11 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
             );
           } else {
             return LoginModuleResult(
+              networkMode: _networkMode,
               success: true,
               cachedKey: response.cacheKey,
               selectedManagementAccount:
-                  response.managementAccounts!.firstOrNull,
+              response.managementAccounts!.firstOrNull,
               managementAccount: response.managementAccounts,
               token: response.accessToken,
               user: userDto,
@@ -236,6 +295,7 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
           }
         } else {
           return LoginModuleResult(
+            networkMode: _networkMode,
             success: false,
             error: 'managementAccount = null',
             resultType: LoginResultType.validationError,
@@ -244,12 +304,14 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
       } else {
         return LoginModuleResult(
           success: false,
+          networkMode: _networkMode,
           error: 'نام کاربری یا رمز عبور نادرست است',
           resultType: LoginResultType.validationError,
         );
       }
     } catch (e) {
       return LoginModuleResult(
+        networkMode: _networkMode,
         success: false,
         error: 'serverConnectionError',
         resultType: LoginResultType.networkError,
@@ -258,8 +320,8 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<LoginModuleResult> selectManagementAccout(
-    LoginModuleResult moduleResult,
-  ) async {
+      LoginModuleResult moduleResult,
+      ) async {
     try {
       if (moduleResult != null && moduleResult.cachedKey != '') {
         if (moduleResult.selectedManagementAccount != null) {
@@ -273,6 +335,7 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
             if (result.result != null &&
                 result.result!.toLowerCase().contains('success')) {
               final loginModule = LoginModuleResult.success(
+                networkMode: _networkMode,
                 user: moduleResult.user,
                 token: moduleResult.token,
                 cachedKey: cachedKey,
@@ -313,21 +376,20 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
 
   @override
   Future<void> close() {
-    _moduleManager.dispose();
     return super.close();
   }
 
   FutureOr<void> _onOpenManagementPicker(
-    LoginOpenManagementPickerEvent event,
-    Emitter<LoginStates> emit,
-  ) {
+      LoginOpenManagementPickerEvent event,
+      Emitter<LoginStates> emit,
+      ) {
     emit(LoginManagementPickerState(event.result));
   }
 
   FutureOr<void> _onManagementSelected(
-    LoginManagementSelectedEvent event,
-    Emitter<LoginStates> emit,
-  ) async {
+      LoginManagementSelectedEvent event,
+      Emitter<LoginStates> emit,
+      ) async {
     final prev = event.result; // نتیجه لاگین که چند اکانت داشت
 
     final result = await _loginService.nextLogin(
@@ -338,12 +400,26 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
     if (result != null &&
         result.result!.isNotEmpty &&
         result.result!.toLowerCase().contains('success')) {
-      UserDto user = prev.user!.copyWith(
+      UserDto user = (prev != null && prev!.user != null)
+          ? prev.user!.copyWith(
         token: result.accessToken ?? '',
         refreshToken: result.refreshToken ?? '',
+      )
+          : UserDto(
+        refreshToken: "a",
+        token: "a",
+        id: 0,
+        fullName: "a",
+        firstName: "A",
+        imageUrl: "",
+        password: "A",
+        lastName: "a",
+        userName: "f",
+        type: "f",
       );
 
       final updated = LoginModuleResult(
+        networkMode: _networkMode,
         success: true,
         token: result.accessToken,
         user: user,
@@ -352,7 +428,7 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
         cachedKey: event.result.cachedKey,
         resultType: LoginResultType.success,
       );
-      emit(LoginSuccessState(updated));
+      safeEmit(emit, LoginSuccessState(updated));
       _moduleManager.notifyResult(updated);
     }
   }

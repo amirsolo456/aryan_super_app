@@ -18,15 +18,23 @@ class LoginPasswordState extends LoginStates {
 }
 
 class LoginRecoverPasswordState extends LoginStates {
+  final String otpCode;
   final String username;
 
-  LoginRecoverPasswordState(this.username);
+  LoginRecoverPasswordState(this.username, this.otpCode);
 }
 
 class LoginOtpValidationState extends LoginStates {
   final String phoneNumber;
+  final String correctOtpCode;
 
-  LoginOtpValidationState(this.phoneNumber);
+  LoginOtpValidationState(this.phoneNumber, this.correctOtpCode);
+}
+
+class LoginOtpRequestState extends LoginStates {
+  final String phoneNumber;
+
+  LoginOtpRequestState(this.phoneNumber);
 }
 
 class LoginSignUpState extends LoginStates {

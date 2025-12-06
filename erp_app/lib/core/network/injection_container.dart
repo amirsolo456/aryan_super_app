@@ -18,11 +18,8 @@ import 'api_client.dart';
 final sl = GetIt.instance;
 
 void initStandAlone() {
-  // sl.registerFactory<StorageService>(() => StorageService());
-  // sl.registerFactory<StorageService>(() => StorageService());
-
   final _storage = StorageService();
-  final _defaults = Defaults();
+  final _defaults = Defaults(placeId: 1, yearId: 1403, languageId: 2,managementAccountId : 1);
   final _apisetting = ApiSettings(
     baseUrl: 'https://216.65.200.215/',
     loginUrl: 'api/auth/login',
@@ -35,28 +32,30 @@ void initStandAlone() {
   final _otp = OtpService(apiClient);
   sl.registerLazySingleton<ApiSettings>(() => _apisetting);
   sl.registerLazySingleton<ApiClient>(
-    () => ApiClient(storage: _storage, appSettings: _apisetting),
+        () => ApiClient(storage: _storage, appSettings: _apisetting),
   );
   sl.registerLazySingleton<OtpService>(() => _otp);
   sl.registerLazySingleton<UserExistService>(() => UserExistService());
-  // sl.registerLazySingleton<MenuService>(() => MenuService(apiClient));
   sl.registerLazySingleton<ApiClientMiddlewareService>(
-    () => ApiClientMiddlewareService(apiClient: apiClient),
+        () => ApiClientMiddlewareService(apiClient: apiClient),
   );
   sl.registerLazySingleton<NotificationService>(
-    () => NotificationService(
-      storage: _storage,
-      refreshInterval: Duration(minutes: 5),
-    ),
+        () =>
+        NotificationService(
+          storage: _storage,
+          refreshInterval: Duration(minutes: 5),
+        ),
   );
 
-
+  sl.registerLazySingleton<LoginService>(
+        () => LoginService(client: apiClient, storage: _storage),
+  );
 }
 
 void initPartition() {
   // Blocs
 
-  final apiClient =  GetIt.I<ApiClient>();
+  final apiClient = GetIt.I<ApiClient>();
   sl.registerFactory(() => MenuBloc(getMenuUseCase: sl<MenuService>()));
   sl.registerLazySingleton<MenuService>(() => MenuService(apiClient));
 }

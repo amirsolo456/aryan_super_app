@@ -5,12 +5,16 @@ import 'package:login_module/services/modal_manager.dart';
 import 'package:login_module/services/snackbar_service.dart';
 import 'package:resources_package/Resources/Assets/assets_manager.dart';
 import 'package:resources_package/Resources/Assets/icons_manager.dart';
+import 'package:resources_package/Resources/Styles/Colors/dark.dart';
+import 'package:resources_package/Resources/Styles/font_size.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
+import 'package:resources_package/l10n/app_localizations_fa.dart';
 import 'package:resources_package/resources/Theme/theme_manager.dart';
 import 'package:resources_package/resources/styles/styles.dart';
 import 'package:services_package/setup_services.dart';
 import 'package:ui_components_package/erp_app_componenets/common/Buttons/language_button_standalone/language_button_stand_alone.dart';
 import 'package:ui_components_package/erp_app_componenets/common/aryan_logo.dart';
+import 'package:ui_components_package/erp_app_componenets/mobile/Buttons/count_down.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Buttons/dynamic_button.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Buttons/loading_button.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Inputs/secondary_input.dart';
@@ -54,12 +58,25 @@ class _LoginPageBodyState extends State<LoginPageBody> {
   final GlobalKey<FormState> _passRecformKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _userformKey = GlobalKey<FormState>();
   final SnackBarService _snackBarService = getIt.get<SnackBarService>();
+  var otpValue;
+  late final AppLocalizations _loc;
 
-  String get _validationMsg =>
-      AppLocalizations.of(context)?.passwordValidationMsg ?? '';
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // این متد دقیقاً وقتی صدا میشه که Localizations آماده باشه
+    _loc = (AppLocalizations.of(context) != null
+        ? AppLocalizations.of(context)!
+        : AppLocalizationsFa("fa")); // اینجا ! امن هست!
+  }
 
-  String get _validationNullMsg =>
-      AppLocalizations.of(context)?.passwordValidationNullMsg ?? '';
+  String get _passwordValidationNullMsg =>
+      AppLocalizations.of(context)?.passwordValidationNullMsg ??
+      'رمز عبور را وارد کنید';
+
+  String get _usernameValidationNullMsg =>
+      AppLocalizations.of(context)?.usernameValidationNullMsg ??
+      'شماره موبایل را وارد کنید';
 
   @override
   void dispose() {
@@ -70,26 +87,51 @@ class _LoginPageBodyState extends State<LoginPageBody> {
 
   String? _passwordFieldValidator(String? value) {
     if (value == null || value.isEmpty) {
-      return _validationNullMsg;
+      return _passwordValidationNullMsg;
     }
     return null;
   }
 
   String? _usernameFieldValidator(String? value) {
     if (value == null || value.isEmpty) {
-      return _validationNullMsg;
+      return _usernameValidationNullMsg;
     }
     return null;
   }
 
+  void sendOtpMessage() {}
+
+  void submitOtpInput(String? code) {
+    context.read<LoginBloc>().add(
+      LoginRecoveryPasswordEvent(_usernameController.text, code ?? ""),
+    );
+  }
+
+  bool isRtl() {
+    return ((Localizations.localeOf(context).languageCode ?? "fa") == "fa"
+        ? true
+        : false);
+  }
+
+  String getSourceByIsRtl() {
+    try {
+      bool isRtl = this.isRtl();
+      return (isRtl == true
+          ? AryanAssets.smallGoCaret
+          : AryanAssets.smallGoCaretRtl);
+    } catch (e) {
+      return AryanAssets.smallGoCaret;
+    }
+  }
+
   Widget _buildPasswordTitle(BuildContext context) {
     return SizedBox(
-      height: 30,
+      height: 40,
       child: Text(
-        AppLocalizations.of(context)!.password,
+        (AppLocalizations.of(context)?.password ?? "A"),
         maxLines: 1,
         textWidthBasis: TextWidthBasis.parent,
-        textAlign: TextAlign.right,
+        textAlign: TextAlign.start,
         textDirection: TextDirection.rtl,
         softWrap: true,
         style: TextStyle(
@@ -104,10 +146,11 @@ class _LoginPageBodyState extends State<LoginPageBody> {
 
   Widget _buildUsernameTitle(BuildContext context) {
     return SizedBox(
-      height: 30,
+      height: 40,
       child: Text(
-        AppLocalizations.of(context)!.phoneNumber,
+        (AppLocalizations.of(context)?.phoneNumber ?? "A"),
         textDirection: TextDirection.rtl,
+        textAlign: TextAlign.right,
         textWidthBasis: TextWidthBasis.parent,
         maxLines: 1,
         style: TextStyle(
@@ -115,9 +158,8 @@ class _LoginPageBodyState extends State<LoginPageBody> {
           fontWeight: FontWeight.bold,
           fontFamily: 'Yekan',
           fontSize: 14,
+          color: ThemeColorsManager(ThemeManager.themeMode).primary,
         ),
-        softWrap: true,
-        textAlign: TextAlign.right,
       ),
     );
   }
@@ -127,22 +169,15 @@ class _LoginPageBodyState extends State<LoginPageBody> {
     return Form(
       key: _userformKey,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildUsernameTitle(context),
-          MediaQuery(
-            data: const MediaQueryData(),
-            child: Directionality(
-              textDirection: TextDirection.ltr,
-              child: Material(
-                child: AryanInputs.secondaryUsernameTextForm(
-                  controller: _usernameController,
-                  obscureText: false,
-                  hintText: '0912 202 5458',
-                  validator: _usernameFieldValidator,
-                ),
-              ),
-            ),
+          AryanInputs.secondaryUsernameTextForm(
+            controller: _usernameController,
+            obscureText: false,
+            hintText: '0912 202 5458',
+            validator: _usernameFieldValidator,
+            isRtl: isRtl(),
           ),
         ],
       ),
@@ -156,20 +191,27 @@ class _LoginPageBodyState extends State<LoginPageBody> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildPasswordTitle(context),
-          AryanInputs.secondaryPasswordTextFormWithToggle(
-            controller: _passwordController,
-            inputHintText: ". . . . . . . . . .",
-            validator: _passwordFieldValidator,
+          Container(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: AryanInputs.secondaryPasswordTextFormWithToggle(
+              controller: _passwordController,
+              inputHintText: ". . . . . . . . . .",
+              validator: _passwordFieldValidator,
+              isRtl: isRtl(),
+            ),
           ),
-          TextButton(
-            onPressed: () {
-              final bloc = context.read<LoginBloc>();
-              bloc.add(LoginRecoveryPasswordEvent(_usernameController.text));
-            },
-            child: Align(
-              alignment: Alignment.centerRight,
+
+          Align(
+            alignment: (isRtl() == true
+                ? Alignment.bottomRight
+                : Alignment.bottomLeft),
+            child: TextButton(
+              onPressed: () {
+                final bloc = context.read<LoginBloc>();
+                bloc.add(LoginOtpRequestMessageEvent(_usernameController.text));
+              },
               child: Text(
-                AppLocalizations.of(context)!.passwordForgot,
+                (AppLocalizations.of(context)?.passwordForgot ?? "A"),
                 style: AryanText.secondary(),
               ),
             ),
@@ -191,14 +233,15 @@ class _LoginPageBodyState extends State<LoginPageBody> {
           _buildPasswordTitle(context),
           AryanInputs.secondaryPasswordTextFormWithToggle(
             controller: _passwordController,
-            inputHintText: AppLocalizations.of(context)!.passwordRecovery,
+            inputHintText:
+                (AppLocalizations.of(context)?.passwordRecovery ?? "A"),
             validator: _passwordFieldValidator,
           ),
           const Divider(height: 20, color: Colors.transparent),
           ListTile(
             titleAlignment: ListTileTitleAlignment.center,
             title: Text(
-              AppLocalizations.of(context)!.passwordRecovery,
+              (AppLocalizations.of(context)?.passwordRecovery ?? "a"),
               textAlign: TextAlign.center,
             ),
             horizontalTitleGap: 20,
@@ -206,7 +249,7 @@ class _LoginPageBodyState extends State<LoginPageBody> {
           ),
           AryanInputs.secondaryPasswordTextFormWithToggle(
             controller: _passwordController,
-            inputHintText: AppLocalizations.of(context)!.password,
+            inputHintText: (AppLocalizations.of(context)?.password ?? "A"),
             validator: _passwordFieldValidator,
           ),
         ],
@@ -214,7 +257,10 @@ class _LoginPageBodyState extends State<LoginPageBody> {
     );
   }
 
-  Widget _buildOtpPasswordBody(String? phonNumber) {
+  Widget _buildOtpPasswordBody(
+    String? phonNumber,
+    BuildContext currentContext,
+  ) {
     return Form(
       key: _passRecformKey,
       child: Column(
@@ -222,22 +268,60 @@ class _LoginPageBodyState extends State<LoginPageBody> {
         children: [
           Text(
             textAlign: TextAlign.center,
-            AppLocalizations.of(
-              context,
-            )!.userOtpValidationTitle.replaceFirst('[]', phonNumber ?? ' '),
+            style: TextStyle(
+              color: FontColors.primary,
+              fontSize: AryanSizes.mediumFont16,
+            ),
+            HtmlTextParserWidget.replaceAllBrackets(
+              (AppLocalizations.of(currentContext) != null &&
+                      AppLocalizations.of(
+                            currentContext,
+                          )?.userOtpValidationTitle !=
+                          null
+                  ? AppLocalizations.of(currentContext)!.userOtpValidationTitle
+                  : "ad"),
+              phonNumber ?? '',
+            ),
           ),
 
           TextButton.icon(
             label: Text(
-              AppLocalizations.of(context)!.phoneNumber,
-              style: TextStyle(color: ThemeColorsManager().primary),
+              (AppLocalizations.of(context)?.phoneNumber ?? "A"),
+              style: TextStyle(
+                color: Color(0XFF086EDC),
+                fontSize: AryanSizes.smallFont12,
+              ),
             ),
             onPressed: () =>
-                _getBackPressed(LoginOtpValidationState(phonNumber ?? '')),
-            icon: AryanAppAssets.images.imageByValue(AryanAssets.smallGoCaret),
+                currentContext.read<LoginBloc>().add(LoginInitialEvent()),
+            icon: AryanAppAssets.images.imageByValue(
+              getSourceByIsRtl(),
+              width: 22,
+              height: 22,
+            ),
             iconAlignment: IconAlignment.start,
           ),
-          VerificationWidget(),
+          VerificationWidget(
+            onChanged: (value) => {otpValue = value},
+            onSubmited: (value) => {
+              currentContext.read<LoginBloc>().add(
+                LoginOtpValidationEvent(
+                  username: _usernameController.text,
+                  otpCode: value,
+                ),
+              ),
+            },
+          ),
+
+          ClickableCountDown(
+            duration: Duration(minutes: 1, seconds: 30),
+            finishedText:
+                (AppLocalizations.of(context)?.userOtpValidationTitle ?? "A"),
+            untilFinishedText: (AppLocalizations.of(context) != null
+                ? (AppLocalizations.of(context)?.userOtherAccounts ?? "test a")
+                : "test a"),
+            onFinishedClick: sendOtpMessage,
+          ),
         ],
       ),
     );
@@ -248,7 +332,7 @@ class _LoginPageBodyState extends State<LoginPageBody> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         HtmlTextParserWidget(
-          text: AppLocalizations.of(context)!.userSignupLabel,
+          text: (AppLocalizations.of(context)?.userSignupLabel ?? "a"),
           textAlign: TextAlign.center,
           defaultStyle: AryanText.secondary(),
         ),
@@ -257,11 +341,19 @@ class _LoginPageBodyState extends State<LoginPageBody> {
   }
 
   Widget _buildLoadingState(LoginLoadingState state) {
+    return customLoadingWidget(state.message);
+  }
+
+  Widget _buildLoginOtpProgress(LoginOtpRequestState state) {
+    return customLoadingWidget(state.phoneNumber);
+  }
+
+  Widget customLoadingWidget(String? message) {
     return Column(
       children: [
         const CircularProgressIndicator(),
         const SizedBox(height: 20),
-        Text(state.message, style: AryanText.secondary()),
+        Text(message ?? "", style: AryanText.secondary()),
       ],
     );
   }
@@ -283,13 +375,6 @@ class _LoginPageBodyState extends State<LoginPageBody> {
     );
   }
 
-  Widget _buildLoginButton(BuildContext context, LoginStates state) {
-    return LoadingButton(
-      text: AppLocalizations.of(context)!.loginButtonText,
-      onPressed: () => _handleButtonPress(context, state),
-    );
-  }
-
   void _handleButtonPress(BuildContext context, LoginStates state) {
     final bloc = context.read<LoginBloc>();
 
@@ -299,10 +384,14 @@ class _LoginPageBodyState extends State<LoginPageBody> {
       _handlePasswordSubmit(bloc, state);
     } else if (state is LoginSignUpState) {
       _handleSignUp();
+    } else if (state is LoginOtpRequestState) {
+      _handleOtpRequestSubmit(bloc, state);
     } else if (state is LoginOtpValidationState) {
-      // Handle OTP validation
+      _handleOtpValidationSubmit(bloc, state);
     } else if (state is LoginRecoverPasswordState) {
-      // Handle password recovery
+      _handleRecoveryPasswordSubmit(bloc, state);
+    } else if (state is LoginSuccessState) {
+      _handleSuccessSubmit(bloc, state);
     }
   }
 
@@ -320,12 +409,41 @@ class _LoginPageBodyState extends State<LoginPageBody> {
     }
   }
 
+  void _handleSuccessSubmit(LoginBloc bloc, LoginSuccessState state) {
+    bloc.add(LoginSuccessEvent(state.moduleResult));
+  }
+
+  void _handleRecoveryPasswordSubmit(
+    LoginBloc bloc,
+    LoginRecoverPasswordState state,
+  ) {
+    bloc.add(LoginRecoveryPasswordEvent(state.username, state.otpCode));
+  }
+
+  void _handleOtpRequestSubmit(LoginBloc bloc, LoginOtpRequestState state) {
+    bloc.add(LoginOtpRequestMessageEvent(state.phoneNumber));
+  }
+
+  void _handleOtpValidationSubmit(
+    LoginBloc bloc,
+    LoginOtpValidationState state,
+  ) {
+    if (otpValue != null && otpValue == state.correctOtpCode) {
+      bloc.add(
+        LoginOtpValidationEvent(
+          username: state.phoneNumber,
+          otpCode: state.correctOtpCode,
+        ),
+      );
+    }
+  }
+
   Future<void> _handleSignUp() async {
     try {
       await openUrl("https://github.com/");
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context)?.showSnackBar(
           SnackBar(content: Text('Error opening signup page: $e')),
         );
       }
@@ -339,10 +457,20 @@ class _LoginPageBodyState extends State<LoginPageBody> {
     }
   }
 
+  Widget _buildLoginButton(
+    BuildContext context,
+    LoginStates state,
+    String? loginTitle,
+  ) {
+    return LoadingButton(
+      text:
+          loginTitle ?? (AppLocalizations.of(context)?.loginButtonText ?? "A"),
+      onPressed: () => _handleButtonPress(context, state),
+    );
+  }
+
   Widget _buildContent(LoginStates state, BuildContext context) {
     Widget content;
-    SnackBarService messengerService = getIt.get<SnackBarService>();
-
     if (state is LoginLoadingState) {
       content = _buildLoadingState(state);
     } else if (state is LoginCriticalErrorState) {
@@ -354,8 +482,10 @@ class _LoginPageBodyState extends State<LoginPageBody> {
       content = _buildPasswordBody(state, context);
     } else if (state is LoginRecoverPasswordState) {
       content = _buildRecoverPasswordBody(state, context);
+    } else if (state is LoginOtpRequestState) {
+      content = _buildLoginOtpProgress(state);
     } else if (state is LoginOtpValidationState) {
-      content = _buildOtpPasswordBody(state.phoneNumber);
+      content = _buildOtpPasswordBody(state.phoneNumber, context);
     } else if (state is LoginSignUpState) {
       content = _buildSignUpBody(state, context);
     } else {
@@ -440,58 +570,12 @@ class _LoginPageBodyState extends State<LoginPageBody> {
                 ),
           body: _buildBody(state, context),
         );
-        // } else {
-        //   final pickerState = state as LoginManagementPickerState;
-        //   final accounts = pickerState.result.managementAccount ?? [];
-        //
-        //   return Scaffold(
-        //     body: Column(
-        //       mainAxisSize: MainAxisSize.min,
-        //       children: [
-        //         Text("سلام امیر!", style: TextStyle(fontSize: 22)),
-        //         SizedBox(height: 20),
-        //         Expanded(
-        //           child: ListView.builder(
-        //             itemCount: accounts.length,
-        //             itemBuilder: (context, index) {
-        //               final account = accounts[index];
-        //               return Card(
-        //                 margin: EdgeInsets.symmetric(vertical: 8),
-        //                 child: ListTile(
-        //                   title: Text(
-        //                     account.managementAccountDesc ?? "نام حساب ندارد",
-        //                   ),
-        //                   trailing: Icon(Icons.arrow_forward_ios),
-        //                   onTap: () {
-        //                     final updatedResult = pickerState.result.copyWith(
-        //                       selectedAccount: account,
-        //                     );
-        //
-        //                     context.read<LoginBloc>().add(
-        //                       LoginSuccessEvent(updatedResult),
-        //                     );
-        //
-        //                     Navigator.pop(context);
-        //                   },
-        //                 ),
-        //               );
-        //             },
-        //           ),
-        //         ),
-        //         SizedBox(height: 20),
-        //         ElevatedButton(
-        //           onPressed: () => Navigator.pop(context),
-        //           child: Text("بستن"),
-        //         ),
-        //       ],
-        //     ),
-        //   );
-        // }
       },
     );
   }
 
   Widget _buildBody(LoginStates state, BuildContext context) {
+    String? title;
     return Center(
       heightFactor: 1.5,
       child: SingleChildScrollView(
@@ -499,7 +583,6 @@ class _LoginPageBodyState extends State<LoginPageBody> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: SizedBox(
             child: Column(
-              key: ValueKey(state.runtimeType),
               children: [
                 const AryanLogo(),
                 const SizedBox(height: 20),
@@ -509,7 +592,18 @@ class _LoginPageBodyState extends State<LoginPageBody> {
                   const SizedBox(height: 50),
                 if (state is! LoginLoadingState &&
                     state is! LoginCriticalErrorState)
-                  _buildLoginButton(context, state),
+                  _buildLoginButton(
+                    context,
+                    state,
+                    "aa",
+                    // (state is LoginOtpValidationState
+                    //     ? AppLocalizations.of(context)!.loginButtonOtpText
+                    //     : (state is LoginSignUpState
+                    //     ? AppLocalizations.of(
+                    //   context,
+                    // )!.loginButtonSignUpText
+                    //     : null)),
+                  ),
               ],
             ),
           ),

@@ -20,9 +20,8 @@ dependencies:
   url_launcher: ^6.3.0
   cloud_firestore: 6.1.0
   skeletonizer: ^2.1.0+1
-
+  flutter_secure_storage: ^9.2.2
   equatable: ^2.0.7
-
   erp_app:
     path: ../erp_app
   models_package:
@@ -35,7 +34,6 @@ dependencies:
     path: ../packages/ui_components_package
   login_module:
     path: ../modules/login_module
-
   cupertino_icons: ^1.0.8
   flutter_html: ^3.0.0
 

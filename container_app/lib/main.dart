@@ -59,13 +59,20 @@ void main() async {
     initialLocale = Locale('fa');
   }
 
-  runApp(MyApp(initialLocal: Locale(initialLocale.languageCode)));
+  runApp(
+    MyApp(initialLocal: Locale(initialLocale.languageCode), networkMode: 0),
+  );
 }
 
 class MyApp extends StatelessWidget {
   final Locale initialLocal;
+  final int networkMode;
 
-  const MyApp({super.key, required this.initialLocal});
+  const MyApp({
+    super.key,
+    required this.initialLocal,
+    required this.networkMode,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +100,7 @@ class MyApp extends StatelessWidget {
             theme: ThemeColorsManager(.light).aryanTheme,
             darkTheme: ThemeColorsManager(.dark).aryanTheme,
             themeMode: ThemeManager.themeMode,
-            home: SplashScreenPage(mode: 0,),
+            home: SplashScreenPage(mode: 1,networkMode: 0,),
           );
         },
       ),

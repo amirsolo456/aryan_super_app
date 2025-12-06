@@ -1,11 +1,8 @@
 import 'package:container_app/pages/launcher_page.dart';
 import 'package:container_app/pages/splash_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:login_module/login_page.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:models_package/Base/login_module.dart';
-import 'package:models_package/Base/operation_result.dart';
-import 'package:models_package/Data/Auth/User/dto.dart';
 import 'package:services_package/setup_services.dart';
 import 'package:services_package/storage_service.dart';
 
@@ -17,7 +14,7 @@ class HomeWrapper extends StatefulWidget {
 }
 
 class _HomeWrapperState extends State<HomeWrapper> {
-  Widget _currentScreen = const SplashScreenPage(mode: 0);
+  late Widget _currentScreen = SplashScreenPage(mode: 0, networkMode: 0);
 
   @override
   void initState() {
@@ -44,13 +41,12 @@ class _HomeWrapperState extends State<HomeWrapper> {
           );
         }
       } else {
-
         if (mounted) {
-          _showLoginPage(
-            netWorkMode: 0,
-            deviceToken: devToken,
-            locale: Locale(lang?.languageCode ?? 'fa'),
-          );
+          // _showLoginPage(
+          //   netWorkMode: 0,
+          //   deviceToken: devToken,
+          //   locale: Locale(lang?.languageCode ?? 'fa'),
+          // );
         }
       }
     } catch (e) {
@@ -63,20 +59,20 @@ class _HomeWrapperState extends State<HomeWrapper> {
     }
   }
 
-  void _showLoginPage({
-    required int netWorkMode,
-    required String deviceToken,
-    required Locale locale,
-  }) {
-    setState(() {
-      _currentScreen = LoginPage(
-        netMode: netWorkMode,
-        deviceToken: deviceToken,
-        locale: locale,
-
-      );
-    });
-  }
+  // void _showLoginPage({
+  //   required int netWorkMode,
+  //   required String deviceToken,
+  //   required Locale locale,
+  // }) {
+  //   setState(() {
+  //     _currentScreen = LoginPage(
+  //       netMode: netWorkMode,
+  //       deviceToken: deviceToken,
+  //       locale: locale,
+  //
+  //     );
+  //   });
+  // }
 
   Future<void> _onLoginSuccess(LoginModuleResult result) async {
     try {
@@ -138,10 +134,7 @@ class _HomeWrapperState extends State<HomeWrapper> {
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
