@@ -1,9 +1,12 @@
+import 'package:erp_app/core/navigation/navigation_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:models_package/Base/base_request.dart';
 import 'package:services_package/Interfaces/apiclient_middleware_service.dart';
 import 'package:services_package/Interfaces/auth/imenu_service.dart';
+import 'package:services_package/Interfaces/iapi_service.dart';
 import 'package:services_package/api_client_service.dart';
+import 'package:services_package/api_service.dart';
 
 import 'package:services_package/auth/menu/menu_service.dart';
 import 'package:services_package/device_token_service.dart';
@@ -36,6 +39,8 @@ void initStandAlone() {
   );
   sl.registerLazySingleton<OtpService>(() => _otp);
   sl.registerLazySingleton<UserExistService>(() => UserExistService());
+  sl.registerLazySingleton<NavigationService>(() => NavigationService());
+  sl.registerLazySingleton<IApiService>(() => ApiService());
   sl.registerLazySingleton<ApiClientMiddlewareService>(
         () => ApiClientMiddlewareService(apiClient: apiClient),
   );

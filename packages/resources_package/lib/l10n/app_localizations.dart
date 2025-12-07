@@ -254,7 +254,7 @@ abstract class AppLocalizations {
   /// No description provided for @addNew.
   ///
   /// In en, this message translates to:
-  /// **'اضافه کردن'**
+  /// **'Add New'**
   String get addNew;
 
   /// No description provided for @opened.
@@ -266,13 +266,13 @@ abstract class AppLocalizations {
   /// No description provided for @defaults.
   ///
   /// In en, this message translates to:
-  /// **'پیش فرض ها'**
+  /// **'Defaults'**
   String get defaults;
 
   /// No description provided for @profile.
   ///
   /// In en, this message translates to:
-  /// **'حساب کاربری'**
+  /// **'Profile'**
   String get profile;
 
   /// No description provided for @dashboard.
@@ -281,23 +281,17 @@ abstract class AppLocalizations {
   /// **'Dashboard'**
   String get dashboard;
 
-  /// English
-  ///
-  /// In en, this message translates to:
-  /// **''**
-  String languagesDisplayName(String userName);
-
   /// No description provided for @rial.
   ///
   /// In en, this message translates to:
   /// **'Rial'**
   String get rial;
 
-  /// No description provided for @opend.
+  /// English
   ///
   /// In en, this message translates to:
-  /// **'باز شده ها'**
-  String get opend;
+  /// **''**
+  String languagesDisplayName(String userName);
 
   /// No description provided for @userSignupLabel.
   ///
@@ -346,6 +340,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Server Connection Error'**
   String get serverConnectionError;
+
+  /// No description provided for @untilSendOtpCodeAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Until the code is requested again'**
+  String get untilSendOtpCodeAgain;
+
+  /// No description provided for @sendOtpCodeAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code again'**
+  String get sendOtpCodeAgain;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

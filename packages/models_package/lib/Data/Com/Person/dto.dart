@@ -1,11 +1,8 @@
-
-
 import '../../../Base/base_request.dart';
 import '../../../Base/base_response.dart';
 import '../../Auth/Tag/dto.dart' show TagData;
 
 class Request extends BaseRequest {
-
   Request();
 
   factory Request.fromJson(Map<String, dynamic> json) {
@@ -34,9 +31,7 @@ class Response extends BaseResponse<ResponseData> {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'data': data?.map((x) => x.toJson()).toList() ?? [],
-    };
+    return {'data': data?.map((x) => x.toJson()).toList() ?? []};
   }
 }
 
@@ -94,14 +89,13 @@ class ResponseData {
       placeId: json['placeId'] as int?,
       tagsInfo: json['tagsInfo'] != null
           ? List<TagData>.from(
-        (json['tagsInfo'] as List).map((x) => TagData.fromJson(x)),
-      )
+              (json['tagsInfo'] as List).map((x) => TagData.fromJson(x)),
+            )
           : [],
       hasBookMark: json['hasBookMark'] as bool? ?? false,
       pendingStatusId: json['pendingStatusId'] as int? ?? 0,
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {

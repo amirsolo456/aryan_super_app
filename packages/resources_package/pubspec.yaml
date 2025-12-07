@@ -29,18 +29,18 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   fonts:
-#    - family: IRANSansX
-#      fonts:
-#        - asset: assets/fonts/IRANSansX-Bold.ttf
-#          weight: 700
-#    - family: OpenSans
-#      fonts:
-#        - asset: assets/fonts/OpenSans-Regular.ttf
-#          weight: 600
-#    - family: IRANSansRegular
-#      fonts:
-#        - asset: assets/fonts/IRANSansX-Regular.ttf
-#          weight: 600
+    - family: IRANSansX
+      fonts:
+        - asset: assets/fonts/IRANSansX-Bold.ttf
+          weight: 700
+    - family: OpenSans
+      fonts:
+        - asset: assets/fonts/OpenSans-Regular.ttf
+          weight: 600
+    - family: IRANSansRegular
+      fonts:
+        - asset: assets/fonts/IRANSansX-Regular.ttf
+          weight: 600
     - family: Yekan
       fonts:
         - asset: assets/fonts/Yekan.ttf

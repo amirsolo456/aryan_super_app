@@ -49,7 +49,7 @@ class NavigationQueryBuilderService {
     }
   }
 
-  static NavigationQueryBuilderService setRegion(
+  NavigationQueryBuilderService setRegion(
     String region,
     String viewName, {
     bool isSpecial = false,
@@ -67,7 +67,7 @@ class NavigationQueryBuilderService {
     }
   }
 
-  static NavigationQueryBuilderService setRegionParameter<T>(
+  NavigationQueryBuilderService setRegionParameter<T>(
     String region,
     String key,
     T value,

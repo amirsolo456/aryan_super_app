@@ -66,20 +66,21 @@ class FontColors {
   static const Color _exitColor = Color(0xFFDC3545);
   static const Color _subColor = Color(0xFFB1B1aa);
   static const Color _borderSelectNavIcon = Color(0xfff3eeee);
-
-
-
+  static const Color _darkBorder = Color(0xFF3A3A3A);
 
   static Color get divider => _divider;
-  static Color get exit => _exitColor;
-  static Color get subColor => _subColor;
-  static Color get borderSelectNavIcon => _borderSelectNavIcon;
 
+  static Color get exit => _exitColor;
+
+  static Color get subColor => _subColor;
+
+  static Color get borderSelectNavIcon => _borderSelectNavIcon;
 
   //Hesaraki Changes
 
-
   static Color get primary => _primary;
+
+  static Color get darkBorder => _darkBorder;
 
   static Color get listTitlePrimary => _primary;
 

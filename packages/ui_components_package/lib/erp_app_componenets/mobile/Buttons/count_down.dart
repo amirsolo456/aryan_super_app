@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:resources_package/Resources/Styles/font_size.dart';
+
 import 'count_down_style.dart';
 
 class ClickableCountDown extends StatefulWidget {
@@ -25,23 +26,29 @@ class _ClickableCountDownState extends State<ClickableCountDown> {
 
   @override
   Widget build(BuildContext context) {
+    if (isFinished) {
+      return Container(
+        padding: const EdgeInsets.all(0),
+        height: 60,
+        alignment: Alignment.center,
+        child: GestureDetector(
+          onTap: widget.onFinishedClick,
+          child: Text(
+            widget.finishedText,
+            style: const TextStyle(
+              color: Color(0XFFB1B1B1),
+              fontSize: AryanSizes.mediumFont14,
+              backgroundColor: Colors.transparent,
+            ),
+          ),
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.all(0),
       height: 60,
       alignment: Alignment.center,
-      child: isFinished
-          ? GestureDetector(
-        onTap: widget.onFinishedClick,
-        child: Text(
-          widget.finishedText,
-          style: const TextStyle(
-            color: Color(0XFFB1B1B1),
-            fontSize: AryanSizes.mediumFont14,
-            backgroundColor: Colors.transparent,
-          ),
-        ),
-      )
-          : CounterDown(
+      child: CounterDown(
         duration: widget.duration,
         untilSendCodeText: widget.untilFinishedText,
         textStyle: const TextStyle(

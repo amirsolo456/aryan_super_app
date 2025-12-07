@@ -59,13 +59,13 @@ class _LoginPageBodyState extends State<LoginPageBody> {
   final GlobalKey<FormState> _userformKey = GlobalKey<FormState>();
   final SnackBarService _snackBarService = getIt.get<SnackBarService>();
   var otpValue;
-  late final AppLocalizations _loc;
+  AppLocalizations? loc;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // این متد دقیقاً وقتی صدا میشه که Localizations آماده باشه
-    _loc = (AppLocalizations.of(context) != null
+    loc = (AppLocalizations.of(context) != null
         ? AppLocalizations.of(context)!
         : AppLocalizationsFa("fa")); // اینجا ! امن هست!
   }
@@ -126,7 +126,7 @@ class _LoginPageBodyState extends State<LoginPageBody> {
 
   Widget _buildPasswordTitle(BuildContext context) {
     return SizedBox(
-      height: 40,
+      height: 30,
       child: Text(
         (AppLocalizations.of(context)?.password ?? "A"),
         maxLines: 1,
@@ -146,7 +146,7 @@ class _LoginPageBodyState extends State<LoginPageBody> {
 
   Widget _buildUsernameTitle(BuildContext context) {
     return SizedBox(
-      height: 40,
+      height: 30,
       child: Text(
         (AppLocalizations.of(context)?.phoneNumber ?? "A"),
         textDirection: TextDirection.rtl,
@@ -170,6 +170,7 @@ class _LoginPageBodyState extends State<LoginPageBody> {
       key: _userformKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        verticalDirection: VerticalDirection.down,
         children: [
           _buildUsernameTitle(context),
           AryanInputs.secondaryUsernameTextForm(
@@ -195,7 +196,6 @@ class _LoginPageBodyState extends State<LoginPageBody> {
             padding: const EdgeInsets.only(bottom: 10),
             child: AryanInputs.secondaryPasswordTextFormWithToggle(
               controller: _passwordController,
-              inputHintText: ". . . . . . . . . .",
               validator: _passwordFieldValidator,
               isRtl: isRtl(),
             ),
@@ -316,9 +316,9 @@ class _LoginPageBodyState extends State<LoginPageBody> {
           ClickableCountDown(
             duration: Duration(minutes: 1, seconds: 30),
             finishedText:
-                (AppLocalizations.of(context)?.userOtpValidationTitle ?? "A"),
+                (AppLocalizations.of(context)?.untilSendOtpCodeAgain ?? "A"),
             untilFinishedText: (AppLocalizations.of(context) != null
-                ? (AppLocalizations.of(context)?.userOtherAccounts ?? "test a")
+                ? (AppLocalizations.of(context)?.sendOtpCodeAgain ?? "test a")
                 : "test a"),
             onFinishedClick: sendOtpMessage,
           ),
@@ -575,7 +575,6 @@ class _LoginPageBodyState extends State<LoginPageBody> {
   }
 
   Widget _buildBody(LoginStates state, BuildContext context) {
-    String? title;
     return Center(
       heightFactor: 1.5,
       child: SingleChildScrollView(
@@ -595,14 +594,14 @@ class _LoginPageBodyState extends State<LoginPageBody> {
                   _buildLoginButton(
                     context,
                     state,
-                    "aa",
-                    // (state is LoginOtpValidationState
-                    //     ? AppLocalizations.of(context)!.loginButtonOtpText
-                    //     : (state is LoginSignUpState
-                    //     ? AppLocalizations.of(
-                    //   context,
-                    // )!.loginButtonSignUpText
-                    //     : null)),
+
+                    (state is LoginOtpValidationState
+                        ? AppLocalizations.of(context)!.loginButtonOtpText
+                        : (state is LoginSignUpState
+                              ? AppLocalizations.of(
+                                  context,
+                                )!.loginButtonSignUpText
+                              : null)),
                   ),
               ],
             ),

@@ -96,7 +96,6 @@ class ThemeColorsManager {
   Brightness get effectiveBrightness {
     final mode = _mode;
     if (mode == ThemeMode.system) {
-
       try {
         return WidgetsBinding.instance.platformDispatcher.platformBrightness;
       } catch (_) {
@@ -140,6 +139,9 @@ class ThemeColorsManager {
       ? dark.FontColors.aryanTextBorderColor
       : light.FontColors.aryanTextBorderColor;
 
+  Color get aryanDarkBorder =>
+      isDark ? dark.FontColors.darkBorder : light.FontColors.darkBorder;
+
   Color get aryanOrdinaryWhite =>
       isDark ? dark.FontColors.ordinaryWhite : light.FontColors.ordinaryWhite;
 
@@ -149,11 +151,8 @@ class ThemeColorsManager {
   Color get secondary =>
       isDark ? dark.FontColors.secondary : light.FontColors.secondary;
 
-
   Color get subColor =>
       isDark ? dark.FontColors.subColor : light.FontColors.secondary;
 
-  Color get exitColor =>
-      isDark ? dark.FontColors.exit : light.FontColors.exit;
-
+  Color get exitColor => isDark ? dark.FontColors.exit : light.FontColors.exit;
 }

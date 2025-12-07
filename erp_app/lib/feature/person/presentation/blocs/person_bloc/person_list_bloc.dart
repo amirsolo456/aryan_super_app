@@ -1,11 +1,11 @@
 import 'package:bloc/bloc.dart';
+import 'package:erp_app/feature/person/presentation/blocs/person_bloc/person_list_state.dart';
 import 'package:meta/meta.dart';
 import 'package:models_package/Data/Com/Person/dto.dart';
 import 'package:services_package/Interfaces/apiclient_middleware_service.dart';
 import 'package:services_package/api_client_service.dart';
 
 part 'person_list_event.dart';
-part 'person_list_state.dart';
 
 class PersonListBloc extends Bloc<PersonListEvent, PersonListState> {
   final ApiClientMiddlewareService apiMiddleware;
@@ -23,7 +23,7 @@ class PersonListBloc extends Bloc<PersonListEvent, PersonListState> {
           );
 
           if (response != null && response.data != null) {
-            emit(LoadDataSource(response.data ?? []));
+            emit(LoadDataSource(response));
           } else {
             emit(LoadDataError());
           }

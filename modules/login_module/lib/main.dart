@@ -35,6 +35,7 @@ void main() async {
     MyApp(
       initialLocale: Locale(initialLocal.languageCode ?? 'fa'),
       deviceToken: '',
+      runMode: 3,
     ),
   );
 }
@@ -42,12 +43,13 @@ void main() async {
 class MyApp extends StatelessWidget {
   final Locale initialLocale;
   final String deviceToken;
-  final int runMode = 0;
+  final int runMode;
 
   const MyApp({
     super.key,
     required this.initialLocale,
     required this.deviceToken,
+    required this.runMode,
   });
 
   @override

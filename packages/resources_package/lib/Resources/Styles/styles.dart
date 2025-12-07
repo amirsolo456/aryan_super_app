@@ -107,9 +107,10 @@ abstract class AryanText {
       leadingDistribution: TextLeadingDistribution.proportional,
       fontStyle: FontStyle.normal,
       height: 1,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w700,
       fontFamily: 'Yekan',
       color: colors.primary,
+      letterSpacing: 1,
     );
   }
 }
@@ -170,7 +171,7 @@ class aryanSecondaryInputDecoration extends InputDecoration {
          maintainHintSize: true,
          fillColor: fillColor,
          contentPadding: EdgeInsets.all(10),
-         isDense: true,
+         isDense: false,
          hintTextDirection: TextDirection.ltr,
          hint:
              customHint ??

@@ -96,21 +96,18 @@ class AppLocalizationsFa extends AppLocalizations {
   String get defaults => 'پیش فرض ها';
 
   @override
-  String get profile => 'Profile';
+  String get profile => 'حساب کاربری';
 
   @override
   String get dashboard => 'داشبورد';
 
   @override
-  String languagesDisplayName(String userName) {
-    return '';
-  }
-
-  @override
   String get rial => 'ریال';
 
   @override
-  String get opend => 'بازشده ها';
+  String languagesDisplayName(String userName) {
+    return '';
+  }
 
   @override
   String get userSignupLabel => 'شما در هیچ حسابی عضویت ندارید.\nاگر صاحب یا نماینده یک کسب و کار هستید، میتوانید یک حساب برای [b]کاربر اصلی[/b] یا [b]ادمین شرکت[/b] خودتان بسازید !\nاگر از پرسنل یک کسب و کار هستید، منتظر دریافت دعوتنامه بمانید.';
@@ -135,4 +132,10 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get serverConnectionError => 'خطا در برقراری ارتباط با سرور.';
+
+  @override
+  String get untilSendOtpCodeAgain => ' تادرخواست مجدد کد ';
+
+  @override
+  String get sendOtpCodeAgain => ' درخواست مجدد کد ';
 }
