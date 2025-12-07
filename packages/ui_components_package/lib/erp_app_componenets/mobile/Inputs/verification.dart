@@ -1,83 +1,127 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
-import 'package:resources_package/resources/Theme/theme_manager.dart';
-
-const Color primaryColor = Color(0xFF121212);
-const Color accentPurpleColor = Color(0xFF6A53A1);
-const Color accentPinkColor = Color(0xFFF99BBD);
-const Color accentDarkGreenColor = Color(0xFF115C49);
-const Color accentYellowColor = Color(0xFFFFB612);
-const Color accentOrangeColor = Color(0xFFEA7A3B);
+import 'package:flutter/services.dart';
 
 class VerificationWidget extends StatefulWidget {
-  final Function onSubmited;
+  final void Function(String) onSubmited;
   final ValueChanged<String>? onChanged;
+  final int length;
 
   const VerificationWidget({
     super.key,
     required this.onSubmited,
-    required this.onChanged,
+    this.onChanged,
+    this.length = 4,
   });
 
   @override
-  _VerificationWidgetState createState() => _VerificationWidgetState();
+  State<VerificationWidget> createState() => _VerificationWidgetState();
 }
 
 class _VerificationWidgetState extends State<VerificationWidget> {
-  int numberOfFields = 4;
-  bool clearText = false;
-  late List<TextEditingController?> controls;
+  late final List<TextEditingController> _controllers;
+  late final List<FocusNode> _focusNodes;
 
-  String getCode() {
-    // Safely concatenate texts from controllers
-    if (controls.isEmpty) return '';
-    return controls.map((controller) => controller?.text ?? '').join();
+  @override
+  void initState() {
+    super.initState();
+    _controllers = List.generate(widget.length, (_) => TextEditingController());
+    _focusNodes = List.generate(widget.length, (_) => FocusNode());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_focusNodes.isNotEmpty) _focusNodes[0].requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    for (final f in _focusNodes) {
+      f.dispose();
+    }
+    super.dispose();
+  }
+
+  String _getCode() => _controllers.map((c) => c.text).join();
+
+  void _onChangedAt(int index, String value) {
+    if (value.isNotEmpty) {
+      if (value.length > 1) {
+        _controllers[index].text = value.characters.first;
+      }
+      if (index + 1 < _focusNodes.length) {
+        _focusNodes[index + 1].requestFocus();
+      } else {
+        _focusNodes[index].unfocus();
+        widget.onSubmited.call(_getCode());
+      }
+    } else {
+      if (index - 1 >= 0) {
+        _focusNodes[index - 1].requestFocus();
+      }
+    }
+
+    widget.onChanged?.call(_getCode());
+  }
+
+  /// رفتار Back Button
+  Future<bool> _onBackPressed() async {
+    // آیا همه فیلدها خالیند؟
+    bool allEmpty = _controllers.every((c) => c.text.isEmpty);
+
+    if (allEmpty) {
+      return true; // اجازه خروج بده
+    }
+
+    // پیدا کردن آخرین فیلد پُر
+    for (int i = widget.length - 1; i >= 0; i--) {
+      if (_controllers[i].text.isNotEmpty) {
+        _controllers[i].clear();
+        _focusNodes[i].requestFocus();
+        widget.onChanged?.call(_getCode());
+        return false; // صفحه بسته نشود
+      }
+    }
+
+    return false;
   }
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: OtpTextField(
-        numberOfFields: numberOfFields,
-        alignment: Alignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        decoration: const InputDecoration(hintTextDirection: TextDirection.ltr),
-        filled: true,
-        borderColor: ThemeColorsManager(ThemeManager.themeMode).aryanBorder,
-        fillColor: ThemeColorsManager(
-          ThemeManager.themeMode,
-        ).aryanOrdinaryWhite,
-        focusedBorderColor: ThemeColorsManager(
-          ThemeManager.themeMode,
-        ).darkPrimary,
-        enabledBorderColor: ThemeColorsManager(
-          ThemeManager.themeMode,
-        ).aryanBorder,
-        borderWidth: 1,
-        showCursor: false,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        obscureText: false,
-        margin: const EdgeInsets.only(left: 5, right: 5),
-        autoFocus: true,
-        clearText: clearText,
-        showFieldAsBox: true,
+    final theme = Theme.of(context);
 
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-        onCodeChanged: (String value) {
-          final otp = controls.map((c) => c!.text).join();
-          widget.onChanged?.call(otp);
-        },
-        handleControllers: (controllers) {
-          controls = controllers;
-        },
-        fieldHeight: 46,
-        fieldWidth: 55,
-
-        onSubmit: (String verificationCode) {
-          widget.onSubmited.call(verificationCode);
-        },
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(widget.length, (i) {
+            return SizedBox(
+              height: 64,
+              width: 64,
+              child: TextFormField(
+                controller: _controllers[i],
+                focusNode: _focusNodes[i],
+                onChanged: (pin) => _onChangedAt(i, pin),
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                showCursor: true,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(1),
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                decoration: InputDecoration(
+                  hintText: "",
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
       ),
     );
   }

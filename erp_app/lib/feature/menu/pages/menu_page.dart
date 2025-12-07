@@ -140,6 +140,10 @@ class _MenuTile extends StatelessWidget {
 
   const _MenuTile(this.item);
 
+  void onTab(ResponseData item) {
+
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool hasChildren = item.subMenus.isNotEmpty;
@@ -166,12 +170,13 @@ class _MenuTile extends StatelessWidget {
     if (!hasChildren) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
-        child: ListTile(splashColor: Colors.transparent,
+        child: ListTile(
+          splashColor: Colors.transparent,
           dense: true,
           visualDensity: const VisualDensity(vertical: -3),
           contentPadding: const EdgeInsets.symmetric(horizontal: 12),
           title: titleWidget,
-          onTap: () {},
+          onTap: () => onTab,
         ),
       );
     }

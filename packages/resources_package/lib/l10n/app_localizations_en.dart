@@ -87,30 +87,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menu => 'Menu';
 
   @override
-  String get addNew => 'اضافه کردن';
+  String get addNew => 'Add New';
 
   @override
   String get opened => 'Opened';
 
   @override
-  String get defaults => 'پیش فرض ها';
+  String get defaults => 'Defaults';
 
   @override
-  String get profile => 'حساب کاربری';
+  String get profile => 'Profile';
 
   @override
   String get dashboard => 'Dashboard';
 
   @override
-  String languagesDisplayName(String userName) {
-    return '';
-  }
-
-  @override
   String get rial => 'Rial';
 
   @override
-  String get opend => 'باز شده ها';
+  String languagesDisplayName(String userName) {
+    return '';
+  }
 
   @override
   String get userSignupLabel => 'You are not a member of any account.\nIf you are the owner or a representative of a business, you can create an account for your [b]main user[/b] or [b]company admin[/b]!\nIf you are an employee of a business, please wait to receive an invitation.';
@@ -135,4 +132,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get serverConnectionError => 'Server Connection Error';
+
+  @override
+  String get untilSendOtpCodeAgain => 'Until the code is requested again';
+
+  @override
+  String get sendOtpCodeAgain => 'Send code again';
 }

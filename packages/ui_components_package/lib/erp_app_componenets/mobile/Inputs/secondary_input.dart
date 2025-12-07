@@ -54,15 +54,15 @@ abstract class AryanInputs {
   }) {
     final Widget _closePass = AryanAppAssets.images.imageByKey(
       'eyesClose',
-      width: 24,
-      height: 24,
+      width: 22,
+      height: 22,
       fit: BoxFit.fill,
     );
 
     final Widget _openPass = AryanAppAssets.images.imageByKey(
       'eyesOpen',
-      width: 24,
-      height: 24,
+      width: 22,
+      height: 22,
       fit: BoxFit.fill,
     );
 

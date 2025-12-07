@@ -13,7 +13,7 @@ void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(
-      const MyApp(initialLocale: Locale('fa'), deviceToken: ''),
+      const MyApp(initialLocale: Locale('fa'), deviceToken: '', runMode: 3),
     );
 
     // Verify that our counter starts at 0.

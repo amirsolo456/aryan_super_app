@@ -1,4 +1,7 @@
-part of 'person_list_bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:models_package/Data/Com/Person/dto.dart';
+
+
 
 @immutable
 sealed class PersonListState {}
@@ -10,7 +13,7 @@ class LoadDataSuccess extends PersonListState {}
 class LoadDataError extends PersonListState {}
 
 class LoadDataSource extends PersonListState {
-  final List<ResponseData> data;
+  final Response data;
 
   LoadDataSource(this.data);
 }

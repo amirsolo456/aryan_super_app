@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 //ignore: must_be_immutable
@@ -74,12 +75,18 @@ class _SimpleCountDownTimerState extends State<CounterDown> {
 
   void updateTimerStrings() {
     daysString = widget.duration.inDays.toString().padLeft(2, '0');
-    hoursString =
-        widget.duration.inHours.remainder(24).toString().padLeft(2, '0');
-    minutesString =
-        widget.duration.inMinutes.remainder(60).toString().padLeft(2, '0');
-    secondsString =
-        widget.duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    hoursString = widget.duration.inHours
+        .remainder(24)
+        .toString()
+        .padLeft(2, '0');
+    minutesString = widget.duration.inMinutes
+        .remainder(60)
+        .toString()
+        .padLeft(2, '0');
+    secondsString = widget.duration.inSeconds
+        .remainder(60)
+        .toString()
+        .padLeft(2, '0');
   }
 
   @override
@@ -88,13 +95,14 @@ class _SimpleCountDownTimerState extends State<CounterDown> {
       return InkWell(
         onTap: () {
           // عملیات هنگام کلیک روی Done
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Countdown finished!')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Countdown finished!')));
         },
         child: Text(
           'Done',
-          style: widget.textStyle ??
+          style:
+              widget.textStyle ??
               const TextStyle(
                 color: Colors.blue,
                 fontSize: 20,
@@ -178,6 +186,7 @@ class _SimpleCountDownTimerState extends State<CounterDown> {
 }
 
 enum AnimationStyle { fadeIn, basic, fa }
+
 enum FaMode { fromDay, fromHour, fromMinute, fromSecond }
 
 class FaWidget extends StatefulWidget {
@@ -209,7 +218,8 @@ class FaWidget extends StatefulWidget {
 class _FaWidgetState extends State<FaWidget> {
   @override
   Widget build(BuildContext context) {
-    final baseStyle = widget.textStyle ??
+    final baseStyle =
+        widget.textStyle ??
         const TextStyle(
           color: Colors.black,
           fontSize: 20,
@@ -221,23 +231,13 @@ class _FaWidgetState extends State<FaWidget> {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 350),
           transitionBuilder: (Widget child, Animation<double> animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
+            return FadeTransition(opacity: animation, child: child);
           },
 
-          child: Text(
-            key: ValueKey(text),
-            text,
-            style: baseStyle,
-          ),
+          child: Text(key: ValueKey(text), text, style: baseStyle),
         );
       } else {
-        return Text(
-          text,
-          style: baseStyle,
-        );
+        return Text(text, style: baseStyle);
       }
     }
 
@@ -274,8 +274,11 @@ class _FaWidgetState extends State<FaWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           textDirection: TextDirection.ltr,
           children: [
-            Text(": ${widget.minutesString}" + widget.untilSendCodeText,
-                style: baseStyle),
+            Text(
+              textDirection: TextDirection.rtl,
+              " : ${widget.minutesString} " + widget.untilSendCodeText,
+              style: baseStyle,
+            ),
             const SizedBox(width: 4),
             buildAnimatedSeconds(widget.secondsString),
           ],
@@ -285,7 +288,7 @@ class _FaWidgetState extends State<FaWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           textDirection: TextDirection.ltr,
           children: [
-            Text(widget.untilSendCodeText, style: baseStyle),
+            Text(" " + widget.untilSendCodeText + " ", style: baseStyle),
             const SizedBox(width: 4),
             buildAnimatedSeconds(widget.secondsString),
           ],

@@ -37,7 +37,7 @@ dependencies:
   ui_components_package:
     path: ../../packages/ui_components_package
   cupertino_icons: ^1.0.8
-
+  flutter_secure_storage: ^9.2.2
 
 dev_dependencies:
   flutter_test:

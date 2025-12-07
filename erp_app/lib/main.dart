@@ -3,23 +3,28 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:go_router/go_router.dart';
 import 'package:models_package/Base/enums.dart';
 import 'package:models_package/Base/language.dart';
+import 'package:models_package/Data/Com/Person/dto.dart';
 import 'package:provider/provider.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
 import 'package:services_package/Interfaces/apiclient_middleware_service.dart';
 import 'package:services_package/api_client_service.dart';
 import 'package:services_package/login_service.dart';
+import 'package:services_package/navigation_query_builder.dart';
 import 'package:services_package/setup_services.dart';
 import 'package:services_package/storage_service.dart';
 
 import 'components/mainlayout/main_layout.dart';
+import 'core/navigation/navigation_service.dart';
 import 'core/network/custom_http_override.dart';
 import 'core/network/injection_container.dart';
 
 import 'feature/menu/bloc/menu_bloc.dart';
 import 'feature/menu/bloc/menu_event.dart';
-import 'feature/person/person_list_bloc.dart';
+import 'feature/person/presentation/blocs/person_bloc/person_list_bloc.dart';
 import 'feature/profile/profile_bloc.dart';
 
 void main() async {
@@ -29,6 +34,18 @@ void main() async {
   initPartition();
 
   final apiClient = getIt.get<ApiClient>();
+  // final navigationService = getIt.get<NavigationService>();
+  // navigationService
+  //     .pageBuilder()
+  //     .setRegion(
+  //       NavigationQueryBuilderService.bodyKey,
+  //       "person",
+  //       isSpecial: true,
+  //     )
+  //     .setRegionParameter<Response>(
+  //       NavigationQueryBuilderService.bodyKey,
+  //       NavigationQueryBuilderService.bodyParams,
+  //     );
   final apiMiddleware = ApiClientMiddlewareService(apiClient: apiClient);
   final storageService = sl<StorageService>();
 
@@ -59,7 +76,7 @@ void main() async {
 
 Future<bool> CheckDatasForStandAlone(StorageService storage) async {
   try {
-    Map<String,dynamic> result = await storage.loadLoginSession();
+    Map<String, dynamic> result = await storage.loadLoginSession();
     if (result[SessionKeys.loginResult.key] == null) return false;
     if (result[SessionKeys.token.key] == null) return false;
     if (result[SessionKeys.selectedManagement.key] == null) return false;
@@ -69,7 +86,6 @@ Future<bool> CheckDatasForStandAlone(StorageService storage) async {
     return false;
   }
 }
-
 
 class MainApp extends StatelessWidget {
   final Language initialLanguage;
@@ -106,6 +122,23 @@ class MainApp extends StatelessWidget {
   }
 }
 
+final router = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (_, _) =>
+          Scaffold(appBar: AppBar(title: const Text('Home Screen'))),
+      routes: [
+        GoRoute(
+          path: 'details',
+          builder: (_, _) =>
+              Scaffold(appBar: AppBar(title: const Text('Details Screen'))),
+        ),
+      ],
+    ),
+  ],
+);
+
 Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
   if (loginDatas == null) return SizedBox();
 
@@ -117,7 +150,7 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
       bigName: 'IR',
       completeName: 'fa_IR',
     );
-
+  usePathUrlStrategy();
   initPartition();
   final storageService = getIt.get<StorageService>();
   final isOk = storageService
