@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:models_package/Data/Auth/Menu/dto.dart';
+import 'package:services_package/Interfaces/auth/itoolbar_service.dart'
+    hide ResponseData;
+import 'package:services_package/navigation_query_builder.dart';
+import 'package:services_package/setup_services.dart';
 
+import '../../../core/navigation/navigation_service.dart';
 import '../bloc/menu_bloc.dart';
 import '../bloc/menu_event.dart';
 import '../bloc/menu_state.dart';
@@ -141,7 +146,42 @@ class _MenuTile extends StatelessWidget {
   const _MenuTile(this.item);
 
   void onTab(ResponseData item) {
-
+    NavigationService _navigationService = getIt<NavigationService>();
+    String? adress = '';
+    adress = ((item.appLink!.isEmpty || item.appLink == '')
+        ? (item?.webLink ?? '')
+        : item!.appLink);
+    if (adress != '') {
+      ToolBarDataService toolbarDataTask = getIt<ToolBarDataService>();
+      _navigationService
+          .pageBuilder()
+          .setRegion(
+            NavigationQueryBuilderService.bodyKey,
+            adress!,
+            isSpecial: true,
+          )
+          .setRegionParameter(
+            NavigationQueryBuilderService.bodyKey,
+            "ToolbarData",
+            toolbarDataTask,
+          )
+          .setRegionParameter(
+            NavigationQueryBuilderService.bodyKey,
+            "SystemId",
+            0,
+          )
+          .setRegionParameter(
+            NavigationQueryBuilderService.bodyKey,
+            "RepoId",
+            0,
+          )
+          .setRegionParameter(
+            NavigationQueryBuilderService.headKey,
+            NavigationQueryBuilderService.headParams,
+            null,
+          )
+          .goto(NavigationQueryBuilderService.maniHost);
+    }
   }
 
   @override
@@ -176,7 +216,7 @@ class _MenuTile extends StatelessWidget {
           visualDensity: const VisualDensity(vertical: -3),
           contentPadding: const EdgeInsets.symmetric(horizontal: 12),
           title: titleWidget,
-          onTap: () => onTab,
+          onTap: () => onTab(item),
         ),
       );
     }

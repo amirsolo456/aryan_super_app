@@ -100,7 +100,7 @@ class NavigationQueryBuilderService {
     return result;
   }
 
-  static bool goto([String mainHost = ""]) {
+  bool goto([String mainHost = ""]) {
     bool success = false;
 
     try {

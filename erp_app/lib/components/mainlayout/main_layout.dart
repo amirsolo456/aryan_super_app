@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:models_package/Base/enums.dart';
 import 'package:services_package/page_cache_manager.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:ui_components_package/erp_app_componenets/mobile/Components/list_appbar.dart';
+import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_appbar.dart';
 
 import '../../feature/add_new/add-new_page.dart';
 import '../../feature/dashboard_page/dashboard/dashboard.dart';
@@ -14,14 +14,19 @@ import '../../feature/open_page/Open_Page.dart';
 import '../../feature/profile/profile.dart';
 
 class MainLayoutPage extends StatefulWidget {
-  const MainLayoutPage({super.key});
+  final NavButtonTabBarMode tab;
+
+  const MainLayoutPage({super.key, required this.tab});
 
   @override
-  State<MainLayoutPage> createState() => _MainLayoutPageState();
+  State<MainLayoutPage> createState() => _MainLayoutPageState(
+    selectedTab: NavButtonTabBarMode.values.firstWhere((c) => c.value == tab),
+  );
 }
 
 class _MainLayoutPageState extends State<MainLayoutPage> {
-  NavButtonTabBarMode _selectedTab = NavButtonTabBarMode.dashboardTabMode;
+  _MainLayoutPageState({required this.selectedTab});
+  NavButtonTabBarMode selectedTab;
 
 
   late final Widget accountIcon = _paddedIcon('assets/images/account.png');
@@ -58,23 +63,23 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
   static double topPadding = 10;
 
   final Map<NavButtonTabBarMode, int> _tabToIndex = {
-    NavButtonTabBarMode.menuTabMode: 0,
-    NavButtonTabBarMode.newTabMode: 1,
-    NavButtonTabBarMode.openedTabMode: 2,
-    NavButtonTabBarMode.defaultTabMode: 3,
-    NavButtonTabBarMode.profileTabMode: 4,
+    NavButtonTabBarMode.erpMenuTabMode: 0,
+    NavButtonTabBarMode.erpNewTabMode: 1,
+    NavButtonTabBarMode.erpOpenedTabMode: 2,
+    NavButtonTabBarMode.erpDefaultTabMode: 3,
+    NavButtonTabBarMode.erpProfileTabMode: 4,
   };
 
   final Map<int, NavButtonTabBarMode> _indexToTab = {
-    0: NavButtonTabBarMode.menuTabMode,
-    1: NavButtonTabBarMode.newTabMode,
-    2: NavButtonTabBarMode.openedTabMode,
-    3: NavButtonTabBarMode.defaultTabMode,
-    4: NavButtonTabBarMode.profileTabMode,
+    0: NavButtonTabBarMode.erpMenuTabMode,
+    1: NavButtonTabBarMode.erpNewTabMode,
+    2: NavButtonTabBarMode.erpOpenedTabMode,
+    3: NavButtonTabBarMode.erpDefaultTabMode,
+    4: NavButtonTabBarMode.erpProfileTabMode,
   };
 
   Widget _getPage(NavButtonTabBarMode? tab) {
-    if (tab == null || tab == NavButtonTabBarMode.dashboardTabMode) {
+    if (tab == null || tab == NavButtonTabBarMode.erpDashboardTabMode) {
       return const DashboardPage();
     }
 
@@ -88,24 +93,24 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
     }
     final rawPage = _cacheManager.getOrCreate(tab.value, () {
       switch (tab) {
-        case NavButtonTabBarMode.dashboardTabMode:
+        case NavButtonTabBarMode.erpDashboardTabMode:
           return const DashboardPage();
 
-        case NavButtonTabBarMode.menuTabMode:
+        case NavButtonTabBarMode.erpMenuTabMode:
           // return const PersonListPage(refreshData: true);
           return MenuPage();
         // return MenuPage();
 
-        case NavButtonTabBarMode.newTabMode:
+        case NavButtonTabBarMode.erpNewTabMode:
           return const AddNewPage();
 
-        case NavButtonTabBarMode.openedTabMode:
+        case NavButtonTabBarMode.erpOpenedTabMode:
           return const OpenPage();
 
-        case NavButtonTabBarMode.defaultTabMode:
+        case NavButtonTabBarMode.erpDefaultTabMode:
           return const DefaultPage();
 
-        case NavButtonTabBarMode.profileTabMode:
+        case NavButtonTabBarMode.erpProfileTabMode:
           return const ProfilePage(refreshData: true);
 
         default:
@@ -138,41 +143,46 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
 
   void _onItemTapped(NavButtonTabBarMode tab) {
     setState(() {
-      _selectedTab = tab;
+      selectedTab = tab;
       _cacheManager.cleanCacheExcept(tab.value);
     });
   }
 
   PreferredSizeWidget _getAppBar(NavButtonTabBarMode tab) {
     switch (tab) {
-      case NavButtonTabBarMode.menuTabMode:
-        return ListAppBar(mode: AppBarsMode.erpPersonListMode);
+      case NavButtonTabBarMode.erpMenuTabMode:
+        return ErpAppBar(mode: AppBarsMode.erpNotFound);
 
-      case NavButtonTabBarMode.newTabMode:
-        return ListAppBar(mode: AppBarsMode.erpNewMode);
+      case NavButtonTabBarMode.erpNewTabMode:
+        return ErpAppBar(mode: AppBarsMode.erpNewMode);
 
-      case NavButtonTabBarMode.openedTabMode:
-        return ListAppBar(mode: AppBarsMode.erpOpendMode);
+      case NavButtonTabBarMode.erpOpenedTabMode:
+        return ErpAppBar(mode: AppBarsMode.erpOpendMode);
 
-      case NavButtonTabBarMode.defaultTabMode:
-        return ListAppBar(mode: AppBarsMode.erpdefaultMode);
+      case NavButtonTabBarMode.erpDefaultTabMode:
+        return ErpAppBar(mode: AppBarsMode.erpdefaultMode);
 
-      case NavButtonTabBarMode.profileTabMode:
-        return ListAppBar(mode: AppBarsMode.erpprofileMode);
+      case NavButtonTabBarMode.erpProfileTabMode:
+        return ErpAppBar(mode: AppBarsMode.erpprofileMode);
 
-      case NavButtonTabBarMode.dashboardTabMode:
+      case NavButtonTabBarMode.erpGenericListTabMode:
+        return ErpAppBar(mode: AppBarsMode.erpGenericList);
+
+      case NavButtonTabBarMode.erpGenericFormTabMode:
+        return ErpAppBar(mode: AppBarsMode.erpGenericForm);
+      case NavButtonTabBarMode.erpDashboardTabMode:
       default:
-        return ListAppBar(mode: AppBarsMode.erpdashboardMode);
+        return ErpAppBar(mode: AppBarsMode.erpdashboardMode);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final tabs = NavButtonTabBarMode.values;
-    final currentIndex = _tabToIndex[_selectedTab] ?? 10;
+    final currentIndex = _tabToIndex[selectedTab] ?? 10;
     return Scaffold(
-      appBar: _getAppBar(_selectedTab),
-      body: SafeArea(child: _getPage(_selectedTab)),
+      appBar: _getAppBar(selectedTab),
+      body: SafeArea(child: _getPage(selectedTab)),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white, // رنگ پس زمینه سفید
@@ -251,11 +261,8 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
           ? Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                // خط که دقیقا به لبه بالا می‌چسبد
                 Container(height: 2, width: 35, color: Colors.black),
-
-                SizedBox(height: 5), // فاصله ۵ پیکسل بین خط و آیکن
-
+                SizedBox(height: 5),
                 activeIcon,
               ],
             )

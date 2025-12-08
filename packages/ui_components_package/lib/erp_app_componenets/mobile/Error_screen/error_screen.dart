@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
 
 class ErrorPage extends StatelessWidget {
-  final String detail;
-  final dynamic data;
+  final String? detail;
+  final dynamic? data;
   final Uri? uri;
   final VoidCallback? onRetry;
 
-  const ErrorPage({
-    super.key,
-    required this.detail,
-    required this.data,
-    required this.uri,
-    this.onRetry,
-  });
+  const ErrorPage({super.key, this.detail, this.data, this.uri, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +17,7 @@ class ErrorPage extends StatelessWidget {
         height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFABABAB),
-              Color(0x00ABABAB),
-            ],
+            colors: [Color(0xFFABABAB), Color(0x00ABABAB)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -39,8 +30,11 @@ class ErrorPage extends StatelessWidget {
               const SizedBox(height: 20),
 
               Text(
-                detail,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                detail ?? '',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
 
               const SizedBox(height: 15),

@@ -93,6 +93,13 @@ class _SplashScreenState extends State<SplashScreenPage>
                                           },
                                       },
                                     ),
+                              }
+                            else
+                              {
+
+                                LoginWrapper()
+                                    .navigateToLauncherPage(context, loginSession)
+                                    .then((isLauncherOk) => {}),
                               },
                           },
                         ),
@@ -174,6 +181,9 @@ class _SplashScreenState extends State<SplashScreenPage>
 
     if (!mounted) return;
     setState(() => _minimumTimeElapsed = true);
+    if (widget.mode == 1) {
+      storageService.clearLoginSession();
+    }
     Future.delayed(const Duration(seconds: 5));
     _startAnimation();
   }
