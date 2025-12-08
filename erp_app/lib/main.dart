@@ -117,7 +117,7 @@ class MainApp extends StatelessWidget {
                 ),
               ),
             )
-          : MainLayoutPage(tab: NavButtonTabBarMode.erpDashboardTabMode,),
+          : MainLayoutPage(tab: NavButtonTabBarMode.erpDashboardTabMode),
     );
   }
 }
@@ -205,12 +205,13 @@ class PartOfContainerApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+
       title: 'Erp',
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
       ),
-      home: MainLayoutPage(tab: NavButtonTabBarMode.erpDashboardTabMode,),
+      home: MainLayoutPage(tab: NavButtonTabBarMode.erpDashboardTabMode),
     );
   }
 }

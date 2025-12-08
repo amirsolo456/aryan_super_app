@@ -3,10 +3,11 @@ import 'package:services_package/Interfaces/iapi_service.dart';
 
 import '../../api_client_service.dart';
 
-class MenuService implements IApiService<Response, ResponseData, Request> {
+class ToolbarService implements IApiService<Response, ResponseData, Request> {
   final ApiClient apiClient;
+  final String getUrl = "api/menu/gettoolbardata";
 
-  MenuService(this.apiClient);
+  ToolbarService(this.apiClient);
 
   @override
   Future<Response?> delete(
@@ -22,13 +23,13 @@ class MenuService implements IApiService<Response, ResponseData, Request> {
     Request request,
     Response Function(Map<String, dynamic>) fromJsonD,
   ) async {
-    return await apiClient.sendRequestAsync<Response, ResponseData, Request>(
-      "api/auth/menu",
+    return await apiClient.sendRequestAsync(
+      getUrl,
       HttpMethods.post,
       request,
       true,
-      Exception('menu error'),
-      (json) => Response.fromJson(json),
+      null,
+      fromJsonD,
     );
   }
 
