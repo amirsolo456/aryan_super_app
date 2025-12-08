@@ -1,28 +1,28 @@
 import 'package:models_package/Base/base_request.dart';
-import 'package:models_package/Base/base_response.dart';
+import 'package:models_package/Data/Com/Person/dto.dart';
 import 'package:services_package/Interfaces/iapi_service.dart';
 
 import '../../api_client_service.dart';
 
-class PersonService extends IApiService {
+class PersonService extends IApiService<Response, ResponseData, Request> {
   final ApiClient apiClient;
   final String getUrl = "api/com/select/person";
 
   PersonService(this.apiClient);
 
   @override
-  Future<BaseResponse<dynamic>?> delete(
+  Future<Response> delete(
     BaseRequest request,
-    BaseResponse<dynamic> Function(Map<String, dynamic>) fromJsonD,
+    Response Function(Map<String, dynamic>) fromJsonD,
   ) {
     // TODO: implement delete
     throw UnimplementedError();
   }
 
   @override
-  Future<BaseResponse<dynamic>?> get(
+  Future<Response?> get(
     BaseRequest request,
-    BaseResponse<dynamic> Function(Map<String, dynamic>) fromJsonD,
+    Response Function(Map<String, dynamic>) fromJsonD,
   ) async {
     return await apiClient.sendRequestAsync(
       getUrl,
@@ -35,18 +35,18 @@ class PersonService extends IApiService {
   }
 
   @override
-  Future<BaseResponse<dynamic>?> insert(
+  Future<Response?> insert(
     BaseRequest request,
-    BaseResponse<dynamic> Function(Map<String, dynamic>) fromJsonD,
+    Response Function(Map<String, dynamic>) fromJsonD,
   ) {
     // TODO: implement insert
     throw UnimplementedError();
   }
 
   @override
-  Future<BaseResponse<dynamic>?> update(
+  Future<Response?> update(
     BaseRequest request,
-    BaseResponse<dynamic> Function(Map<String, dynamic>) fromJsonD,
+    Response Function(Map<String, dynamic>) fromJsonD,
   ) {
     // TODO: implement update
     throw UnimplementedError();

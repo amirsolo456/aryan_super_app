@@ -1,16 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 
 class ViewFactory {
-  static final GetIt _services = GetIt.instance;
   static final Map<String, View Function(Map<String, String> parameters)>
   _viewMap = {};
 
   static void register<T extends View>(String key) {
     try {
-      _viewMap[key] = (_) => _services.get<T>();
+      // _viewMap[key] = (_) => _services.get<T>();
     } catch (e) {
       debugPrint('Error in register: $e');
     }

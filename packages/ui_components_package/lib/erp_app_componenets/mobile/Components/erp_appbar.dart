@@ -23,7 +23,7 @@ class ErpAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     switch (mode) {
-      case AppBarsMode.erpUnKnown:
+      case AppBarsMode.erpNotFound:
         return buildUnKnownAppBar();
 
       case AppBarsMode.erpNewMode:

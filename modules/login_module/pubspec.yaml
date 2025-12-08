@@ -24,7 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
-  get_it: ^9.0.5
+#  get_it: ^9.0.5
   url_launcher: ^6.3.0
   erp_app:
     path: ../../erp_app

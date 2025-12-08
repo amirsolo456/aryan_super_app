@@ -1,3 +1,4 @@
+import 'package:erp_app/core/network/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:services_package/setup_services.dart';
@@ -24,7 +25,7 @@ class _SplashScreenState extends State<SplashScreenPage>
   late AnimationController _controller;
   late Animation<double> _translateY;
   late Animation<double> _opacity;
-  final storageService = getIt.get<StorageService>();
+  final storageService = sl.get<StorageService>();
   bool _loaderVisible = false;
   bool _isNavigating = false;
   bool _minimumTimeElapsed = false;
@@ -184,13 +185,12 @@ class _SplashScreenState extends State<SplashScreenPage>
     if (widget.mode == 1) {
       storageService.clearLoginSession();
     }
-    Future.delayed(const Duration(seconds: 5));
-    _startAnimation();
+     _startAnimation();
   }
 
   void _startAnimation() async {
     try {
-      await Future.delayed(const Duration(milliseconds: 1000));
+      await Future.delayed(const Duration(milliseconds: 5000));
       if (!mounted) return;
 
       await _controller.forward();

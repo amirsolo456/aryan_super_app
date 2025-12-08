@@ -1,5 +1,6 @@
 enum AppBarsMode {
-  erpNewMode(1),
+  erpNewMode(0),
+  erpMenuMode(1),
   erpOpendMode(2),
   erpdefaultMode(3),
   erpprofileMode(4),

@@ -20,14 +20,14 @@ class MainLayoutPage extends StatefulWidget {
 
   @override
   State<MainLayoutPage> createState() => _MainLayoutPageState(
-    selectedTab: NavButtonTabBarMode.values.firstWhere((c) => c.value == tab),
+    selectedTab: NavButtonTabBarMode.values.firstWhere((c) => c == tab),
   );
 }
 
 class _MainLayoutPageState extends State<MainLayoutPage> {
   _MainLayoutPageState({required this.selectedTab});
-  NavButtonTabBarMode selectedTab;
 
+  NavButtonTabBarMode selectedTab = NavButtonTabBarMode.erpNotFound;
 
   late final Widget accountIcon = _paddedIcon('assets/images/account.png');
   late final Widget activeAccountIcon = _paddedIcon(
@@ -151,7 +151,7 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
   PreferredSizeWidget _getAppBar(NavButtonTabBarMode tab) {
     switch (tab) {
       case NavButtonTabBarMode.erpMenuTabMode:
-        return ErpAppBar(mode: AppBarsMode.erpNotFound);
+        return ErpAppBar(mode: AppBarsMode.erpMenuMode);
 
       case NavButtonTabBarMode.erpNewTabMode:
         return ErpAppBar(mode: AppBarsMode.erpNewMode);

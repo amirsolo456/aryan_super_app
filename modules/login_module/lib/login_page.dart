@@ -1,3 +1,4 @@
+import 'package:erp_app/core/network/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:login_module/services/html_text_parser.dart';
@@ -11,7 +12,6 @@ import 'package:resources_package/l10n/app_localizations.dart';
 import 'package:resources_package/l10n/app_localizations_fa.dart';
 import 'package:resources_package/resources/Theme/theme_manager.dart';
 import 'package:resources_package/resources/styles/styles.dart';
-import 'package:services_package/setup_services.dart';
 import 'package:ui_components_package/erp_app_componenets/common/Buttons/language_button_standalone/language_button_stand_alone.dart';
 import 'package:ui_components_package/erp_app_componenets/common/aryan_logo.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Buttons/count_down.dart';
@@ -57,14 +57,13 @@ class _LoginPageBodyState extends State<LoginPageBody> {
   final GlobalKey<FormState> _passformKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _passRecformKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _userformKey = GlobalKey<FormState>();
-  final SnackBarService _snackBarService = getIt.get<SnackBarService>();
+  final SnackBarService _snackBarService = sl.get<SnackBarService>();
   var otpValue;
   AppLocalizations? loc;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // این متد دقیقاً وقتی صدا میشه که Localizations آماده باشه
     loc = (AppLocalizations.of(context) != null
         ? AppLocalizations.of(context)!
         : AppLocalizationsFa("fa")); // اینجا ! امن هست!

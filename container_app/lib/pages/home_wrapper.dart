@@ -1,5 +1,6 @@
 import 'package:container_app/pages/launcher_page.dart';
 import 'package:container_app/pages/splash_screen.dart';
+import 'package:erp_app/core/network/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:models_package/Base/login_module.dart';
@@ -24,7 +25,7 @@ class _HomeWrapperState extends State<HomeWrapper> {
 
   Future<void> _initializeApp() async {
     try {
-      final storageService = getIt.get<StorageService>();
+      final storageService = sl.get<StorageService>();
       final token = await storageService.getToken();
       final user = await storageService.getUser();
       final lang = await storageService.getLanguage();
@@ -76,7 +77,7 @@ class _HomeWrapperState extends State<HomeWrapper> {
 
   Future<void> _onLoginSuccess(LoginModuleResult result) async {
     try {
-      final storageService = getIt.get<StorageService>();
+      final storageService = sl.get<StorageService>();
       final saveResult = await storageService.setLoginSession(
         token: result.token!,
         language: Language(id: 0, languageCode: 'fa'),

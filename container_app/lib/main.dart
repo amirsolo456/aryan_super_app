@@ -13,7 +13,6 @@ import 'package:login_module/services/snackbar_service.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:resources_package/Resources/Theme/theme_manager.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
-import 'package:services_package/setup_services.dart';
 import 'package:services_package/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/common/Buttons/language_button_standalone/language_button_stand_alone_cubit.dart';
 
@@ -21,7 +20,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   initStandAlone();
-  // setupServices();
 
   Locale initialLocale = Locale('fa');
   GetIt.I.registerLazySingleton(() => LoginModuleManager());
@@ -44,7 +42,7 @@ void main() async {
   try {
     String? token = await FirebaseMessaging.instance.getToken();
     if (token != null && token.isNotEmpty) {
-      final storageService = getIt.get<StorageService>();
+      final storageService = sl.get<StorageService>();
       await storageService.setDeviceToken(token);
       final _lang = await storageService.getLanguage();
 
@@ -100,7 +98,7 @@ class MyApp extends StatelessWidget {
             theme: ThemeColorsManager(.light).aryanTheme,
             darkTheme: ThemeColorsManager(.dark).aryanTheme,
             themeMode: ThemeManager.themeMode,
-            home: SplashScreenPage(mode: 1,networkMode: networkMode ,),
+            home: SplashScreenPage(mode: 1, networkMode: networkMode),
           );
         },
       ),

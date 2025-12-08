@@ -2,7 +2,6 @@ import 'package:models_package/Data/Auth/Login/dto.dart';
 
 import 'Interfaces/ilogin_service.dart';
 import 'api_client_service.dart';
-import 'setup_services.dart';
 import 'storage_service.dart';
 
 class LoginService implements ILoginService {
@@ -11,8 +10,8 @@ class LoginService implements ILoginService {
   late List<_LoginRequestCache> _loginRequestCache = [];
 
   LoginService({required ApiClient client, required StorageService storage}) {
-    _client = getIt.get<ApiClient>();
-    _storage = getIt.get<StorageService>();
+    _client = client;
+    _storage = storage;
     _loginRequestCache = <_LoginRequestCache>[];
   }
 
@@ -22,17 +21,16 @@ class LoginService implements ILoginService {
     try {
       final response = await _client
           .sendObjectRequestAsync<LoginResponse, ResponseData>(
-        'api/auth/login',
-        HttpMethods.post,
-        loginRequest,
-        false,
-        Exception('خطا در ورود'),
-            (json) =>
-            LoginResponse.fromJson(
+            'api/auth/login',
+            HttpMethods.post,
+            loginRequest,
+            false,
+            Exception('خطا در ورود'),
+            (json) => LoginResponse.fromJson(
               json,
-                  (item) => ResponseData.fromJson(json),
+              (item) => ResponseData.fromJson(json),
             ),
-      );
+          );
 
       result = response;
       if (result != null) {
@@ -42,11 +40,7 @@ class LoginService implements ILoginService {
         }
 
         final cacheKey =
-            '${DateTime
-            .now()
-            .millisecondsSinceEpoch}_${1000 + (DateTime
-            .now()
-            .millisecondsSinceEpoch % 9000)}';
+            '${DateTime.now().millisecondsSinceEpoch}_${1000 + (DateTime.now().millisecondsSinceEpoch % 9000)}';
 
         final cache = _LoginRequestCache(
           loginRequest: loginRequest,
@@ -61,14 +55,16 @@ class LoginService implements ILoginService {
   }
 
   @override
-  Future<LoginResponseNextStep?> nextLogin(String cacheKey,
-      ManagementAccounts management,) async {
+  Future<LoginResponseNextStep?> nextLogin(
+    String cacheKey,
+    ManagementAccounts management,
+  ) async {
     LoginResponseNextStep? result;
     _LoginRequestCache? requestCache;
 
     try {
       requestCache = _loginRequestCache.firstWhere(
-            (c) => c.tPrimary == cacheKey,
+        (c) => c.tPrimary == cacheKey,
         orElse: () => _LoginRequestCache.empty(),
       );
 
@@ -82,17 +78,16 @@ class LoginService implements ILoginService {
 
         result = await _client
             .sendObjectRequestAsync<LoginResponseNextStep, ResponseData>(
-          'api/auth/login',
-          HttpMethods.post,
-          requestCache.loginRequest,
-          false,
-          Exception('خطا در ورود'),
-              (json) =>
-              LoginResponseNextStep.fromJson(
+              'api/auth/login',
+              HttpMethods.post,
+              requestCache.loginRequest,
+              false,
+              Exception('خطا در ورود'),
+              (json) => LoginResponseNextStep.fromJson(
                 json,
-                    (item) => ResponseData.fromJson(json),
+                (item) => ResponseData.fromJson(json),
               ),
-        );
+            );
       }
     } catch (ex) {
       // _notifier.raise(this, ex);

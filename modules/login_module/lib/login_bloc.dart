@@ -15,22 +15,21 @@ import 'package:services_package/user_exist.dart';
 import 'services/login_manager_service.dart';
 
 part 'login_event.dart';
-
 part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   final LoginService _loginService = GetIt.instance<LoginService>();
   final UserExistService _userExistService = GetIt.instance<UserExistService>();
   final LoginModuleManager _moduleManager =
-  GetIt.instance<LoginModuleManager>();
+      GetIt.instance<LoginModuleManager>();
   final String _deviveToken;
   final int _networkMode;
   final Login.LoginRequest finalRequest = Login.LoginRequest();
 
   LoginBloc({required int networkMode, required String deviceToken})
-      : _networkMode = networkMode,
-        _deviveToken = deviceToken,
-        super(LoginInitialState()) {
+    : _networkMode = networkMode,
+      _deviveToken = deviceToken,
+      super(LoginInitialState()) {
     on<LoginInitialEvent>(_onInitialEvent);
     on<LoginUsernameEvent>(_onUsernameEvent);
     on<LoginPasswordEvent>(_onPasswordEvent);
@@ -47,16 +46,16 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<void> _onInitialEvent(
-      LoginInitialEvent event,
-      Emitter<LoginStates> emit,
-      ) {
+    LoginInitialEvent event,
+    Emitter<LoginStates> emit,
+  ) {
     emit(LoginInitialState());
   }
 
   FutureOr<void> _onUsernameEvent(
-      LoginUsernameEvent event,
-      Emitter<LoginStates> emit,
-      ) async {
+    LoginUsernameEvent event,
+    Emitter<LoginStates> emit,
+  ) async {
     User.Response? response = null;
     if (_networkMode == 0) {
       if (_deviveToken != '') {
@@ -83,9 +82,9 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<void> _onPasswordEvent(
-      LoginPasswordEvent event,
-      Emitter<LoginStates> emit,
-      ) async {
+    LoginPasswordEvent event,
+    Emitter<LoginStates> emit,
+  ) async {
     if (_networkMode == 0) {
       try {
         final result = await _performLogin(event.username, event.password);
@@ -144,9 +143,9 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<void> _onRecoveryPasswordEvent(
-      LoginRecoveryPasswordEvent event,
-      Emitter<LoginStates> emit,
-      ) {
+    LoginRecoveryPasswordEvent event,
+    Emitter<LoginStates> emit,
+  ) {
     emit(
       LoginSuccessState(
         LoginModuleResult(
@@ -159,9 +158,9 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<void> _onOtpRequestEvent(
-      LoginOtpRequestMessageEvent event,
-      Emitter<LoginStates> emit,
-      ) async {
+    LoginOtpRequestMessageEvent event,
+    Emitter<LoginStates> emit,
+  ) async {
     emit(LoginLoadingState(event.username));
     final String correctOtp = "4444";
 
@@ -170,9 +169,9 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<void> _onOtpValidationEvent(
-      LoginOtpValidationEvent event,
-      Emitter<LoginStates> emit,
-      ) async {
+    LoginOtpValidationEvent event,
+    Emitter<LoginStates> emit,
+  ) async {
     // دسترسی به state فعلی
     final currentState = state;
 
@@ -192,16 +191,16 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<void> _onUserNotFoundEvent(
-      LoginUserNotFoundEvent event,
-      Emitter<LoginStates> emit,
-      ) {
+    LoginUserNotFoundEvent event,
+    Emitter<LoginStates> emit,
+  ) {
     emit(LoginSignUpState(event.username));
   }
 
   FutureOr<void> _onSignUpEvent(
-      LoginSignUpEvent event,
-      Emitter<LoginStates> emit,
-      ) {
+    LoginSignUpEvent event,
+    Emitter<LoginStates> emit,
+  ) {
     emit(LoginSignUpState(event.username));
   }
 
@@ -222,9 +221,9 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<void> _onLoadingEvent(
-      LoginLoadingEvent event,
-      Emitter<LoginStates> emit,
-      ) {
+    LoginLoadingEvent event,
+    Emitter<LoginStates> emit,
+  ) {
     if (event.isLoading) {
       emit(LoginLoadingState(event.message ?? 'در حال پردازش...'));
     }
@@ -237,16 +236,16 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<void> _onSuccessEvent(
-      LoginSuccessEvent event,
-      Emitter<LoginStates> emit,
-      ) {
+    LoginSuccessEvent event,
+    Emitter<LoginStates> emit,
+  ) {
     safeEmit(emit, LoginSuccessState(event.moduleResult));
   }
 
   Future<LoginModuleResult> _performLogin(
-      String username,
-      String password,
-      ) async {
+    String username,
+    String password,
+  ) async {
     try {
       final request = Login.LoginRequest(
         userName: username,
@@ -286,7 +285,7 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
               success: true,
               cachedKey: response.cacheKey,
               selectedManagementAccount:
-              response.managementAccounts!.firstOrNull,
+                  response.managementAccounts!.firstOrNull,
               managementAccount: response.managementAccounts,
               token: response.accessToken,
               user: userDto,
@@ -320,8 +319,8 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<LoginModuleResult> selectManagementAccout(
-      LoginModuleResult moduleResult,
-      ) async {
+    LoginModuleResult moduleResult,
+  ) async {
     try {
       if (moduleResult != null && moduleResult.cachedKey != '') {
         if (moduleResult.selectedManagementAccount != null) {
@@ -380,16 +379,16 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   }
 
   FutureOr<void> _onOpenManagementPicker(
-      LoginOpenManagementPickerEvent event,
-      Emitter<LoginStates> emit,
-      ) {
+    LoginOpenManagementPickerEvent event,
+    Emitter<LoginStates> emit,
+  ) {
     emit(LoginManagementPickerState(event.result));
   }
 
   FutureOr<void> _onManagementSelected(
-      LoginManagementSelectedEvent event,
-      Emitter<LoginStates> emit,
-      ) async {
+    LoginManagementSelectedEvent event,
+    Emitter<LoginStates> emit,
+  ) async {
     final prev = event.result; // نتیجه لاگین که چند اکانت داشت
 
     final result = await _loginService.nextLogin(
@@ -402,21 +401,21 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
         result.result!.toLowerCase().contains('success')) {
       UserDto user = (prev != null && prev!.user != null)
           ? prev.user!.copyWith(
-        token: result.accessToken ?? '',
-        refreshToken: result.refreshToken ?? '',
-      )
+              token: result.accessToken ?? '',
+              refreshToken: result.refreshToken ?? '',
+            )
           : UserDto(
-        refreshToken: "a",
-        token: "a",
-        id: 0,
-        fullName: "a",
-        firstName: "A",
-        imageUrl: "",
-        password: "A",
-        lastName: "a",
-        userName: "f",
-        type: "f",
-      );
+              refreshToken: "a",
+              token: "a",
+              id: 0,
+              fullName: "a",
+              firstName: "A",
+              imageUrl: "",
+              password: "A",
+              lastName: "a",
+              userName: "f",
+              type: "f",
+            );
 
       final updated = LoginModuleResult(
         networkMode: _networkMode,

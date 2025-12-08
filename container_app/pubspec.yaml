@@ -16,7 +16,7 @@ dependencies:
   provider: ^6.1.5+1
   flutter_bloc: ^9.1.1
   firebase_messaging: ^16.0.4
-  get_it: ^9.0.5
+#  get_it: ^9.0.5
   url_launcher: ^6.3.0
   cloud_firestore: 6.1.0
   skeletonizer: ^2.1.0+1
