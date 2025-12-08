@@ -117,7 +117,7 @@ class MainApp extends StatelessWidget {
                 ),
               ),
             )
-          : MainLayoutPage(),
+          : MainLayoutPage(tab: NavButtonTabBarMode.erpDashboardTabMode,),
     );
   }
 }
@@ -150,10 +150,11 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
       bigName: 'IR',
       completeName: 'fa_IR',
     );
+
   usePathUrlStrategy();
   initPartition();
   final storageService = getIt.get<StorageService>();
-  final isOk = storageService
+  storageService
       .setLoginSession(
         user: loginDatas[SessionKeys.user.key],
         token: loginDatas[SessionKeys.token.key],
@@ -209,7 +210,7 @@ class PartOfContainerApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
       ),
-      home: MainLayoutPage(),
+      home: MainLayoutPage(tab: NavButtonTabBarMode.erpDashboardTabMode,),
     );
   }
 }

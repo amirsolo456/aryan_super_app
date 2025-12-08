@@ -100,7 +100,7 @@ class MyApp extends StatelessWidget {
             theme: ThemeColorsManager(.light).aryanTheme,
             darkTheme: ThemeColorsManager(.dark).aryanTheme,
             themeMode: ThemeManager.themeMode,
-            home: SplashScreenPage(mode: 1,networkMode: 0,),
+            home: SplashScreenPage(mode: 1,networkMode: networkMode ,),
           );
         },
       ),

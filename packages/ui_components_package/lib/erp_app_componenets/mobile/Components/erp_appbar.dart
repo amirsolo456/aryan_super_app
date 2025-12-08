@@ -15,16 +15,16 @@ final Widget moreIcon = Image.asset(
   height: 24,
 );
 
-class ListAppBar extends StatelessWidget implements PreferredSizeWidget {
+class ErpAppBar extends StatelessWidget implements PreferredSizeWidget {
   final AppBarsMode mode;
 
-  const ListAppBar({super.key, required this.mode});
+  const ErpAppBar({super.key, required this.mode});
 
   @override
   Widget build(BuildContext context) {
     switch (mode) {
-      case AppBarsMode.erpPersonListMode:
-        return buildPersonListAppBar(context);
+      case AppBarsMode.erpUnKnown:
+        return buildUnKnownAppBar();
 
       case AppBarsMode.erpNewMode:
         return buildNewModeAppBar(context);
@@ -47,23 +47,27 @@ class ListAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(50);
 }
 
-AppBar buildPersonListAppBar(BuildContext context) {
+AppBar buildGenericListAppBar(BuildContext context) {
   return AppBar(
     backgroundColor: Colors.white,
     automaticallyImplyLeading: false,
-
     title: Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Text(AppLocalizations.of(context)!.menu,
-        // Text("منو",
+        Text(
+          AppLocalizations.of(context)!.menu,
 
-            style: TextStyle(color: Colors.black)),
+          style: TextStyle(color: Colors.black),
+        ),
         // SizedBox(width: 5), // فاصله دلخواه
         IconButton(onPressed: () {}, icon: Icon(Icons.arrow_forward)),
       ],
     ),
   );
+}
+
+AppBar buildUnKnownAppBar() {
+  return AppBar(title: Text('Not Found !'));
 }
 
 AppBar buildNewModeAppBar(BuildContext context) {
@@ -134,7 +138,10 @@ AppBar builderpprofileAppBar(BuildContext context) {
       mainAxisAlignment: MainAxisAlignment.end,
       //Change By Hesaraki
       children: [
-        Text(AppLocalizations.of(context)!.profile, style: TextStyle(color: Colors.black)),
+        Text(
+          AppLocalizations.of(context)!.profile,
+          style: TextStyle(color: Colors.black),
+        ),
         // SizedBox(width: 5), // فاصله دلخواه
         IconButton(onPressed: () {}, icon: Icon(Icons.arrow_forward)),
       ],
@@ -148,7 +155,10 @@ AppBar builderpdashvoardAppBar(BuildContext context) {
     elevation: 0.0,
     backgroundColor: Colors.white,
     primary: true,
-    title: Text(AppLocalizations.of(context)!.dashboard, style: const TextStyle(color: Color(0xFF585858))),
+    title: Text(
+      AppLocalizations.of(context)!.dashboard,
+      style: const TextStyle(color: Color(0xFF585858)),
+    ),
     centerTitle: false,
   );
 }

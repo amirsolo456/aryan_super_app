@@ -167,8 +167,8 @@ class ResponseData {
       fatherId: json['FatherId'] as int?,
       menuType: json['MenuType'] as int?,
       menuDesc: json['MenuDesc'] as String?,
-      appLink: json['appLink'] as String?,
-      webLink: json['webLink'] as String?,
+      appLink: json['AppLink'] as String?,
+      webLink: json['WebLink'] as String?,
       actionId: json['ActionId'] as int?,
       repoId: json['RepoId'] as int?,
       icon: json['Icon'] as String?,
@@ -183,17 +183,17 @@ class ResponseData {
 
   Map<String, dynamic> toJson() {
     return {
-      'menuId': menuId,
-      'menuDesc': menuDesc,
-      'appLink': appLink,
-      'webLink': webLink,
-      'actionId': actionId,
-      'repoId': repoId,
+      'MenuId': menuId,
+      'MenuDesc': menuDesc,
+      'AppLink': appLink,
+      'WebLink': webLink,
+      'ActionId': actionId,
+      'RepoId': repoId,
 
-      'icon': icon,
-      'iconUrl': iconUrl,
-      'isSelected': isSelected,
-      'subMenus': subMenus.map((item) => item.toJson()).toList(),
+      'Icon': icon,
+      'IconUrl': iconUrl,
+      'IsSelected': isSelected,
+      'SubMenus': subMenus.map((item) => item.toJson()).toList(),
     };
   }
 }

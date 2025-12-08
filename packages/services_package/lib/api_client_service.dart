@@ -319,7 +319,7 @@ class ApiClient extends IApiClient {
 
         // اجرای درخواست‌های صف‌بندی شده
         while (_pendingRequests.isNotEmpty) {
-          _pendingRequests.first.call();
+          await _pendingRequests.first.call();
           final pending = _pendingRequests.removeAt(0);
           await pending();
         }

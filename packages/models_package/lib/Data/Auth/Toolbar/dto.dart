@@ -1,38 +1,96 @@
 import 'dart:convert';
 
-import 'package:json_annotation/json_annotation.dart';
-
 // Enums
 enum Directions { bottom, top, left, right }
 
-// Base classes (you need to implement these based on your C# base classes)
+// Extension for Directions serialization
+extension DirectionsExtension on Directions {
+  String get value {
+    switch (this) {
+      case Directions.bottom:
+        return 'bottom';
+      case Directions.top:
+        return 'top';
+      case Directions.left:
+        return 'left';
+      case Directions.right:
+        return 'right';
+      default:
+        return 'bottom';
+    }
+  }
+
+  static Directions fromString(String value) {
+    switch (value) {
+      case 'bottom':
+        return Directions.bottom;
+      case 'top':
+        return Directions.top;
+      case 'left':
+        return Directions.left;
+      case 'right':
+        return Directions.right;
+      default:
+        return Directions.bottom;
+    }
+  }
+}
+
+// Base classes
 class BaseQueryRequest {
-  // Implement based on your C# BaseQueryRequest
+  BaseQueryRequest();
+
+  Map<String, dynamic> toJson() => {};
 }
 
 class BaseResponse<T> {
-  // Implement based on your C# BaseResponse<T>
+  T? data;
+  String? result;
+  String? message;
+
+  BaseResponse({this.data, this.result, this.message});
 }
 
 // Main models
-@JsonSerializable()
 class Request extends BaseQueryRequest {
   int repoId;
   int type;
   int systemId;
 
-  Request({required this.repoId, required this.type, required this.systemId});
+  Request({required this.repoId, required this.type, required this.systemId})
+    : super();
+
+  factory Request.fromJson(Map<String, dynamic> json) {
+    return Request(
+      repoId: json['RepoId'] as int,
+      type: json['Type'] as int,
+      systemId: json['SystemId'] as int,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {'RepoId': repoId, 'Type': type, 'SystemId': systemId};
+  }
 }
 
-@JsonSerializable()
 class Response extends BaseResponse<ResponseData> {
-  @JsonKey(name: 'Data')
   ResponseData toolbarData;
 
-  Response() : toolbarData = ResponseData();
+  Response({ResponseData? toolbarData})
+    : toolbarData = toolbarData ?? ResponseData(),
+      super(data: toolbarData ?? ResponseData());
+
+  factory Response.fromJson(Map<String, dynamic> json) {
+    return Response(toolbarData: ResponseData.fromJson(json['Data'] ?? {}));
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {'Data': toolbarData.toJson()};
+  }
 }
 
-@JsonSerializable()
 class ResponseData {
   List<Item>? groupMenu;
   List<Item>? gridMenu;
@@ -45,9 +103,32 @@ class ResponseData {
     moreMenu ??= <Item>[];
     list ??= ToolbarList();
   }
+
+  factory ResponseData.fromJson(Map<String, dynamic> json) {
+    return ResponseData(
+      groupMenu: (json['GroupMenu'] as List<dynamic>?)
+          ?.map((e) => Item.fromJson(e))
+          .toList(),
+      gridMenu: (json['GridMenu'] as List<dynamic>?)
+          ?.map((e) => Item.fromJson(e))
+          .toList(),
+      moreMenu: (json['MoreMenu'] as List<dynamic>?)
+          ?.map((e) => Item.fromJson(e))
+          .toList(),
+      list: json['List'] != null ? ToolbarList.fromJson(json['List']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'GroupMenu': groupMenu?.map((e) => e.toJson()).toList(),
+      'GridMenu': gridMenu?.map((e) => e.toJson()).toList(),
+      'MoreMenu': moreMenu?.map((e) => e.toJson()).toList(),
+      'List': list?.toJson(),
+    };
+  }
 }
 
-@JsonSerializable()
 class Item {
   int? menuId;
   int? actionId;
@@ -64,9 +145,30 @@ class Item {
     this.iconUrl,
     this.type,
   });
+
+  factory Item.fromJson(Map<String, dynamic> json) {
+    return Item(
+      menuId: json['MenuId'] as int?,
+      actionId: json['ActionId'] as int?,
+      menuDesc: json['MenuDesc'] as String?,
+      icon: json['Icon'] as String?,
+      iconUrl: json['IconUrl'] as String?,
+      type: json['Type'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'MenuId': menuId,
+      'ActionId': actionId,
+      'MenuDesc': menuDesc,
+      'Icon': icon,
+      'IconUrl': iconUrl,
+      'Type': type,
+    };
+  }
 }
 
-@JsonSerializable()
 class ToolbarList {
   String? config;
   List<View>? listProp;
@@ -87,9 +189,24 @@ class ToolbarList {
       return <RepoConfig>[];
     }
   }
+
+  factory ToolbarList.fromJson(Map<String, dynamic> json) {
+    return ToolbarList(
+      config: json['Config'] as String?,
+      listProp: (json['ListProp'] as List<dynamic>?)
+          ?.map((e) => View.fromJson(e))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'Config': config,
+      'ListProp': listProp?.map((e) => e.toJson()).toList(),
+    };
+  }
 }
 
-@JsonSerializable()
 class RepoConfig {
   bool? inQuickFilter;
   ValueOption? valueOption;
@@ -117,25 +234,54 @@ class RepoConfig {
 
   factory RepoConfig.fromJson(Map<String, dynamic> json) {
     return RepoConfig(
-      inQuickFilter: json['inQuickFilter'] ?? null as bool?,
-      valueOption: json['valueOption'] ?? null as ValueOption?,
-      fieldName: json['fieldName'] as String?,
-      fieldCaption: json['fieldCaption'] ?? null as String?,
-      fieldType: json['fieldType'] ?? null as String?,
-      inFilter: json['inFilter'] ?? null as bool?,
-      inSort: json['inSort'] ?? null as bool?,
-      direction: json['direction'] ?? null as Directions?,
-      filterOption: json['filterOption'] ?? null as FilterOption?,
-      value: json['value'] ?? null as String?,
+      inQuickFilter: json['inQuickFilter'] as bool?,
+      valueOption: json['valueOption'] != null
+          ? ValueOption.fromJson(json['valueOption'])
+          : null,
+      fieldName: json['FieldName'] as String?,
+      fieldCaption: json['FieldCaption'] as String?,
+      fieldType: json['FieldType'] as String?,
+      inFilter: json['InFilter'] as bool?,
+      inSort: json['InSort'] as bool?,
+      direction: DirectionsExtension.fromString(json['Direction'] ?? 'Bottom'),
+      filterOption: json['FilterOption'] != null
+          ? FilterOption.fromJson(json['FilterOption'])
+          : null,
+      value: json['Value'] as String?,
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'InQuickFilter': inQuickFilter,
+      'ValueOption': valueOption?.toJson(),
+      'FieldName': fieldName,
+      'FieldCaption': fieldCaption,
+      'FieldType': fieldType,
+      'InFilter': inFilter,
+      'InSort': inSort,
+      'Direction': direction.value,
+      'FilterOption': filterOption?.toJson(),
+      'Value': value,
+    };
+  }
+
   RepoConfig clone() {
-    return RepoConfig(fieldName: fieldName, value: value, fieldType: fieldType);
+    return RepoConfig(
+      fieldName: fieldName,
+      value: value,
+      fieldType: fieldType,
+      direction: direction,
+      inQuickFilter: inQuickFilter,
+      valueOption: valueOption,
+      fieldCaption: fieldCaption,
+      inFilter: inFilter,
+      inSort: inSort,
+      filterOption: filterOption,
+    );
   }
 }
 
-@JsonSerializable()
 class ValueOption {
   String endpoint;
   int? repoViewId;
@@ -150,17 +296,45 @@ class ValueOption {
     required this.addWebUrl,
     required this.options,
   });
+
+  factory ValueOption.fromJson(Map<String, dynamic> json) {
+    return ValueOption(
+      endpoint: json['Endpoint'] as String,
+      repoViewId: json['RepoViewId'] as int?,
+      addAppUrl: json['AddAppUrl'] as String,
+      addWebUrl: json['AddWebUrl'] as String,
+      options: (json['Options'] as List<dynamic>)
+          .map((e) => Option.fromJson(e))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'Endpoint': endpoint,
+      'RepoViewId': repoViewId,
+      'AddAppUrl': addAppUrl,
+      'AddWebUrl': addWebUrl,
+      'Options': options.map((e) => e.toJson()).toList(),
+    };
+  }
 }
 
-@JsonSerializable()
 class Option {
   String caption;
   dynamic value;
 
   Option({required this.caption, required this.value});
+
+  factory Option.fromJson(Map<String, dynamic> json) {
+    return Option(caption: json['Caption'] as String, value: json['value']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'Caption': caption, 'Value': value};
+  }
 }
 
-@JsonSerializable()
 class FilterOption {
   String? repoViewId;
   String? addAppUrl;
@@ -173,9 +347,26 @@ class FilterOption {
     this.addWebUrl,
     this.endpoint,
   });
+
+  factory FilterOption.fromJson(Map<String, dynamic> json) {
+    return FilterOption(
+      repoViewId: json['RepoViewId'] as String?,
+      addAppUrl: json['AddAppUrl'] as String?,
+      addWebUrl: json['AddWebUrl'] as String?,
+      endpoint: json['Endpoint'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'RepoViewId': repoViewId,
+      'AddAppUrl': addAppUrl,
+      'AddWebUrl': addWebUrl,
+      'Endpoint': endpoint,
+    };
+  }
 }
 
-@JsonSerializable()
 class View {
   int? id;
   String? desc;
@@ -185,7 +376,7 @@ class View {
   View({this.id, this.desc, this.config, this.type});
 
   MyModel? get listConfig {
-    if (type == "list") {
+    if (type == "List") {
       if (config != null) {
         try {
           return MyModel.fromJson(json.decode(config!));
@@ -201,7 +392,7 @@ class View {
   }
 
   ViewFormConfig? get formConfig {
-    if (type == "form") {
+    if (type == "Form") {
       if (config != null) {
         try {
           return ViewFormConfig.fromJson(json.decode(config!));
@@ -215,18 +406,45 @@ class View {
       return null;
     }
   }
+
+  factory View.fromJson(Map<String, dynamic> json) {
+    return View(
+      id: json['Iid'] as int?,
+      desc: json['Desc'] as String?,
+      config: json['Config'] as String?,
+      type: json['Type'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'Id': id, 'Desc': desc, 'Config': config, 'Type': type};
+  }
 }
 
-@JsonSerializable()
 class ViewListConfig {
   String? fieldName;
   String? fieldType;
   String? fieldCaption;
 
   ViewListConfig({this.fieldName, this.fieldType, this.fieldCaption});
+
+  factory ViewListConfig.fromJson(Map<String, dynamic> json) {
+    return ViewListConfig(
+      fieldName: json['FieldName'] as String?,
+      fieldType: json['FieldType'] as String?,
+      fieldCaption: json['FieldCaption'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'FieldName': fieldName,
+      'FieldType': fieldType,
+      'FieldCaption': fieldCaption,
+    };
+  }
 }
 
-@JsonSerializable()
 class MyModel {
   List<ViewListConfig>? column;
   bool? isDefault;
@@ -246,17 +464,29 @@ class MyModel {
 
   factory MyModel.fromJson(Map<String, dynamic> json) {
     return MyModel(
-      column: json['column'] ?? null as List<ViewListConfig>?,
-      isDefault: json['isDefault'] ?? null as bool?,
-      isDisableAutoRefresh: json['isDisableAutoRefresh'] as bool?,
-      isDisableCommentCount: json['isDisableCommentCount'] ?? null as bool?,
-      isDisableSidebarStats: json['isDisableSidebarStats'] ?? null as bool?,
-      isDisableCount: json['isDisableCount'] ?? null as bool?,
+      column: (json['Column'] as List<dynamic>?)
+          ?.map((e) => ViewListConfig.fromJson(e))
+          .toList(),
+      isDefault: json['IsDefault'] as bool?,
+      isDisableAutoRefresh: json['IsDisableAutoRefresh'] as bool?,
+      isDisableCommentCount: json['IsDisableCommentCount'] as bool?,
+      isDisableSidebarStats: json['IsDisableSidebarStats'] as bool?,
+      isDisableCount: json['IsDisableCount'] as bool?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'Column': column?.map((e) => e.toJson()).toList(),
+      'IsDefault': isDefault,
+      'IsDisableAutoRefresh': isDisableAutoRefresh,
+      'IsDisableCommentCount': isDisableCommentCount,
+      'IsDisableSidebarStats': isDisableSidebarStats,
+      'IsDisableCount': isDisableCount,
+    };
   }
 }
 
-@JsonSerializable()
 class ViewFormConfig {
   String? addEndpoint;
   String? editEndpoint;
@@ -274,16 +504,27 @@ class ViewFormConfig {
 
   factory ViewFormConfig.fromJson(Map<String, dynamic> json) {
     return ViewFormConfig(
-      addEndpoint: json['addEndpoint'] as String?,
-      editEndpoint: json['editEndpoint'] as String?,
-      deleteEndpoint: json['deleteEndpoint'] as String?,
-      formIdField: json['formIdField'] as String?,
-      fields: json['fields'] as List<Field>,
+      addEndpoint: json['AddEndpoint'] as String?,
+      editEndpoint: json['EditEndpoint'] as String?,
+      deleteEndpoint: json['DeleteEndpoint'] as String?,
+      formIdField: json['FormIdField'] as String?,
+      fields: (json['Fields'] as List<dynamic>)
+          .map((e) => Field.fromJson(e))
+          .toList(),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'AddEndpoint': addEndpoint,
+      'EditEndpoint': editEndpoint,
+      'DeleteEndpoint': deleteEndpoint,
+      'FormIdField': formIdField,
+      'Fields': fields.map((e) => e.toJson()).toList(),
+    };
   }
 }
 
-@JsonSerializable()
 class Field {
   String? caption;
   String? name;
@@ -316,17 +557,72 @@ class Field {
     this.icon,
     this.idValue = 0,
   });
+
+  factory Field.fromJson(Map<String, dynamic> json) {
+    return Field(
+      caption: json['Caption'] as String?,
+      name: json['Name'] as String?,
+      help: json['Help'] as String?,
+      type: json['Type'] as String?,
+      placeHolder: json['PlaceHolder'] as String?,
+      defaultValue: json['DefaultValue'],
+      showId: json['ShowId'] as bool? ?? false,
+      radioValues: (json['RadioValues'] as List<dynamic>)
+          .map((e) => RadioValues.fromJson(e))
+          .toList(),
+      order: json['Order'] as int?,
+      selectEndpoint: json['SelectEndpoint'] != null
+          ? SelectEndpoint.fromJson(json['SelectEndpoint'])
+          : null,
+      options: (json['Options'] as List<dynamic>)
+          .map((e) => Select.fromJson(e))
+          .toList(),
+      rules: (json['Rules'] as List<dynamic>)
+          .map((e) => Rule.fromJson(e))
+          .toList(),
+      icon: json['Icon'] as String?,
+      idValue: json['IdValue'] as int? ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'Caption': caption,
+      'Name': name,
+      'Help': help,
+      'Type': type,
+      'PlaceHolder': placeHolder,
+      'DefaultValue': defaultValue,
+      'ShowId': showId,
+      'RadioValues': radioValues.map((e) => e.toJson()).toList(),
+      'Order': order,
+      'SelectEndpoint': selectEndpoint?.toJson(),
+      'Options': options.map((e) => e.toJson()).toList(),
+      'Rules': rules.map((e) => e.toJson()).toList(),
+      'Icon': icon,
+      'IdValue': idValue,
+    };
+  }
 }
 
-@JsonSerializable()
 class RadioValues {
   String caption;
   bool value;
 
   RadioValues({required this.caption, required this.value});
+
+  factory RadioValues.fromJson(Map<String, dynamic> json) {
+    return RadioValues(
+      caption: json['Caption'] as String,
+      value: json['Value'] as bool,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'Caption': caption, 'Value': value};
+  }
 }
 
-@JsonSerializable()
 class SelectEndpoint {
   String? repoViewId;
   String? addAppUrl;
@@ -339,17 +635,41 @@ class SelectEndpoint {
     this.addWebUrl,
     this.endpoint,
   });
+
+  factory SelectEndpoint.fromJson(Map<String, dynamic> json) {
+    return SelectEndpoint(
+      repoViewId: json['RepoViewId'] as String?,
+      addAppUrl: json['AddAppUrl'] as String?,
+      addWebUrl: json['AddWebUrl'] as String?,
+      endpoint: json['Endpoint'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'RepoViewId': repoViewId,
+      'AddAppUrl': addAppUrl,
+      'AddWebUrl': addWebUrl,
+      'Endpoint': endpoint,
+    };
+  }
 }
 
-@JsonSerializable()
 class Select {
   String caption;
   dynamic value;
 
   Select({required this.caption, required this.value});
+
+  factory Select.fromJson(Map<String, dynamic> json) {
+    return Select(caption: json['Caption'] as String, value: json['Value']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'Caption': caption, 'Value': value};
+  }
 }
 
-@JsonSerializable()
 class Rule {
   String? name;
   String? condition;
@@ -369,12 +689,23 @@ class Rule {
 
   factory Rule.fromJson(Map<String, dynamic> json) {
     return Rule(
-      name: json['name'] as String?,
-      condition: json['condition'] as String?,
-      message: json['message'] as String?,
-      required: json['required'] as bool,
-      type: json['type'] as String,
-      len: json['len'] as int,
+      name: json['Name'] as String?,
+      condition: json['Condition'] as String?,
+      message: json['Message'] as String?,
+      required: json['Required'] as bool? ?? false,
+      type: json['Type'] as String? ?? '',
+      len: json['Len'] as int? ?? 0,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'Name': name,
+      'Condition': condition,
+      'Message': message,
+      'Required': required,
+      'Type': type,
+      'Len': len,
+    };
   }
 }

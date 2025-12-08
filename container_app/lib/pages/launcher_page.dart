@@ -24,12 +24,13 @@ class LauncherPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // final locale = context.watch<LanguageButtonStandAloneCubit>().state;
     final options = <_AppOption>[
-      _AppOption(
-        'Login Page',
-        Icons.login,
-        () => SplashScreenPage(mode: 1, networkMode: 0),
-      ),
+      // _AppOption(
+      //   'Login Page',
+      //   Icons.login,
+      //   () => SplashScreenPage(mode: 1, networkMode: 3),
+      // ),
       _AppOption('ERP App', Icons.business, () {
         return erp_app.buildERPApp(loginDatas: loginSession);
       }),
