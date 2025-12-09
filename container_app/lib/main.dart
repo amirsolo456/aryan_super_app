@@ -20,10 +20,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   initStandAlone();
+  sl.registerLazySingleton(() => LoginModuleManager());
+  sl.registerLazySingleton<SnackBarService>(() => SnackBarService());
+   Locale initialLocale = Locale('fa');
 
-  Locale initialLocale = Locale('fa');
-  GetIt.I.registerLazySingleton(() => LoginModuleManager());
-  GetIt.I.registerLazySingleton(() => SnackBarService());
 
   ThemeManager.init();
   await Firebase.initializeApp(
@@ -79,7 +79,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (_) => LanguageButtonStandAloneCubit(
             initialLocale: initialLocal,
-            storage: GetIt.I<StorageService>(),
+            storage:sl.get<StorageService>(),
           ),
         ),
       ],

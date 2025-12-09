@@ -17,14 +17,14 @@ class MenuInitial extends MenuState {
 }
 
 
-class MenuLoading extends MenuState {
-  const MenuLoading();
+class MenuLoadingState extends MenuState {
+  const MenuLoadingState();
 }
 
 
-class MenuLoaded extends MenuState {
+class MenuLoadedState extends MenuState {
   final List<ResponseData> menus;
-  const MenuLoaded(this.menus);
+  const MenuLoadedState(this.menus);
 
 
   @override
@@ -32,9 +32,9 @@ class MenuLoaded extends MenuState {
 }
 
 
-class MenuError extends MenuState {
+class MenuErrorState extends MenuState {
   final String? message;
-  const MenuError([this.message]);
+  const MenuErrorState([this.message]);
 
 
   @override

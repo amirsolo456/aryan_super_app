@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:login_module/services/snackbar_service.dart';
 import 'package:models_package/Base/enums.dart';
 import 'package:models_package/Base/login_module.dart';
 import 'package:models_package/Data/Auth/Login/dto.dart' as Login;
@@ -20,6 +21,7 @@ part 'login_state.dart';
 class LoginBloc extends Bloc<LoginEvents, LoginStates> {
   final LoginService _loginService = GetIt.instance<LoginService>();
   final UserExistService _userExistService = GetIt.instance<UserExistService>();
+  final SnackBarService _snackBarService = GetIt.instance<SnackBarService>();
   final LoginModuleManager _moduleManager =
       GetIt.instance<LoginModuleManager>();
   final String _deviveToken;
@@ -59,8 +61,12 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
     User.Response? response = null;
     if (_networkMode == 0) {
       if (_deviveToken != '') {
-        response = await _userExistService.CheckIfExist(
+        response = await _userExistService.get(
           User.Request(userName: event.username, deviceToken: _deviveToken),
+          (json) => Response.fromJson(
+            json,
+            (item) => User.ResponseData.fromJson(item),
+          ),
         );
         if (response != null) {
           if (response.result!.isNotEmpty &&
@@ -68,6 +74,9 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
             finalRequest.userName = event.username;
             emit(LoginPasswordState(event.username));
           } else {
+            _snackBarService.showError(
+              (response != null ? response.error : "") ?? "",
+            );
             finalRequest.userName = null;
             emit(LoginSignUpState(event.username));
           }

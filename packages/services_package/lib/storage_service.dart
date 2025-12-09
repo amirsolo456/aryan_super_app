@@ -8,23 +8,31 @@ import 'package:models_package/Base/operation_result.dart';
 import 'package:models_package/Data/Auth/Login/dto.dart';
 import 'package:models_package/Data/Auth/User/dto.dart';
 
-import 'Interfaces/istorage_service.dart';
+import 'Interfaces/front_helper_services/istorage_service.dart';
+import 'extension/exception_handler_service.dart';
 
 class StorageService implements IStorageService {
   static final StorageService _instance = StorageService._internal();
 
   factory StorageService() => _instance;
+  static const String _deviceTokenkey = 'device_Token';
 
   StorageService._internal();
 
   static const String _userDataKey = 'user_Data',
       _userTokenKey = 'user_Token',
-      _deviceTokenkey = 'device_Token',
       _languageKey = 'language_Data',
       _selectedManagementKey = 'selected_Management',
       _loginResultKey = 'login_Result';
 
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(
+    // aOptions: AndroidOptions(
+    //   encryptedSharedPreferences: true,
+    //   resetOnError: true,
+    //   sharedPreferencesName: 'LocalAndroidDb',
+    //   storageCipherAlgorithm: StorageCipherAlgorithm.AES_CBC_PKCS7Padding,
+    // ),
+  );
 
   Future<void> _setValue(String key, String value) async {
     await _secureStorage.write(key: key, value: value);
@@ -49,7 +57,11 @@ class StorageService implements IStorageService {
 
   @override
   Future<UserDto?> getUser() async {
-    final value = await _getValue(_userDataKey);
+    final value = await _getValue(_userDataKey).withExceptionHandler(
+      defaultValue: "",
+      errorMessage: "USER Not Found !",
+      sender: this,
+    );
     if (value == null || value.isEmpty) return null;
     try {
       final Map<String, dynamic> map = jsonDecode(value);

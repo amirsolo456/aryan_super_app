@@ -2,7 +2,7 @@
 import 'package:models_package/Data/Auth/Menu/dto.dart' as menu;
 import 'package:models_package/Data/Com/Person/dto.dart';
 
-import '../api_client_service.dart';
+import '../../api_client_service.dart';
 import 'fake_data_service.dart';
 
 class ApiClientMiddlewareService {

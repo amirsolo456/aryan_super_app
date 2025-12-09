@@ -1,12 +1,12 @@
 import 'package:models_package/Base/base_request.dart';
 import 'package:models_package/Base/base_response.dart';
 
-import 'Interfaces/iapi_service.dart';
+import 'Interfaces/backend_api_services/iapi_service.dart';
 import 'api_client_service.dart';
 
 class ApiService<T extends BaseResponse<D>, D, C extends BaseRequest>
     implements IApiService<T, D, C> {
-  late final IApiClient clientService;
+  late final ApiClient clientService;
 
   @override
   Future<T?> delete(

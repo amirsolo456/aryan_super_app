@@ -1,14 +1,10 @@
-import 'package:erp_app/feature/person/domain/repositories/person_repository.dart';
-import 'package:erp_app/feature/person/presentation/blocs/person_bloc/person_list_bloc.dart';
 import 'package:erp_app/feature/person/presentation/blocs/search_person_bloc/search_person_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:models_package/Data/Com/Person/dto.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Buttons/absoluted_button.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Expanders/list_datas_expander.dart';
 import '../../../../core/list_generic/presentation/blocs/generic_cubit.dart';
-import '../../../../core/list_generic/presentation/features/generic_page.dart';
 
 class PersonListPage extends StatefulWidget {
   final bool refreshData;
@@ -29,9 +25,18 @@ final Widget addIcon = Image.asset(
 // PersonListPage با BlocBuilder مستقیم
 class _PersonListPageState extends State<PersonListPage> {
   @override
+  void initState() {
+    super.initState();
+
+    setState(() {
+
+     });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<SearchPersonBloc, GenericState>(
-      bloc: GetIt.instance<SearchPersonBloc>(), // Bloc را از GetIt بگیرید
+      bloc: GetIt.instance<SearchPersonBloc>(),
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
@@ -48,14 +53,17 @@ class _PersonListPageState extends State<PersonListPage> {
           body: Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
                 child: state.props.isNotEmpty
                     ? ListView.builder(
-                  itemCount: state.props.length,
-                  itemBuilder: (context, index) {
-                    return PersonExpander(person: state.props[index]);
-                  },
-                )
+                        itemCount: state.props.length,
+                        itemBuilder: (context, index) {
+                          return PersonExpander(person: state.props[index]);
+                        },
+                      )
                     : const Center(child: Text('No data found')),
               ),
               const AbsoultNewButton(),

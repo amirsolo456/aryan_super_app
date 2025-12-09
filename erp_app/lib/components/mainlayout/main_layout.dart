@@ -11,7 +11,6 @@ import '../../feature/dashboard_page/dashboard/dashboard.dart';
 import '../../feature/default_page/default_page.dart';
 import '../../feature/menu/pages/menu_page.dart';
 import '../../feature/open_page/Open_Page.dart';
-import '../../feature/profile/profile.dart';
 
 class MainLayoutPage extends StatefulWidget {
   final NavButtonTabBarMode tab;
@@ -60,7 +59,6 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
   final Map<int, bool> _showSkeleton = {};
   final Map<int, Timer> _skeletonTimers = {};
   static double size = 40;
-  static double topPadding = 10;
 
   final Map<NavButtonTabBarMode, int> _tabToIndex = {
     NavButtonTabBarMode.erpMenuTabMode: 0,
@@ -97,9 +95,7 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
           return const DashboardPage();
 
         case NavButtonTabBarMode.erpMenuTabMode:
-          // return const PersonListPage(refreshData: true);
           return MenuPage();
-        // return MenuPage();
 
         case NavButtonTabBarMode.erpNewTabMode:
           return const AddNewPage();
@@ -109,9 +105,6 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
 
         case NavButtonTabBarMode.erpDefaultTabMode:
           return const DefaultPage();
-
-        case NavButtonTabBarMode.erpProfileTabMode:
-          return const ProfilePage(refreshData: true);
 
         default:
           return Center(child: Text("صفحه ${(tab.value ?? 0)}"));
@@ -185,10 +178,10 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
       body: SafeArea(child: _getPage(selectedTab)),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white, // رنگ پس زمینه سفید
+          color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.10), // سایه مشکی با آلفا 10%
+              color: Colors.black.withAlpha(10),
               blurRadius: 8,
               spreadRadius: 2,
               offset: Offset(0, -2),

@@ -63,14 +63,13 @@ class _MenuPageState extends State<MenuPage> {
       // appBar: AppBar(title: const Text('منو')),
       body: BlocBuilder<MenuBloc, MenuState>(
         builder: (context, state) {
-          if (state is MenuLoading) {
+          if (state is MenuLoadingState) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (state is MenuError) {
+          if (state is MenuErrorState) {
             return const Center(child: Text('خطا در بارگذاری'));
           }
-          if (state is MenuLoaded) {
-            // اگر چیزی تایپ شد، فیلتر را اعمال کن
+          if (state is MenuLoadedState) {
             if (searchController.text.isEmpty) {
               filteredMenus = state.menus;
             }

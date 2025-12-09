@@ -1,6 +1,6 @@
 import 'package:models_package/Data/Auth/Login/dto.dart';
 
-import 'Interfaces/ilogin_service.dart';
+import 'Interfaces/backend_api_services/ilogin_service.dart';
 import 'api_client_service.dart';
 import 'storage_service.dart';
 

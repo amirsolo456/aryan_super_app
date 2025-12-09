@@ -1,7 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Internet access -->
     <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- SMS (که خودت داشتی) -->
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
     <uses-permission android:name="android.permission.READ_SMS"/>
+
+    <!-- Local storage access (external storage) -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <!-- Required for Android 10+ scoped storage -->
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
 
     <application
         android:label="container_app"

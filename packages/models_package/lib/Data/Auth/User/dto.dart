@@ -10,17 +10,14 @@ class Request extends BaseRequest {
 
   factory Request.fromJson(Map<String, dynamic> json) {
     return Request(
-      userName: json['userName'] as String?,
-      deviceToken: json['deviceToken'] as String?,
+      userName: json['UserName'] as String?,
+      deviceToken: json['DeviceToken'] as String?,
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {
-      'userName': userName,
-      'deviceToken': deviceToken,
-    };
+    return {'UserName': userName, 'DeviceToken': deviceToken};
   }
 }
 
@@ -30,10 +27,15 @@ class Response extends BaseResponse<ResponseData> {
     this.data = data ?? [];
   }
 
-  Response.fromJson(Map<String, dynamic> json,
-      ResponseData Function(Map<String, dynamic>) fromJsonT,) {
+  Response.fromJson(
+    Map<String, dynamic> json,
+    ResponseData Function(Map<String, dynamic>) fromJsonT,
+  ) {
+    result = json['result'] ?? "";
+    error = json['error'] as String ?? "";
+
     if (json['Data'] is List) {
-      result = json['Result'];
+
       totalCount = json['TotalCount'];
       data = (json['Data'] as List)
           .map((e) => fromJsonT(e as Map<String, dynamic>))
@@ -43,13 +45,12 @@ class Response extends BaseResponse<ResponseData> {
     } else {
       data = [];
     }
+
+
   }
 
-
   Map<String, dynamic> toJson() {
-    return {
-      'data': data?.map((x) => x.toJson()).toList() ?? [],
-    };
+    return {'Data': data?.map((x) => x.toJson()).toList() ?? []};
   }
 }
 
@@ -72,16 +73,16 @@ class ResponseData {
       exist: json['Exist'] as bool? ?? false,
       inactive: json['Inactive'] as bool? ?? false,
       invited: json['Invited'] as bool? ?? false,
-      isSelected: json['isSelected'] as bool? ?? false,
+      isSelected: json['IsSelected'] as bool? ?? false,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'exist': exist,
-      'inactive': inactive,
-      'invited': invited,
-      'isSelected': isSelected,
+      'Exist': exist,
+      'Inactive': inactive,
+      'Invited': invited,
+      'IsSelected': isSelected,
     };
   }
 }
@@ -113,7 +114,7 @@ class UserDto {
 
   // متد copyWith
   UserDto copyWith({
-    int? id ,
+    int? id,
     String? userName,
     String? password,
     String? firstName,

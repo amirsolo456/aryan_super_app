@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:erp_app/feature/person/domain/repositories/person_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,18 +10,17 @@ import 'package:models_package/Base/language.dart';
 import 'package:navigation_builder/navigation_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
-import 'package:services_package/Interfaces/apiclient_middleware_service.dart';
 import 'package:services_package/api_client_service.dart';
 import 'package:services_package/com/person/person_service.dart';
+import 'package:services_package/extension/exception_handler_service.dart';
 import 'package:services_package/login_service.dart';
 import 'package:services_package/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_appbar.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_not_found.dart';
-
 import 'components/mainlayout/main_layout.dart';
+import 'core/messengers_services/exception_helper_service.dart';
 import 'core/network/custom_http_override.dart';
 import 'core/network/injection_container.dart';
-
 import 'feature/menu/bloc/menu_bloc.dart';
 import 'feature/menu/bloc/menu_event.dart';
 import 'feature/person/presentation/blocs/person_bloc/person_list_bloc.dart';
@@ -30,19 +28,10 @@ import 'feature/person/presentation/blocs/search_person_bloc/search_person_bloc.
 import 'feature/person/presentation/features/person_list_page.dart';
 import 'feature/profile/profile_bloc.dart';
 
-// 🔧 متغیر برای جلوگیری از initPartition تکراری
-bool _isGetItInitialized = false;
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   initStandAlone();
-
-  // فقط یک بار initPartition را فراخوانی کنید
-  if (!_isGetItInitialized) {
-    initPartition();
-    _isGetItInitialized = true;
-  }
 
   final apiClient = GetIt.instance<ApiClient>();
   final storageService = GetIt.instance<StorageService>();
@@ -52,48 +41,48 @@ void main() async {
       await storageService.getLanguage() ??
       Language(id: 0, smallName: 'fa', completeName: 'fa_IR', bigName: 'IR');
 
-  final can = true; // await CheckDatasForStandAlone(storageService);
-
-  runApp(
-    MultiBlocProvider(
-      providers: [
-        Provider<LoginService>(
-          create: (_) =>
-              LoginService(client: apiClient, storage: StorageService()),
-        ),
-        BlocProvider(create: (_) => ProfileBloc()),
-
-        // ✅ هر دو Bloc را اینجا ثبت کنید
-        BlocProvider(
-          create: (_) => PersonListBloc(personService: personService),
-        ),
-        BlocProvider(
-          // ✅ این خط اضافه شد
-          create: (_) => SearchPersonBloc(personRepo),
-        ),
-
-        BlocProvider(
-          create: (_) => GetIt.instance<MenuBloc>()..add(LoadMenuEvent()),
-        ),
-      ],
-      child: MainApp(initialLanguage: lang),
+  final rootWidget = MultiBlocProvider(
+    providers: [
+      Provider<LoginService>(
+        create: (_) =>
+            LoginService(client: apiClient, storage: StorageService()),
+      ),
+      BlocProvider(create: (_) => ProfileBloc()),
+      BlocProvider(
+        create: (_) => PersonListBloc(personService: personService),
+      ),
+      BlocProvider(
+        create: (_) => SearchPersonBloc(personRepo),
+      ),
+      BlocProvider(
+        create: (_) => GetIt.instance<MenuBloc>()..add(LoadMenuEvent()),
+      ),
+    ],
+    child: MainApp(
+      initialLanguage: lang,
+      messengerService: sl<ExceptionHelperService>(),
     ),
   );
+
+  AppErrorHandler.initializeErrorHandlers(rootWidget);
 }
 
 class MainApp extends StatelessWidget {
   final Language initialLanguage;
   final bool invalidSession;
+  final ExceptionHelperService messengerService;
 
   const MainApp({
     super.key,
     required this.initialLanguage,
+    required this.messengerService,
     this.invalidSession = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: messengerService.navigatorKey,
       debugShowCheckedModeBanner: false,
       locale: Locale(initialLanguage.languageCode ?? "fa"),
       supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
@@ -151,7 +140,6 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
       });
 
   final apiClient = GetIt.instance<ApiClient>();
-  final apiMiddleware = GetIt.instance<ApiClientMiddlewareService>();
   final personRepo = GetIt.instance<PersonRepository>();
   final personService = GetIt.instance<PersonService>();
 
@@ -206,7 +194,6 @@ class PartOfContainerApp extends StatelessWidget {
   }
 }
 
-// ... بقیه کد navigation بدون تغییر
 final erpNavigator = NavigationBuilder.create(
   routes: {
     '/': (RouteData data) =>

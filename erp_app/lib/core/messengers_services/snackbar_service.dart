@@ -7,7 +7,7 @@ import 'package:services_package/Interfaces/front_helper_services/isnackbar_serv
 
 class SnackBarService implements ISnackbarService {
   static final GlobalKey<ScaffoldMessengerState> messengerKey =
-      GlobalKey<ScaffoldMessengerState>();
+  GlobalKey<ScaffoldMessengerState>();
 
   static Color successColor = const Color(0XFFE8F4E6);
   static Color infoColor = const Color(0XFFF2F8FF);
@@ -15,11 +15,11 @@ class SnackBarService implements ISnackbarService {
   static Color questionBoxColor = const Color(0XFFF9F9F9);
 
   void _show(
-    String message, {
-    required MessageMode mode,
-    required List<QuestionButton> buttons,
-    Duration duration = const Duration(seconds: 3),
-  }) {
+      String message, {
+        required MessageMode mode,
+        required List<QuestionButton> buttons,
+        Duration duration = const Duration(seconds: 3),
+      }) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Color bg;
       String icon;
@@ -89,10 +89,10 @@ class SnackBarService implements ISnackbarService {
 
   @override
   void showSuccess(
-    String msg, {
-    Duration? duration,
-    List<QuestionButton>? buttons,
-  }) {
+      String msg, {
+        Duration? duration,
+        List<QuestionButton>? buttons,
+      }) {
     _show(
       msg,
       mode: MessageMode.successMode,
@@ -103,10 +103,10 @@ class SnackBarService implements ISnackbarService {
 
   @override
   void showError(
-    String msg, {
-    Duration? duration,
-    List<QuestionButton>? buttons,
-  }) {
+      String msg, {
+        Duration? duration,
+        List<QuestionButton>? buttons,
+      }) {
     _show(
       msg,
       mode: MessageMode.errorMode,
@@ -117,10 +117,10 @@ class SnackBarService implements ISnackbarService {
 
   @override
   void showInfo(
-    String msg, {
-    Duration? duration,
-    List<QuestionButton>? buttons,
-  }) {
+      String msg, {
+        Duration? duration,
+        List<QuestionButton>? buttons,
+      }) {
     _show(
       msg,
       mode: MessageMode.infoMode,
@@ -131,10 +131,10 @@ class SnackBarService implements ISnackbarService {
 
   @override
   void showQuestionBox(
-    String msg, {
-    Duration? duration,
-    required List<QuestionButton> buttons,
-  }) {
+      String msg, {
+        Duration? duration,
+        required List<QuestionButton> buttons,
+      }) {
     _show(
       msg,
       mode: MessageMode.questionBoxMode,

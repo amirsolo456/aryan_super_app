@@ -20,16 +20,29 @@ class BaseResponse<D> {
   int? key;
 
   factory BaseResponse.error(Exception e) {
-    return BaseResponse<D>(
-      result: 'failed',
-      status: 0,
-      error: e.toString(),
-      exception: Exception(e.toString()),
-      data: [],
-      additionalInfo: '',
-      totalCount: 500,
-      key: null,
-    );
+    try {
+      return BaseResponse<D>(
+        result: 'Failed',
+        status: 0,
+        error: e.toString(),
+        exception: Exception(e.toString()),
+        data: null,
+        additionalInfo: 'a',
+        totalCount: 0,
+        key: null,
+      );
+    } catch (ex) {
+      return BaseResponse<D>(
+        result: 'Failed',
+        status: null,
+        error: null,
+        exception: null,
+        data: null,
+        additionalInfo: null,
+        totalCount: 0,
+        key: null,
+      );
+    }
   }
 
   factory BaseResponse.success(String? message) {

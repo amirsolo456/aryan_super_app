@@ -1,6 +1,6 @@
 import 'package:models_package/Data/Auth/Otp/dto.dart';
 
-import 'Interfaces/iotp_service.dart';
+import 'Interfaces/front_helper_services/iotp_service.dart';
 import 'api_client_service.dart';
 
 final String _sendOtpUrl = 'api/auth/select/user/sendotp';

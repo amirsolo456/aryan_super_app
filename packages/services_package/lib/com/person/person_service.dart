@@ -1,6 +1,6 @@
 import 'package:models_package/Base/base_request.dart';
 import 'package:models_package/Data/Com/Person/dto.dart';
-import 'package:services_package/Interfaces/iapi_service.dart';
+import 'package:services_package/Interfaces/backend_api_services/iapi_service.dart';
 
 import '../../api_client_service.dart';
 

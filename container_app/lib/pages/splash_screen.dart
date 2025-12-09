@@ -1,7 +1,6 @@
 import 'package:erp_app/core/network/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:models_package/Base/language.dart';
-import 'package:services_package/setup_services.dart';
 import 'package:services_package/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/common/aryan_logo.dart';
 import 'login_wrapper.dart';
@@ -33,16 +32,6 @@ class _SplashScreenState extends State<SplashScreenPage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // storageService.loadLoginSession().then((loginSession) => {
-    //   if(loginSession == null || loginSession['token'] == null || loginSession['loginModule'] == null){
-    //     LoginWrapper()
-    //         .navigateToLauncherPage(context, isOk)
-    //         .then((isLauncherOk) => {}),
-    //   }
-    //   else{
-    //
-    //   }
-    // });
 
     storageService.loadLoginSession().then(
       (loginSession) => {
@@ -97,9 +86,11 @@ class _SplashScreenState extends State<SplashScreenPage>
                               }
                             else
                               {
-
                                 LoginWrapper()
-                                    .navigateToLauncherPage(context, loginSession)
+                                    .navigateToLauncherPage(
+                                      context,
+                                      loginSession,
+                                    )
                                     .then((isLauncherOk) => {}),
                               },
                           },
@@ -116,49 +107,6 @@ class _SplashScreenState extends State<SplashScreenPage>
           },
       },
     );
-
-    // try {
-    //   storageService.getDeviceToken().then(
-    //     (isOk) => {
-    //       if (isOk != null)
-    //         {
-    //           LoginWrapper()
-    //               .navigateToLogin(context, isOk ?? "a", widget.networkMode)
-    //               .then(
-    //                 (loginSuccess) => {
-    //                   if (loginSuccess != null)
-    //                     {
-    //                       storageService
-    //                           .setLoginSession(
-    //                             token: loginSuccess.token ?? "",
-    //                             language: Language(id: 0, languageCode: 'fa'),
-    //                             user: loginSuccess.user!,
-    //                             loginResult: loginSuccess,
-    //                             selectedManagement:
-    //                                 loginSuccess.selectedManagementAccount,
-    //                           )
-    //                           .then(
-    //                             (saveResult) => {
-    //                               if (saveResult.isSuccess && mounted)
-    //                                 {
-    //                                   storageService.loadLoginSession().then(
-    //                                     (loaded) => {
-    //                                       LoginWrapper().navigateToLauncherPage(
-    //                                         context,
-    //                                         loaded,
-    //                                       ),
-    //                                     },
-    //                                   ),
-    //                                 },
-    //                             },
-    //                           ),
-    //                     },
-    //                 },
-    //               ),
-    //         },
-    //     },
-    //   );
-    // } catch (e) {}
   }
 
   @override
@@ -185,7 +133,7 @@ class _SplashScreenState extends State<SplashScreenPage>
     if (widget.mode == 1) {
       storageService.clearLoginSession();
     }
-     _startAnimation();
+    _startAnimation();
   }
 
   void _startAnimation() async {
