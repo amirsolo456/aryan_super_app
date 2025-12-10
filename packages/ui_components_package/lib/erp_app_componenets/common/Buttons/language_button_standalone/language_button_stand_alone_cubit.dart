@@ -1,9 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meta/meta.dart';
 import 'package:models_package/Base/language.dart';
-import 'package:services_package/storage_service.dart';
+import 'package:services_package/storage/domain/usecases/storage_service.dart';
 
 part 'language_button_stand_alone_state.dart';
 
@@ -31,7 +30,7 @@ class LanguageButtonStandAloneCubit extends Cubit<Locale> {
         languageCode: locale.languageCode,
       );
 
-      await storage?.setLanguage(lang);
+      await storage?.saveLanguage(lang);
     } catch (e) {
       // optional: لاگ کردن یا هندل کردن خطا
       print('Error saving language: $e');
@@ -41,7 +40,7 @@ class LanguageButtonStandAloneCubit extends Cubit<Locale> {
   Future<void> loadSavedLocale() async {
     if (storage == null) return;
     try {
-      final lang = await storage!.getLanguage();
+      final lang = await storage!.loadLanguage();
       if (lang != null) {
         final savedLocale = Locale(lang.smallName ?? 'en', lang.bigName);
         if (savedLocale != state) emit(savedLocale);

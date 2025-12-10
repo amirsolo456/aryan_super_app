@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'storage_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:services_package/storage/domain/usecases/storage_service.dart';
 
 class NotificationService {
   final StorageService storage;
@@ -33,7 +33,7 @@ class NotificationService {
       String? token = await FirebaseMessaging.instance.getToken();
       if (token != null && token.isNotEmpty) {
         print('Token refreshed: $token');
-        await storage.setDeviceToken(token);
+        await storage.saveToken(token);
         // می‌توانی اینجا توکن رو به سرور بفرستی
       }
     } catch (e) {

@@ -6,7 +6,8 @@ import 'api_client_service.dart';
 
 class ApiService<T extends BaseResponse<D>, D, C extends BaseRequest>
     implements IApiService<T, D, C> {
-  late final ApiClient clientService;
+  final ApiClient clientService;
+  ApiService({required this.clientService});
 
   @override
   Future<T?> delete(

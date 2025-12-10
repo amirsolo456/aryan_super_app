@@ -31,8 +31,8 @@ class Response extends BaseResponse<ResponseData> {
     Map<String, dynamic> json,
     ResponseData Function(Map<String, dynamic>) fromJsonT,
   ) {
-    result = json['result'] ?? "";
-    error = json['error'] as String ?? "";
+    result = json['Result'] ?? "";
+    error = json['Error']   ?? "";
 
     if (json['Data'] is List) {
 

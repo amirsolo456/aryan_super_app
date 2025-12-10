@@ -7,7 +7,7 @@ import 'package:http/retry.dart';
 import 'package:models_package/Base/base_request.dart'
     show BaseRequest, Defaults;
 import 'package:models_package/Base/base_response.dart';
-import 'package:services_package/storage_service.dart';
+import 'package:services_package/storage/domain/usecases/storage_service.dart';
 
 import 'safe_exquter.dart';
 
@@ -39,10 +39,10 @@ T returnDefaultValueOnException<T extends BaseResponse<D>, D>(
   String? message,
 ) {
   return fromJsonD({
-    "result": "Failed",
-    "error": message ?? "",
-    "data": [],
-    "status": 500,
+    "Result": "Failed",
+    "Error": message ?? "",
+    "Data": [],
+    "Status": 500,
   });
 }
 
@@ -215,13 +215,13 @@ class ApiClient extends IApiClient {
           if (newToken != null && newToken.isNotEmpty) {
             headers[HttpHeaders.authorizationHeader] = 'Bearer $newToken';
 
-            // return await _retryRequest<T, D>(
-            //   client: client,
-            //   uri: uri,
-            //   method: method,
-            //   headers: headers,
-            //   body: body,
-            // );
+            return await _retryRequest<T, D>(
+              client: client,
+              uri: uri,
+              method: method,
+              headers: headers,
+              body: body,
+            );
           }
         }
         return returnDefaultValueOnException(
@@ -247,43 +247,32 @@ class ApiClient extends IApiClient {
   }
 
   // Helper method for retrying requests
-  // Future<T> _retryRequest<T extends BaseResponse<D>, D>({
-  //   required RetryClient client,
-  //   required Uri uri,
-  //   required HttpMethods method,
-  //   required Map<String, String> headers,
-  //   required String? body,
-  // }) async {
-  //   http.Response response;
-  //
-  //   switch (method) {
-  //     case HttpMethods.get:
-  //       response = await client.get(uri, headers: headers);
-  //       break;
-  //     case HttpMethods.post:
-  //       response = await client.post(uri, headers: headers, body: body);
-  //       break;
-  //     case HttpMethods.put:
-  //       response = await client.put(uri, headers: headers, body: body);
-  //       break;
-  //     case HttpMethods.delete:
-  //       response = await client.delete(uri, headers: headers);
-  //       break;
-  //     default:
-  //       throw Exception('Unsupported HTTP method');
-  //   }
-  //
-  //   final HttpException? exception = apiExceptionValidator(response);
-  //   if (exception != null) {
-  //     return;
-  //   }
-  //
-  //   final decoded = json.decode(response.body);
-  //
-  //   return returnDefaultValueOnException(
-  //     (json) => BaseResponse.fromjson(json, (it) => {}),
-  //   );
-  // }
+  Future<T> _retryRequest<T extends BaseResponse<D>, D>({
+    required RetryClient client,
+    required Uri uri,
+    required HttpMethods method,
+    required Map<String, String> headers,
+    required String? body,
+  }) async {
+    http.Response response;
+
+    switch (method) {
+      case HttpMethods.get:
+        return json.decode((await client.get(uri, headers: headers)).body);
+
+      case HttpMethods.post:
+        return json.decode((await client.post(uri, headers: headers)).body);
+
+      case HttpMethods.put:
+        return json.decode((await client.put(uri, headers: headers)).body);
+
+      case HttpMethods.delete:
+        return json.decode((await client.delete(uri, headers: headers)).body);
+
+      default:
+        throw Exception('Unsupported HTTP method');
+    }
+  }
 
   Future<bool> refreshToken() async {
     if (_isRefreshing) return false; // جلوگیری از parallel refresh
@@ -291,8 +280,8 @@ class ApiClient extends IApiClient {
     bool success = false;
 
     try {
-      final user = await storage.getUser();
-      final deviceToken = await storage.getDeviceToken();
+      final user = await storage.loadUser();
+      final deviceToken = await storage.loadDeviceToken();
 
       if (user == null || (user.refreshToken?.isEmpty ?? true)) {
         return false;
@@ -323,8 +312,8 @@ class ApiClient extends IApiClient {
 
       if (newToken != null && newToken.isNotEmpty) {
         user.token = newToken;
-        await storage.setUser(user);
-        await storage.setToken(newToken);
+        await storage.saveUser(user);
+        await storage.saveToken(newToken);
         success = true;
 
         // اجرای درخواست‌های صف‌بندی شده
@@ -359,9 +348,9 @@ class ApiClient extends IApiClient {
   // --------------------- Token ---------------------
   Future<String?> _getTokenIfNeeded(bool includeToken) async {
     if (!includeToken) return null;
-    final user = await storage.getUser();
+    final user = await storage.loadUser();
     if (user != null && isTokenValid(user.token ?? '')) return user.token;
-    return await storage.getToken();
+    return await storage.loadToken();
   }
 
   bool isTokenValid(String token) => token.isNotEmpty;
@@ -450,7 +439,6 @@ class ApiUriBuilder {
       cleanedBase = '$cleanedBase/';
     }
 
-    // Remove double slashes that might occur
     final String fullUrl =
         '$cleanedBase${endpoint.replaceFirst(RegExp(r'^/'), '')}';
 

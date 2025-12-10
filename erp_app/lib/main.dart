@@ -7,6 +7,8 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:get_it/get_it.dart';
 import 'package:models_package/Base/enums.dart';
 import 'package:models_package/Base/language.dart';
+import 'package:models_package/Base/login_module.dart';
+import 'package:models_package/Data/Auth/Login/dto.dart';
 import 'package:navigation_builder/navigation_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
@@ -14,6 +16,7 @@ import 'package:services_package/api_client_service.dart';
 import 'package:services_package/com/person/person_service.dart';
 import 'package:services_package/extension/exception_handler_service.dart';
 import 'package:services_package/login_service.dart';
+import 'package:services_package/storage/domain/usecases/storage_service.dart';
 import 'package:services_package/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_appbar.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_not_found.dart';
@@ -38,22 +41,15 @@ void main() async {
   final personService = GetIt.instance<PersonService>();
   final personRepo = GetIt.instance<PersonRepository>();
   final lang =
-      await storageService.getLanguage() ??
+      await storageService.loadLanguage() ??
       Language(id: 0, smallName: 'fa', completeName: 'fa_IR', bigName: 'IR');
 
   final rootWidget = MultiBlocProvider(
     providers: [
-      Provider<LoginService>(
-        create: (_) =>
-            LoginService(client: apiClient, storage: StorageService()),
-      ),
+      Provider<LoginService>(create: (_) => LoginService(client: apiClient)),
       BlocProvider(create: (_) => ProfileBloc()),
-      BlocProvider(
-        create: (_) => PersonListBloc(personService: personService),
-      ),
-      BlocProvider(
-        create: (_) => SearchPersonBloc(personRepo),
-      ),
+      BlocProvider(create: (_) => PersonListBloc(personService: personService)),
+      BlocProvider(create: (_) => SearchPersonBloc(personRepo)),
       BlocProvider(
         create: (_) => GetIt.instance<MenuBloc>()..add(LoadMenuEvent()),
       ),
@@ -119,25 +115,20 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
   }
 
   usePathUrlStrategy();
-
-  // ❌ این خط را حذف کنید - initPartition قبلاً در main() فراخوانی شده
-  // initPartition();
-
   final storageService = GetIt.instance<StorageService>();
 
   // ذخیره session
-  storageService
-      .setLoginSession(
-        user: loginDatas[SessionKeys.user.key],
-        token: loginDatas[SessionKeys.token.key],
-        language: loginDatas[SessionKeys.language.key],
-        loginResult: loginDatas[SessionKeys.loginResult.key],
-      )
-      .then((isOk) {
-        if (!isOk.isSuccess) {
-          return const SizedBox();
-        }
-      });
+  storageService.saveLoginSessionModel(
+    LoginModuleResult.success(
+      user: loginDatas[SessionKeys.user.key],
+      token: loginDatas[SessionKeys.token.key],
+      networkMode: 0,
+      cachedKey: '',
+      language: loginDatas[SessionKeys.language.key],
+      managementAccount:  [],
+      selectedManagementAccount: loginDatas[SessionKeys.selectedManagement.key],
+    ),
+  );
 
   final apiClient = GetIt.instance<ApiClient>();
   final personRepo = GetIt.instance<PersonRepository>();
@@ -145,10 +136,7 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
 
   return MultiBlocProvider(
     providers: [
-      Provider<LoginService>(
-        create: (_) =>
-            LoginService(client: apiClient, storage: StorageService()),
-      ),
+      Provider<LoginService>(create: (_) => LoginService(client: apiClient)),
       BlocProvider(
         create: (_) => GetIt.instance<MenuBloc>()..add(LoadMenuEvent()),
       ),
@@ -221,24 +209,8 @@ final erpNavigator = NavigationBuilder.create(
     '/page6': (RouteData data) => RouteWidget(),
   },
 
-  // // کال‌بک اختیاری برای redirection جهانی
-  // onNavigate: (RouteData data) {
-  //   if (data.location == '/home' && !userSignedIn) {  // مثلاً اگر کاربر لاگین نکرده
-  //     return data.redirectTo('/signIn');  // تغییر مسیر بده
-  //   }
-  // },
-  //
-  // // کال‌بک برای جلوگیری از back
-  // onNavigateBack: (RouteData data) {
-  //   if (data?.location == '/form' && formIsDirty) {  // اگر فرم تغییر کرده
-  //     // مثلاً دیالوگ نشون بده و false برگردون تا back کنسل بشه
-  //     return false;
-  //   }
-  // },
-
-  // تنظیمات اختیاری
   initialLocation: '/',
-  // مسیر اولیه (پیش‌فرض '/')
+
   unknownRoute: (route) => Scaffold(appBar: AppBar(), body: SizedBox()),
   // صفحه برای مسیر نامعلوم
   builder: (Widget outlet) => Scaffold(

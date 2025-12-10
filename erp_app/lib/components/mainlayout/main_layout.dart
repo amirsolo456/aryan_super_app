@@ -95,7 +95,7 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
           return const DashboardPage();
 
         case NavButtonTabBarMode.erpMenuTabMode:
-          return MenuPage();
+          return const MenuPage();
 
         case NavButtonTabBarMode.erpNewTabMode:
           return const AddNewPage();
@@ -150,13 +150,13 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
         return ErpAppBar(mode: AppBarsMode.erpNewMode);
 
       case NavButtonTabBarMode.erpOpenedTabMode:
-        return ErpAppBar(mode: AppBarsMode.erpOpendMode);
+        return ErpAppBar(mode: AppBarsMode.erpOpenedMode);
 
       case NavButtonTabBarMode.erpDefaultTabMode:
-        return ErpAppBar(mode: AppBarsMode.erpdefaultMode);
+        return ErpAppBar(mode: AppBarsMode.erpDefaultMode);
 
       case NavButtonTabBarMode.erpProfileTabMode:
-        return ErpAppBar(mode: AppBarsMode.erpprofileMode);
+        return ErpAppBar(mode: AppBarsMode.erpProfileMode);
 
       case NavButtonTabBarMode.erpGenericListTabMode:
         return ErpAppBar(mode: AppBarsMode.erpGenericList);
@@ -165,7 +165,7 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
         return ErpAppBar(mode: AppBarsMode.erpGenericForm);
       case NavButtonTabBarMode.erpDashboardTabMode:
       default:
-        return ErpAppBar(mode: AppBarsMode.erpdashboardMode);
+        return ErpAppBar(mode: AppBarsMode.erpDashboardMode);
     }
   }
 

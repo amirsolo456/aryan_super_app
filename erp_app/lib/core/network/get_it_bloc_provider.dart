@@ -8,7 +8,7 @@ class GetItBlocProvider<T extends BlocBase> extends StatefulWidget {
   final T Function() getter;
 
   const GetItBlocProvider({Key? key, required this.child, required this.getter})
-    : super(key: key);
+      : super(key: key);
 
   @override
   _GetItBlocProviderState<T> createState() => _GetItBlocProviderState<T>();

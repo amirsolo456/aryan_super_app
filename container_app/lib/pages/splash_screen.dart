@@ -1,7 +1,9 @@
+import 'dart:core';
+
 import 'package:erp_app/core/network/injection_container.dart';
 import 'package:flutter/material.dart';
-import 'package:models_package/Base/language.dart';
-import 'package:services_package/storage_service.dart';
+import 'package:models_package/Base/login_module.dart';
+import 'package:services_package/storage/domain/usecases/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/common/aryan_logo.dart';
 import 'login_wrapper.dart';
 
@@ -33,13 +35,13 @@ class _SplashScreenState extends State<SplashScreenPage>
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    storageService.loadLoginSession().then(
+    storageService.loadLoginSessionModel().then(
       (loginSession) => {
         if (loginSession == null ||
-            loginSession['token'] == null ||
-            loginSession['loginResult'] == null)
+            loginSession.token == null ||
+            !loginSession.success)
           {
-            storageService.getDeviceToken().then(
+            storageService.loadDeviceToken().then(
               (isOk) => {
                 if (isOk != null)
                   {
@@ -54,33 +56,30 @@ class _SplashScreenState extends State<SplashScreenPage>
                             if (loginSuccess != null)
                               {
                                 storageService
-                                    .setLoginSession(
-                                      token: loginSuccess.token ?? "",
-                                      language: Language(
-                                        id: 0,
-                                        languageCode: 'fa',
+                                    .saveLoginSessionModel(
+                                      LoginModuleResult.success(
+                                        token: loginSuccess.token ?? "",
+                                        user: loginSuccess.user!,
+                                        networkMode: 0,
+                                        selectedManagementAccount: loginSuccess
+                                            .selectedManagementAccount,
+                                        cachedKey: '',
+                                        managementAccount: [],
                                       ),
-                                      user: loginSuccess.user!,
-                                      loginResult: loginSuccess,
-                                      selectedManagement: loginSuccess
-                                          .selectedManagementAccount,
                                     )
                                     .then(
-                                      (saveResult) => {
-                                        if (saveResult.isSuccess && mounted)
-                                          {
-                                            storageService
-                                                .loadLoginSession()
-                                                .then(
-                                                  (loaded) => {
-                                                    LoginWrapper()
-                                                        .navigateToLauncherPage(
-                                                          context,
-                                                          loaded,
-                                                        ),
-                                                  },
-                                                ),
-                                          },
+                                      (_) => {
+                                        storageService
+                                            .loadLoginSessionModel()
+                                            .then(
+                                              (loaded) => {
+                                                LoginWrapper()
+                                                    .navigateToLauncherPage(
+                                                      context,
+                                                      loaded.toJson(),
+                                                    ),
+                                              },
+                                            ),
                                       },
                                     ),
                               }
@@ -89,7 +88,7 @@ class _SplashScreenState extends State<SplashScreenPage>
                                 LoginWrapper()
                                     .navigateToLauncherPage(
                                       context,
-                                      loginSession,
+                                      loginSession.toJson(),
                                     )
                                     .then((isLauncherOk) => {}),
                               },
@@ -102,7 +101,7 @@ class _SplashScreenState extends State<SplashScreenPage>
         else
           {
             LoginWrapper()
-                .navigateToLauncherPage(context, loginSession)
+                .navigateToLauncherPage(context, loginSession.toJson())
                 .then((isLauncherOk) => {}),
           },
       },
@@ -131,14 +130,15 @@ class _SplashScreenState extends State<SplashScreenPage>
     if (!mounted) return;
     setState(() => _minimumTimeElapsed = true);
     if (widget.mode == 1) {
-      storageService.clearLoginSession();
+      storageService.removeLoginSessionModel();
     }
+    // Future.delayed(const Duration(seconds: 5));
     _startAnimation();
   }
 
   void _startAnimation() async {
     try {
-      await Future.delayed(const Duration(milliseconds: 5000));
+      await Future.delayed(const Duration(milliseconds: 1000));
       if (!mounted) return;
 
       await _controller.forward();

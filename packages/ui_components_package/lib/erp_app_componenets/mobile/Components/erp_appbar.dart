@@ -29,13 +29,13 @@ class ErpAppBar extends StatelessWidget implements PreferredSizeWidget {
       case AppBarsMode.erpNewMode:
         return buildNewModeAppBar(context);
 
-      case AppBarsMode.erpOpendMode:
+      case AppBarsMode.erpOpenedMode:
         return builderpOpendAppBar(context);
 
-      case AppBarsMode.erpdefaultMode:
+      case AppBarsMode.erpDefaultMode:
         return builderpdefaultAppBar(context);
 
-      case AppBarsMode.erpprofileMode:
+      case AppBarsMode.erpProfileMode:
         return builderpprofileAppBar(context);
 
       default:

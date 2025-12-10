@@ -2,16 +2,13 @@ import 'package:models_package/Data/Auth/Login/dto.dart';
 
 import 'Interfaces/backend_api_services/ilogin_service.dart';
 import 'api_client_service.dart';
-import 'storage_service.dart';
 
 class LoginService implements ILoginService {
   late ApiClient _client;
-  late StorageService _storage;
   late List<_LoginRequestCache> _loginRequestCache = [];
 
-  LoginService({required ApiClient client, required StorageService storage}) {
+  LoginService({required ApiClient client}) {
     _client = client;
-    _storage = storage;
     _loginRequestCache = <_LoginRequestCache>[];
   }
 

@@ -13,6 +13,7 @@ import 'package:login_module/services/snackbar_service.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:resources_package/Resources/Theme/theme_manager.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
+import 'package:services_package/storage/domain/usecases/storage_service.dart';
 import 'package:services_package/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/common/Buttons/language_button_standalone/language_button_stand_alone_cubit.dart';
 
@@ -43,14 +44,12 @@ void main() async {
     String? token = await FirebaseMessaging.instance.getToken();
     if (token != null && token.isNotEmpty) {
       final storageService = sl.get<StorageService>();
-      await storageService.setDeviceToken(token);
-      final _lang = await storageService.getLanguage();
+      await storageService.saveDeviceToken(token);
+      final _lang = await storageService.loadLanguage();
 
       if (_lang != null) {
         initialLocale = Locale(_lang.languageCode ?? 'fa');
-      } else {
-        await storageService.setLanguage(Language(id: 0, languageCode: 'fa'));
-      }
+      }  
     }
   } catch (e) {
     debugPrint('Error in token/setup: $e');

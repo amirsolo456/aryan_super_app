@@ -11,20 +11,25 @@ dependencies:
   firebase_messaging: ^16.0.4
   flutter:
     sdk: flutter
-#  get_it: ^9.0.5
   http: ^1.6.0
   http_exception: ^2.0.1
-  json_annotation: ^4.9.0
   models_package:
     path: ../models_package
-  sqflite: ^2.4.2
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  shared_preferences: ^2.5.3
+#  digit_data_model: ^0.0.0-dev.1
+  json_annotation: ^4.9.0
+  decimal: ^3.2.4
+  analyzer: ^6.4.1
   flutter_secure_storage: ^9.2.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-
+  build_runner: ^2.4.13
+  json_serializable: ^6.8.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

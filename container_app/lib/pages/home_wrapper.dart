@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:models_package/Base/login_module.dart';
 import 'package:services_package/setup_services.dart';
+import 'package:services_package/storage/domain/usecases/storage_service.dart';
 import 'package:services_package/storage_service.dart';
 
 class HomeWrapper extends StatefulWidget {
@@ -26,18 +27,18 @@ class _HomeWrapperState extends State<HomeWrapper> {
   Future<void> _initializeApp() async {
     try {
       final storageService = sl.get<StorageService>();
-      final token = await storageService.getToken();
-      final user = await storageService.getUser();
-      final lang = await storageService.getLanguage();
-      final devToken = await storageService.getDeviceToken() ?? '';
+      final token = await storageService.loadToken();
+      final user = await storageService.loadUser();
+      final lang = await storageService.loadLanguage();
+      final devToken = await storageService.loadDeviceToken() ?? '';
 
       if (token != null && user != null) {
-        final datas = await storageService.loadLoginSession();
+        final datas = await storageService.loadLoginSessionModel();
 
         if (mounted) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => LauncherPage(loginSession: datas ?? {}),
+              builder: (context) => LauncherPage(loginSession: datas.toJson() ?? {}),
             ),
           );
         }
@@ -60,46 +61,7 @@ class _HomeWrapperState extends State<HomeWrapper> {
     }
   }
 
-  // void _showLoginPage({
-  //   required int netWorkMode,
-  //   required String deviceToken,
-  //   required Locale locale,
-  // }) {
-  //   setState(() {
-  //     _currentScreen = LoginPage(
-  //       netMode: netWorkMode,
-  //       deviceToken: deviceToken,
-  //       locale: locale,
-  //
-  //     );
-  //   });
-  // }
 
-  Future<void> _onLoginSuccess(LoginModuleResult result) async {
-    try {
-      final storageService = sl.get<StorageService>();
-      final saveResult = await storageService.setLoginSession(
-        token: result.token!,
-        language: Language(id: 0, languageCode: 'fa'),
-        user: result.user!,
-        loginResult: result,
-        selectedManagement: result.selectedManagementAccount,
-      );
-
-      if (saveResult.isSuccess && mounted) {
-        final datas = await storageService.loadLoginSession();
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => LauncherPage(loginSession: datas ?? {}),
-          ),
-        );
-      } else {
-        _showSnackBar('خطا در ذخیره اطلاعات: ${saveResult.message}');
-      }
-    } catch (e) {
-      _showSnackBar('خطای سیستمی: $e');
-    }
-  }
 
   Widget _buildErrorScreen(String error) {
     return Scaffold(

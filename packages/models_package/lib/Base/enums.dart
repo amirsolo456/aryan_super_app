@@ -1,13 +1,13 @@
 enum AppBarsMode {
   erpNewMode(0),
   erpMenuMode(1),
-  erpOpendMode(2),
-  erpdefaultMode(3),
-  erpprofileMode(4),
+  erpOpenedMode(2),
+  erpDefaultMode(3),
+  erpProfileMode(4),
   erpGenericList(5),
   erpGenericForm(6),
   erpNotFound(7),
-  erpdashboardMode(10);
+  erpDashboardMode(10);
 
   final int value;
 
