@@ -1,9 +1,10 @@
 // default_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/language_bloc.dart';
-import '../bloc/language_event.dart';
-import '../bloc/language_state.dart';
+
+import '../Language/bloc/language_bloc.dart';
+import '../Language/bloc/language_event.dart';
+import '../Language/bloc/language_state.dart';
 
 class DefaultPage extends StatelessWidget {
   const DefaultPage({super.key});
