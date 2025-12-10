@@ -3,10 +3,10 @@
 
 
 //Ehsan Change
-
 import '../../../../../Base/base_request.dart';
 import '../../../../../Base/base_response.dart';
 import '../../../debugger/dto.dart';
+
 
 
 class Request extends BaseRequest {
@@ -109,59 +109,43 @@ class Response extends BaseResponse<ResponseData> {
 
 
 
-
-
-
-  class ResponseData {
-  final int yearId;
-  final String yearDesc;
-  final DateTime startDate;
-  final DateTime endDate;
-  final int placeId;
-  final int pendingStatusId;
+class ResponseData {
+  final int selectId;
+  final String selectValue;
+  final String selectDisplay;
 
   ResponseData({
-    required this.yearId,
-    required this.yearDesc,
-    required this.startDate,
-    required this.endDate,
-    required this.placeId,
-    required this.pendingStatusId,
+    required this.selectId,
+    required this.selectValue,
+    required this.selectDisplay,
   });
 
   factory ResponseData.fromJson(Map<String, dynamic> json) {
     return ResponseData(
-      yearId: json["YearId"] ?? 0,
-      yearDesc: json["YearDesc"] ?? "",
-      startDate: DateTime.tryParse(json["StartDate"] ?? "") ?? DateTime(1970),
-      endDate: DateTime.tryParse(json["EndDate"] ?? "") ?? DateTime(1970),
-      placeId: json["PlaceId"] ?? 0,
-      pendingStatusId: json["PendingStatusId"] ?? 0,
+      selectId: json["_SelectId"] ?? 0,
+      selectValue: json["_SelectValue"] ?? "",
+      selectDisplay: json["_SelectDisplay"] ?? "",
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "YearId": yearId,
-      "YearDesc": yearDesc,
-      "StartDate": startDate.toIso8601String(),
-      "EndDate": endDate.toIso8601String(),
-      "PlaceId": placeId,
-      "PendingStatusId": pendingStatusId,
+      "_SelectId": selectId,
+      "_SelectValue": selectValue,
+      "_SelectDisplay": selectDisplay,
     };
   }
 }
 
 
-
-class YearRootResponse {
+class CurrencyResponse {
   final List<ResponseData> data;
   final int totalCount;
   final int returnCount;
   final String result;
   final List<DebuggerModel> debugger;
 
-  YearRootResponse({
+  CurrencyResponse({
     required this.data,
     required this.totalCount,
     required this.returnCount,
@@ -169,8 +153,8 @@ class YearRootResponse {
     required this.debugger,
   });
 
-  factory YearRootResponse.fromJson(Map<String, dynamic> json) {
-    return YearRootResponse(
+  factory CurrencyResponse.fromJson(Map<String, dynamic> json) {
+    return CurrencyResponse(
       data: (json["Data"] as List<dynamic>)
           .map((e) => ResponseData.fromJson(e))
           .toList(),

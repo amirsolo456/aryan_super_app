@@ -38,7 +38,9 @@ void initStandAlone() {
     managementAccountId: 1,
   );
   final _apisetting = ApiSettings(
-    baseUrl: 'https://216.65.200.215/',
+    // baseUrl: 'https://216.65.200.215/',
+     baseUrl: 'https://bff.arian.net/',
+
     loginUrl: 'api/auth/login',
     appDefaults: _defaults,
   );

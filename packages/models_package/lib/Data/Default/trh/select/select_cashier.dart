@@ -1,19 +1,17 @@
 
-
-
-
 //Ehsan Change
 
-import '../../../../../Base/base_request.dart';
-import '../../../../../Base/base_response.dart';
-import '../../../debugger/dto.dart';
+
+import '../../../../Base/base_request.dart';
+import '../../../../Base/base_response.dart';
+import '../../debugger/dto.dart';
+
 
 
 class Request extends BaseRequest {
   int RepoViewId;
-  int ShowMode;
 
-  Request({required this.RepoViewId,required this.ShowMode});
+  Request({required this.RepoViewId});
 }
 
 class Response extends BaseResponse<ResponseData> {
@@ -108,88 +106,78 @@ class Response extends BaseResponse<ResponseData> {
 
 
 
+class ResponseData {
+  final int selectId;
+  final String? selectValue;
+  final String? selectDisplay;
 
-
-
-
-  class ResponseData {
-  final int yearId;
-  final String yearDesc;
-  final DateTime startDate;
-  final DateTime endDate;
-  final int placeId;
-  final int pendingStatusId;
-
-  ResponseData({
-    required this.yearId,
-    required this.yearDesc,
-    required this.startDate,
-    required this.endDate,
-    required this.placeId,
-    required this.pendingStatusId,
+  const ResponseData({
+    this.selectId = 0,
+    this.selectValue,
+    this.selectDisplay,
   });
 
   factory ResponseData.fromJson(Map<String, dynamic> json) {
     return ResponseData(
-      yearId: json["YearId"] ?? 0,
-      yearDesc: json["YearDesc"] ?? "",
-      startDate: DateTime.tryParse(json["StartDate"] ?? "") ?? DateTime(1970),
-      endDate: DateTime.tryParse(json["EndDate"] ?? "") ?? DateTime(1970),
-      placeId: json["PlaceId"] ?? 0,
-      pendingStatusId: json["PendingStatusId"] ?? 0,
+      selectId: json['_SelectId'] ?? 0,
+      selectValue: json['_SelectValue'] as String?,
+      selectDisplay: json['_SelectDisplay'] as String?,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      "YearId": yearId,
-      "YearDesc": yearDesc,
-      "StartDate": startDate.toIso8601String(),
-      "EndDate": endDate.toIso8601String(),
-      "PlaceId": placeId,
-      "PendingStatusId": pendingStatusId,
-    };
+  Map<String, dynamic> toJson() => {
+    '_SelectId': selectId,
+    '_SelectValue': selectValue,
+    '_SelectDisplay': selectDisplay,
+  };
+
+  ResponseData copyWith({
+    int? selectId,
+    String? selectValue,
+    String? selectDisplay,
+  }) {
+    return ResponseData(
+      selectId: selectId ?? this.selectId,
+      selectValue: selectValue ?? this.selectValue,
+      selectDisplay: selectDisplay ?? this.selectDisplay,
+    );
   }
 }
 
-
-
-class YearRootResponse {
+class SelectOptionResponseModel {
   final List<ResponseData> data;
   final int totalCount;
   final int returnCount;
-  final String result;
+  final String? result;
   final List<DebuggerModel> debugger;
 
-  YearRootResponse({
-    required this.data,
-    required this.totalCount,
-    required this.returnCount,
-    required this.result,
-    required this.debugger,
+  const SelectOptionResponseModel({
+    this.data = const [],
+    this.totalCount = 0,
+    this.returnCount = 0,
+    this.result,
+    this.debugger = const [],
   });
 
-  factory YearRootResponse.fromJson(Map<String, dynamic> json) {
-    return YearRootResponse(
-      data: (json["Data"] as List<dynamic>)
-          .map((e) => ResponseData.fromJson(e))
+  factory SelectOptionResponseModel.fromJson(Map<String, dynamic> json) {
+    return SelectOptionResponseModel(
+      data: (json['Data'] as List<dynamic>? ?? [])
+          .map((e) => ResponseData.fromJson(e as Map<String, dynamic>))
           .toList(),
-      totalCount: json["TotalCount"] ?? 0,
-      returnCount: json["ReturnCount"] ?? 0,
-      result: json["Result"] ?? "",
-      debugger: (json["Debugger"] as List<dynamic>)
-          .map((e) => DebuggerModel.fromJson(e))
+      totalCount: json['TotalCount'] ?? 0,
+      returnCount: json['ReturnCount'] ?? 0,
+      result: json['Result'] as String?,
+      debugger: (json['Debugger'] as List<dynamic>? ?? [])
+          .map((e) => DebuggerModel.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      "Data": data.map((e) => e.toJson()).toList(),
-      "TotalCount": totalCount,
-      "ReturnCount": returnCount,
-      "Result": result,
-      "Debugger": debugger.map((e) => e.toJson()).toList(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    'Data': data.map((e) => e.toJson()).toList(),
+    'TotalCount': totalCount,
+    'ReturnCount': returnCount,
+    'Result': result,
+    'Debugger': debugger.map((e) => e.toJson()).toList(),
+  };
 }
