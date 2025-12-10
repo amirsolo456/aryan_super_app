@@ -27,9 +27,10 @@ class ToolbarResponse {
 }
 
 class ResponseData {
+
   // فیلدهای ResponseData
   factory ResponseData.fromJson(Map<String, dynamic> json) {
-    return ResponseData();
+    return ResponseData.fromJson(json);
   }
 }
 
@@ -44,8 +45,8 @@ class ToolBarDataService implements IToolBarDataService {
   final String _baseUrl;
 
   ToolBarDataService({required http.Client client, required String baseUrl})
-    : _client = client,
-      _baseUrl = baseUrl;
+      : _client = client,
+        _baseUrl = baseUrl;
 
   @override
   Future<ToolbarResponse?> get(ToolbarRequest request) async {

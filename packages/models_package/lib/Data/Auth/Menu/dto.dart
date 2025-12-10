@@ -63,8 +63,7 @@ class Response extends BaseResponse<ResponseData> {
         json['statusCode'] ??
         json['StatusCode'];
     final key = json['key'] ?? json['Key'];
-    final totalCount =
-        json['totalCount'] ?? json['TotalCount'] ?? dataList.length;
+    final totalCount = json['totalCount'] ?? json['TotalCount'] ?? dataList.length;
 
     return Response(
       result: result?.toString(),

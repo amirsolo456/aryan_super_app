@@ -14,6 +14,7 @@ import 'package:resources_package/l10n/app_localizations.dart';
 import 'package:services_package/Interfaces/apiclient_middleware_service.dart';
 import 'package:services_package/api_client_service.dart';
 import 'package:services_package/com/person/person_service.dart';
+import 'package:services_package/default/mng/select/language_service.dart';
 import 'package:services_package/login_service.dart';
 import 'package:services_package/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_appbar.dart';
@@ -23,12 +24,16 @@ import 'components/mainlayout/main_layout.dart';
 import 'core/network/custom_http_override.dart';
 import 'core/network/injection_container.dart';
 
+import 'feature/default_page/Language/bloc/language_bloc.dart';
+import 'feature/default_page/Language/bloc/language_event.dart';
 import 'feature/menu/bloc/menu_bloc.dart';
 import 'feature/menu/bloc/menu_event.dart';
 import 'feature/person/presentation/blocs/person_bloc/person_list_bloc.dart';
 import 'feature/person/presentation/blocs/search_person_bloc/search_person_bloc.dart';
 import 'feature/person/presentation/features/person_list_page.dart';
 import 'feature/profile/profile_bloc.dart';
+
+// اضافه کردن import‌های مربوط به Language
 
 // 🔧 متغیر برای جلوگیری از initPartition تکراری
 bool _isGetItInitialized = false;
@@ -48,9 +53,13 @@ void main() async {
   final storageService = GetIt.instance<StorageService>();
   final personService = GetIt.instance<PersonService>();
   final personRepo = GetIt.instance<PersonRepository>();
+
+  // LanguageService را از GetIt دریافت کنید
+  final languageService = GetIt.instance<LanguageService>();
+
   final lang =
       await storageService.getLanguage() ??
-      Language(id: 0, smallName: 'fa', completeName: 'fa_IR', bigName: 'IR');
+          Language(id: 0, smallName: 'fa', completeName: 'fa_IR', bigName: 'IR');
 
   final can = true; // await CheckDatasForStandAlone(storageService);
 
@@ -68,13 +77,21 @@ void main() async {
           create: (_) => PersonListBloc(personService: personService),
         ),
         BlocProvider(
-          // ✅ این خط اضافه شد
           create: (_) => SearchPersonBloc(personRepo),
         ),
 
         BlocProvider(
           create: (_) => GetIt.instance<MenuBloc>()..add(LoadMenuEvent()),
         ),
+
+        // Change Ehsan
+
+        BlocProvider(
+          create: (_) => LanguageBloc( getLanguageUseCase: languageService)
+            ..add(const LoadLanguageEvent()),
+        ),
+
+        // Change Ehsan
       ],
       child: MainApp(initialLanguage: lang),
     ),
@@ -105,12 +122,12 @@ class MainApp extends StatelessWidget {
       ],
       home: invalidSession
           ? Scaffold(
-              body: Center(
-                child: Text(
-                  'اطلاعات معتبر نمی‌باشد، لطفاً از ابتدا وارد شوید.',
-                ),
-              ),
-            )
+        body: Center(
+          child: Text(
+            'اطلاعات معتبر نمی‌باشد، لطفاً از ابتدا وارد شوید.',
+          ),
+        ),
+      )
           : MainLayoutPage(tab: NavButtonTabBarMode.erpDashboardTabMode),
     );
   }
@@ -139,36 +156,47 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
   // ذخیره session
   storageService
       .setLoginSession(
-        user: loginDatas[SessionKeys.user.key],
-        token: loginDatas[SessionKeys.token.key],
-        language: loginDatas[SessionKeys.language.key],
-        loginResult: loginDatas[SessionKeys.loginResult.key],
-      )
+    user: loginDatas[SessionKeys.user.key],
+    token: loginDatas[SessionKeys.token.key],
+    language: loginDatas[SessionKeys.language.key],
+    loginResult: loginDatas[SessionKeys.loginResult.key],
+  )
       .then((isOk) {
-        if (!isOk.isSuccess) {
-          return const SizedBox();
-        }
-      });
+    if (!isOk.isSuccess) {
+      return const SizedBox();
+    }
+  });
 
   final apiClient = GetIt.instance<ApiClient>();
   final apiMiddleware = GetIt.instance<ApiClientMiddlewareService>();
   final personRepo = GetIt.instance<PersonRepository>();
   final personService = GetIt.instance<PersonService>();
 
+  // LanguageService را از GetIt دریافت کنید
+  final languageService = GetIt.instance<LanguageService>();
+
   return MultiBlocProvider(
     providers: [
       Provider<LoginService>(
-        create: (_) =>
-            LoginService(client: apiClient, storage: StorageService()),
+        create: (_) => LoginService(client: apiClient, storage: StorageService()),
       ),
       BlocProvider(
         create: (_) => GetIt.instance<MenuBloc>()..add(LoadMenuEvent()),
       ),
-      BlocProvider(create: (_) => ProfileBloc()),
-      BlocProvider(create: (_) => PersonListBloc(personService: personService)),
       BlocProvider(
-        // ✅ این خط اضافه شد
+        create: (_) => ProfileBloc(),
+      ),
+      BlocProvider(
+        create: (_) => PersonListBloc(personService: personService),
+      ),
+      BlocProvider(
         create: (_) => SearchPersonBloc(personRepo),
+      ),
+
+      // ✅ اضافه کردن LanguageBloc به providers در اینجا هم
+      BlocProvider(
+        create: (_) => LanguageBloc( getLanguageUseCase: languageService)
+          ..add(const LoadLanguageEvent()),
       ),
     ],
     child: PartOfContainerApp(loginModuleResult: loginDatas),
@@ -187,7 +215,7 @@ class PartOfContainerApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       locale: Locale(
         (loginModuleResult[SessionKeys.language.key] as Language?)
-                ?.languageCode ??
+            ?.languageCode ??
             'fa',
       ),
       supportedLocales: AppLocalizations.supportedLocales,
@@ -210,13 +238,13 @@ class PartOfContainerApp extends StatelessWidget {
 final erpNavigator = NavigationBuilder.create(
   routes: {
     '/': (RouteData data) =>
-        const MainLayoutPage(tab: NavButtonTabBarMode.erpDashboardTabMode),
+    const MainLayoutPage(tab: NavButtonTabBarMode.erpDashboardTabMode),
     '/:erpMenuTabBarId': (RouteData data) {
       final id = data.pathParams['erpMenuTabBarId']; // دسترسی به پارامترها
       NavButtonTabBarMode tab = NavButtonTabBarMode.values.firstWhere(
-        (e) => e.value == id,
+            (e) => e.value == id,
         orElse: () =>
-            NavButtonTabBarMode.erpNotFound, // اگر پیدا نشد، erpNotFound
+        NavButtonTabBarMode.erpNotFound, // اگر پیدا نشد، erpNotFound
       );
       return MainLayoutPage(tab: tab);
     },
@@ -234,33 +262,5 @@ final erpNavigator = NavigationBuilder.create(
     '/page6': (RouteData data) => RouteWidget(),
   },
 
-  // // کال‌بک اختیاری برای redirection جهانی
-  // onNavigate: (RouteData data) {
-  //   if (data.location == '/home' && !userSignedIn) {  // مثلاً اگر کاربر لاگین نکرده
-  //     return data.redirectTo('/signIn');  // تغییر مسیر بده
-  //   }
-  // },
-  //
-  // // کال‌بک برای جلوگیری از back
-  // onNavigateBack: (RouteData data) {
-  //   if (data?.location == '/form' && formIsDirty) {  // اگر فرم تغییر کرده
-  //     // مثلاً دیالوگ نشون بده و false برگردون تا back کنسل بشه
-  //     return false;
-  //   }
-  // },
-
-  // تنظیمات اختیاری
-  initialLocation: '/',
-  // مسیر اولیه (پیش‌فرض '/')
-  unknownRoute: (route) => Scaffold(appBar: AppBar(), body: SizedBox()),
-  // صفحه برای مسیر نامعلوم
-  builder: (Widget outlet) => Scaffold(
-    appBar: ErpAppBar(mode: AppBarsMode.erpNotFound),
-    body: outlet,
-  ),
-  transitionsBuilder:
-      (context, anim, secAnim, child) => // انیمیشن جهانی
-          FadeTransition(opacity: anim, child: child),
-  transitionDuration: const Duration(milliseconds: 1000),
-  debugPrintWhenRouted: true, // لاگ برای دیباگ
+  debugPrintWhenRouted: true,
 );
