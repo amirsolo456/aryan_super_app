@@ -100,14 +100,6 @@ class Response extends BaseResponse<ResponseData> {
 }
 
 
-
-
-
-
-
-
-
-
 class ResponseData {
   final int languageId;
   final String languageDesc;
