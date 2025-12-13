@@ -11,6 +11,7 @@ import 'package:services_package/storage/data/model/storage_data_model.dart';
 import 'package:services_package/storage/domain/usecases/secure_storage_usecasae.dart';
 import 'package:services_package/storage/domain/usecases/shared_storage_usecase.dart';
 import 'package:services_package/storage/domain/usecases/sqlite_storage_usecase.dart';
+import 'package:sqflite/sqflite.dart';
 
 class StorageService
     implements
@@ -61,6 +62,7 @@ class StorageService
   @override
   Future<PagingInfo> loadPagingInfo() async =>
       await _sqliteStorageUseCase.loadPagingInfo();
+
   @override
   Future<String> loadToken() async => await _secureStorageUseCase.loadToken();
 
@@ -91,6 +93,7 @@ class StorageService
   @override
   Future<void> removeOrderInfo() async =>
       await _sqliteStorageUseCase.removeOrderInfo();
+
   @override
   Future<void> removePagingInfo() async =>
       await _sqliteStorageUseCase.removePagingInfo();
@@ -170,4 +173,21 @@ class StorageService
       sharedStorageModel: shared,
     );
   }
+
+  Future<Database?> waitUntilDbBuild() async =>
+      await _sqliteStorageUseCase.database();
+
+  @override
+  Future<LoginModuleResult> sqlLoadLoginSessionModel() async =>
+      await _sqliteStorageUseCase.sqlLoadLoginSessionModel();
+
+  @override
+  Future<void> sqlRemoveLoginSessionModel() async =>
+      await _sqliteStorageUseCase.sqlRemoveLoginSessionModel();
+
+  @override
+  Future<void> sqlSaveLoginSessionModel(
+    LoginModuleResult loginSessionModel,
+  ) async =>
+      await _sqliteStorageUseCase.sqlSaveLoginSessionModel(loginSessionModel);
 }

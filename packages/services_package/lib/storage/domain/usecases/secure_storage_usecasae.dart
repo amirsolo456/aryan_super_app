@@ -14,11 +14,11 @@ class SecureStorageUseCase implements ISecureStorageDataSource {
 
   // گزینه‌های امنیتی برای iOS و Android
   static const AndroidOptions _androidOptions = AndroidOptions(
-    encryptedSharedPreferences: true,
+    // encryptedSharedPreferences: true,
   );
 
   static const IOSOptions _iosOptions = IOSOptions(
-    accessibility: KeychainAccessibility.first_unlock,
+    // accessibility: KeychainAccessibility.first_unlock,
   );
 
   final FlutterSecureStorage _secureStorage;
@@ -205,18 +205,21 @@ class SecureStorageUseCase implements ISecureStorageDataSource {
         iOptions: _iosOptions,
       );
 
+      print('Loaded from storage: $jsonString'); // اضافه کردن log
+
       if (jsonString == null || jsonString.isEmpty) {
+        print('No session found in storage'); // log
         return prefix0.LoginModuleResult.failure('Session not found');
       }
 
-      // اینجا String رو به Map<String, dynamic> تبدیل می‌کنیم
       final Map<String, dynamic> jsonMap =
           jsonDecode(jsonString) as Map<String, dynamic>;
 
-      // حالا می‌تونیم به fromJson بدیم
+      print('Decoded map: $jsonMap'); // log
+
       return prefix0.LoginModuleResult.fromJson(jsonMap);
     } catch (e) {
-      // اگر JSON خراب باشه یا هر خطایی پیش بیاد
+      print('Error loading session: $e'); // log
       return prefix0.LoginModuleResult.failure('Invalid session data: $e');
     }
   }
@@ -234,26 +237,30 @@ class SecureStorageUseCase implements ISecureStorageDataSource {
   Future<void> saveLoginSessionModel(
     prefix0.LoginModuleResult loginSessionModel,
   ) async {
-    // تبدیل امن مدل به Map<String, dynamic>
     Map<String, dynamic> map;
     final dyn = loginSessionModel as dynamic;
 
     try {
-      // تلاش برای فراخوانی toJson()
       map = (dyn.toJson() as Map<String, dynamic>);
     } catch (_) {
       try {
-        // در صورت نبود toJson، تلاش برای toMap()
         map = (dyn.toMap() as Map<String, dynamic>);
       } catch (_) {
         try {
-          // fallback: encode/decode (در صورت قابل encode بودن)
           map = jsonDecode(jsonEncode(dyn)) as Map<String, dynamic>;
         } catch (e) {
-          // اگر نتونستیم به Map تبدیل کنیم، خطا پرتاب کن
           throw Exception('Unable to convert LoginSessionModel to Map: $e');
         }
       }
     }
+
+    // این قسمت اضافه شده - ذخیره‌سازی واقعی
+    final jsonString = jsonEncode(map);
+    await _secureStorage.write(
+      key: _sessionTable,
+      value: jsonString,
+      aOptions: _androidOptions,
+      iOptions: _iosOptions,
+    );
   }
 }

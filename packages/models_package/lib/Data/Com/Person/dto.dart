@@ -1,7 +1,12 @@
+import 'package:json_annotation/json_annotation.dart';
+
 import '../../../Base/base_request.dart';
 import '../../../Base/base_response.dart';
 import '../../Auth/Tag/dto.dart' show TagData;
 
+part 'dto.g.dart';
+
+@JsonSerializable()
 class Request extends BaseRequest {
   Request();
 
@@ -15,26 +20,22 @@ class Request extends BaseRequest {
   }
 }
 
+@JsonSerializable()
 class Response extends BaseResponse<ResponseData> {
   Response({List<ResponseData>? data}) {
     this.data = data ?? [];
   }
 
-  factory Response.fromJson(Map<String, dynamic> json) {
-    var list = <ResponseData>[];
-    if (json['data'] != null) {
-      list = (json['data'] as List)
-          .map((x) => ResponseData.fromJson(x))
-          .toList();
-    }
-    return Response(data: list);
-  }
+  factory Response.fromJson(Map<String, dynamic> json) =>
+      _$ResponseFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {'data': data?.map((x) => x.toJson()).toList() ?? []};
+  @override
+  Map<String, dynamic> toJson(toJsonD) {
+    return _$ResponseToJson(this);
   }
 }
 
+@JsonSerializable()
 class ResponseData {
   int? personId;
   String? firstName;
@@ -72,49 +73,10 @@ class ResponseData {
     this.pendingStatusId = 0,
   }) : tagsInfo = tagsInfo ?? [];
 
-  factory ResponseData.fromJson(Map<String, dynamic> json) {
-    return ResponseData(
-      personId: json['personId'] as int?,
-      firstName: json['firstName'] as String?,
-      lastName: json['lastName'] as String?,
-      fullName: json['fullName'] as String?,
-      isForeign: json['isForeign'] as bool?,
-      fatherName: json['fatherName'] as String?,
-      nationalCode: json['nationalCode'] as String?,
-      economicCode: json['economicCode'] as String?,
-      identityNumber: json['identityNumber'] as String?,
-      birthDate: json['birthDate'] as String?,
-      isSelected: json['isSelected'] as bool? ?? false,
-      displayName: json['displayName'] as String?,
-      placeId: json['placeId'] as int?,
-      tagsInfo: json['tagsInfo'] != null
-          ? List<TagData>.from(
-              (json['tagsInfo'] as List).map((x) => TagData.fromJson(x)),
-            )
-          : [],
-      hasBookMark: json['hasBookMark'] as bool? ?? false,
-      pendingStatusId: json['pendingStatusId'] as int? ?? 0,
-    );
-  }
+  factory ResponseData.fromJson(Map<String, dynamic> fromJsonD) =>
+      _$ResponseDataFromJson(fromJsonD);
 
   Map<String, dynamic> toJson() {
-    return {
-      'personId': personId,
-      'firstName': firstName,
-      'lastName': lastName,
-      'fullName': fullName,
-      'isForeign': isForeign,
-      'fatherName': fatherName,
-      'nationalCode': nationalCode,
-      'economicCode': economicCode,
-      'identityNumber': identityNumber,
-      'birthDate': birthDate,
-      'isSelected': isSelected,
-      'displayName': displayName,
-      'placeId': placeId,
-      'tagsInfo': tagsInfo.map((x) => x.toJson()).toList(),
-      'hasBookMark': hasBookMark,
-      'pendingStatusId': pendingStatusId,
-    };
+    return _$ResponseDataToJson(this);
   }
 }

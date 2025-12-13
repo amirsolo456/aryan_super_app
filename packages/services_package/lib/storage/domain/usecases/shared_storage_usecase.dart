@@ -73,7 +73,6 @@ class SharedStorageUseCase implements ISharedStorageDataSource {
     await _sharedPrefs.setString(_languageKey, jsonString);
   }
 
-  @override
   Future<SharedStorageDataModel> loadAll() async {
     await _init();
     final token = await loadDeviceToken();

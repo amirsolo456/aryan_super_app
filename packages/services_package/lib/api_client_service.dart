@@ -73,13 +73,7 @@ class ApiClient extends IApiClient {
       if (setToken ?? false) {
         token = await _getTokenIfNeeded(true);
       }
-      result = await _internalSendRequest<T, D>(
-        url: url,
-        method: method,
-        data: data,
-        token: token,
-        fromJsonD: fromJsonD,
-      );
+
       result = await _internalSendRequest<T, D>(
         url: url,
         method: method,

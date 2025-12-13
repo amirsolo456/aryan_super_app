@@ -1,12 +1,28 @@
+import 'dart:core';
+
+import 'package:json_annotation/json_annotation.dart';
+
 import '../../../Base/base_request.dart';
 import '../../../Base/base_response.dart';
 
+part 'dto.g.dart';
+
+@JsonSerializable()
 class Request extends BaseRequest {
-  int menuType;
+  final int menuType;
 
   Request({required this.menuType});
+
+  factory Request.fromJson(Map<String, dynamic> json) =>
+      _$RequestFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$RequestToJson(this);
+  }
 }
 
+@JsonSerializable()
 class Response extends BaseResponse<ResponseData> {
   Response({
     String? result,
@@ -37,66 +53,17 @@ class Response extends BaseResponse<ResponseData> {
         key: null,
       );
 
-  factory Response.fromJson(Map<String, dynamic> json) {
-    // یافتن کلید data در JSON (حساس به بزرگی/کوچکی حروف)
-    final dataKey = json.keys.firstWhere(
-      (key) => key.toLowerCase() == 'data',
-      orElse: () => 'data',
-    );
+  @override
+  factory Response.fromJson(Map<String, dynamic> json) =>
+      _$ResponseFromJson(json);
 
-    List<ResponseData> dataList = [];
-
-    if (json[dataKey] is List) {
-      dataList = (json[dataKey] as List)
-          .whereType<Map<String, dynamic>>()
-          .map((item) => ResponseData.fromJson(item))
-          .toList();
-    }
-
-    // استخراج سایر فیلدها از JSON
-    final result = json['result'] ?? json['Result'];
-    final error = json['error'] ?? json['Error'];
-    final additionalInfo = json['additionalInfo'] ?? json['AdditionalInfo'];
-    final status =
-        json['status'] ??
-        json['Status'] ??
-        json['statusCode'] ??
-        json['StatusCode'];
-    final key = json['key'] ?? json['Key'];
-    final totalCount =
-        json['totalCount'] ?? json['TotalCount'] ?? dataList.length;
-
-    return Response(
-      result: result?.toString(),
-      data: dataList.isNotEmpty ? dataList : null,
-      error: error?.toString(),
-      totalCount: totalCount is int
-          ? totalCount
-          : (totalCount != null ? int.tryParse(totalCount.toString()) ?? 0 : 0),
-      additionalInfo: additionalInfo?.toString(),
-      status: status is int
-          ? status
-          : (status != null ? int.tryParse(status.toString()) : null),
-      key: key is int
-          ? key
-          : (key != null ? int.tryParse(key.toString()) : null),
-    );
-  }
-
-  // متد کمکی برای تبدیل به JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'result': result,
-      'data': data?.map((e) => e.toJson()).toList(),
-      'error': error,
-      'totalCount': totalCount,
-      'additionalInfo': additionalInfo,
-      'status': status,
-      'key': key,
-    };
+  @override
+  Map<String, dynamic> toJson(toJsonD) {
+    return _$ResponseToJson(this);
   }
 }
 
+@JsonSerializable()
 class ResponseData {
   int? menuId;
   String? menuDesc;
@@ -160,81 +127,11 @@ class ResponseData {
     );
   }
 
-  factory ResponseData.fromJson(Map<String, dynamic> json) {
-    return ResponseData(
-      menuId: json['MenuId'] as int?,
-      actionType: json['ActionType'] as int?,
-      fatherId: json['FatherId'] as int?,
-      menuType: json['MenuType'] as int?,
-      menuDesc: json['MenuDesc'] as String?,
-      appLink: json['AppLink'] as String?,
-      webLink: json['WebLink'] as String?,
-      actionId: json['ActionId'] as int?,
-      repoId: json['RepoId'] as int?,
-      icon: json['Icon'] as String?,
-      iconUrl: json['IconUrl'] as String?,
-      subMenus:
-          (json['SubMenus'] as List?)
-              ?.map((item) => ResponseData.fromJson(item))
-              .toList() ??
-          [],
-    );
-  }
+  factory ResponseData.fromJson(Map<String, dynamic> fromJsonD) =>
+      _$ResponseDataFromJson(fromJsonD);
 
+  @override
   Map<String, dynamic> toJson() {
-    return {
-      'MenuId': menuId,
-      'MenuDesc': menuDesc,
-      'AppLink': appLink,
-      'WebLink': webLink,
-      'ActionId': actionId,
-      'RepoId': repoId,
-
-      'Icon': icon,
-      'IconUrl': iconUrl,
-      'IsSelected': isSelected,
-      'SubMenus': subMenus.map((item) => item.toJson()).toList(),
-    };
+    return _$ResponseDataToJson(this);
   }
 }
-
-// Interface ISelectable
-abstract class ISelectable {
-  bool get isSelected;
-
-  set isSelected(bool value);
-}
-
-// Base classes placeholder
-class BaseQueryRequest {
-  // می‌تونی ویژگی‌های مشترک درخواست‌ها رو اینجا اضافه کنی
-}
-
-// class BaseResponse<D> {
-//   String? result;
-//   String? error;
-//   int? status;
-//   int? key;
-//   int totalCount;
-//   String? additionalInfo;
-//   List<T>? data;
-//
-//   BaseResponse({
-//     this.result,
-//     this.data,
-//     this.error,
-//     this.totalCount = 0,
-//     this.additionalInfo,
-//     this.status,
-//     this.key,
-//   });
-//   factory  BaseResponse.fromJson(return BaseResponse<D>)
-//   factory BaseResponse.error(String message) {
-//     return BaseResponse<T>(
-//       result: "Failed",
-//       error: message,
-//       status: 500,
-//       data: [],
-//     );
-//   }
-// }

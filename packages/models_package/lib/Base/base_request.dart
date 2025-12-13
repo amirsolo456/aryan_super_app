@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'base_request.g.dart';
+
+@JsonSerializable()
 class BaseRequest {
   String url;
   int? id;
@@ -30,7 +35,11 @@ class BaseRequest {
        filters = filters ?? Filters(),
        defaults = defaults ?? Defaults();
 
-  factory BaseRequest.fromJson(Map<String, dynamic> json) {
+  factory BaseRequest.fromJson(Map<String, dynamic> json) =>
+      _$BaseRequestFromJson(json);
+
+  Map<String, dynamic> toJson() => _$BaseRequestToJson(this);
+  /* factory BaseRequest.fromJson(Map<String, dynamic> json) {
     return BaseRequest(
       url: json['Url'] ?? '',
       id: json['Id'],
@@ -73,8 +82,8 @@ class BaseRequest {
       'Defaults': defaults.toJson(),
     };
   }
-
-  Map<String, dynamic> tojson() {
+*/
+  /*  Map<String, dynamic> tojson() {
     return {
       'Url': url,
       if (id != null) 'Id': id,
@@ -89,7 +98,7 @@ class BaseRequest {
       if (showBookmarked != null) 'ShowBookmarked': showBookmarked,
       'Defaults': defaults.toJson(),
     };
-  }
+  }*/
 }
 
 class Defaults {

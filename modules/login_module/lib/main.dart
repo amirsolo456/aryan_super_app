@@ -7,11 +7,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:login_module/login_page.dart';
 import 'package:login_module/services/snackbar_service.dart';
 import 'package:models_package/Base/language.dart';
-import 'package:models_package/Base/login_module.dart';
 import 'package:resources_package/Resources/Theme/theme_manager.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
-import 'package:services_package/extension/exception_handler_service.dart';
-import 'package:services_package/storage_service.dart';
+import 'package:services_package/storage/domain/usecases/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/common/Buttons/language_button_standalone/language_button_stand_alone_cubit.dart';
 
 import 'login_bloc.dart';
@@ -26,14 +24,7 @@ void main() async {
   sl.registerLazySingleton<SnackBarService>(() => SnackBarService());
 
   final storage = sl.get<StorageService>();
-  final allData = await storage.getAllData();
-
-  String? devToken = await storage.getDeviceToken().withExceptionHandler(
-    sender: LoginModuleResult,
-    errorMessage: "sfafas",
-    defaultValue: "amir",
-    rethrowException: true,
-  );
+  String? devToken = await storage.loadDeviceToken();
 
   Language? initialLocal;
   if (initialLocal == null)

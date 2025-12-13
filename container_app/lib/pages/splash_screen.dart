@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:erp_app/core/network/injection_container.dart';
 import 'package:flutter/material.dart';
+import 'package:models_package/Base/language.dart';
 import 'package:models_package/Base/login_module.dart';
 import 'package:services_package/storage/domain/usecases/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/common/aryan_logo.dart';
@@ -35,75 +36,88 @@ class _SplashScreenState extends State<SplashScreenPage>
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    storageService.loadLoginSessionModel().then(
-      (loginSession) => {
-        if (loginSession == null ||
-            loginSession.token == null ||
-            !loginSession.success)
+    storageService.waitUntilDbBuild().then(
+      (db) => {
+        if (db != null && db.isOpen  )
           {
-            storageService.loadDeviceToken().then(
-              (isOk) => {
-                if (isOk != null)
+            storageService.sqlLoadLoginSessionModel().then(
+              (loginSession) => {
+                if (loginSession == null ||
+                    loginSession.token == null ||
+                    !loginSession.success)
                   {
-                    LoginWrapper()
-                        .navigateToLogin(
-                          context,
-                          isOk ?? "a",
-                          widget.networkMode,
-                        )
-                        .then(
-                          (loginSuccess) => {
-                            if (loginSuccess != null)
-                              {
-                                storageService
-                                    .saveLoginSessionModel(
-                                      LoginModuleResult.success(
-                                        token: loginSuccess.token ?? "",
-                                        user: loginSuccess.user!,
-                                        networkMode: 0,
-                                        selectedManagementAccount: loginSuccess
-                                            .selectedManagementAccount,
-                                        cachedKey: '',
-                                        managementAccount: [],
-                                      ),
-                                    )
-                                    .then(
-                                      (_) => {
+                    storageService.loadDeviceToken().then(
+                      (isOk) => {
+                        if (isOk != null)
+                          {
+                            LoginWrapper()
+                                .navigateToLogin(
+                                  context,
+                                  isOk ?? "a",
+                                  widget.networkMode,
+                                )
+                                .then(
+                                  (loginSuccess) => {
+                                    if (loginSuccess != null)
+                                      {
                                         storageService
-                                            .loadLoginSessionModel()
+                                            .sqlSaveLoginSessionModel(
+                                              LoginModuleResult.success(
+                                                token: loginSuccess.token ?? "",
+                                                user: loginSuccess.user!,
+                                                networkMode: 0,
+                                                language:
+                                                    loginSession.language ??
+                                                    Language(id: 0),
+                                                selectedManagementAccount:
+                                                    loginSuccess
+                                                        .selectedManagementAccount,
+                                                cachedKey: '',
+                                                managementAccount: [],
+                                              ),
+                                            )
                                             .then(
-                                              (loaded) => {
-                                                LoginWrapper()
-                                                    .navigateToLauncherPage(
-                                                      context,
-                                                      loaded.toJson(),
+                                              (_) => {
+                                                storageService
+                                                    .sqlLoadLoginSessionModel()
+                                                    .then(
+                                                      (loaded) => {
+                                                        LoginWrapper()
+                                                            .navigateToLauncherPage(
+                                                              context,
+                                                              loaded.toJson(),
+                                                            ),
+                                                      },
                                                     ),
                                               },
                                             ),
+                                      }
+                                    else
+                                      {
+                                        LoginWrapper()
+                                            .navigateToLauncherPage(
+                                              context,
+                                              loginSession.toJson(),
+                                            )
+                                            .then((isLauncherOk) => {}),
                                       },
-                                    ),
-                              }
-                            else
-                              {
-                                LoginWrapper()
-                                    .navigateToLauncherPage(
-                                      context,
-                                      loginSession.toJson(),
-                                    )
-                                    .then((isLauncherOk) => {}),
-                              },
+                                  },
+                                ),
                           },
-                        ),
+                      },
+                    ),
+                  }
+                else
+                  {
+                    LoginWrapper()
+                        .navigateToLauncherPage(context, loginSession.toJson())
+                        .then((isLauncherOk) => {}),
                   },
               },
             ),
           }
         else
-          {
-            LoginWrapper()
-                .navigateToLauncherPage(context, loginSession.toJson())
-                .then((isLauncherOk) => {}),
-          },
+          throw 'Db is NULL',
       },
     );
   }
@@ -132,7 +146,7 @@ class _SplashScreenState extends State<SplashScreenPage>
     if (widget.mode == 1) {
       storageService.removeLoginSessionModel();
     }
-    // Future.delayed(const Duration(seconds: 5));
+    Future.delayed(const Duration(seconds: 5));
     _startAnimation();
   }
 

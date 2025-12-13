@@ -1,13 +1,20 @@
+import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
+
 import '../Data/Auth/Login/dto.dart';
 import '../Data/Auth/User/dto.dart';
 import 'enums.dart';
 import 'language.dart';
 
-class LoginModuleResult {
+part 'login_module.g.dart';
+
+@JsonSerializable()
+class LoginModuleResult extends Equatable {
   final bool success;
   final String? token;
   final UserDto? user;
   String? error;
+  @JsonKey(toJson: _toJson, fromJson: _fromJson)
   final DateTime timestamp;
   final LoginResultType resultType;
   final String? cachedKey;
@@ -21,13 +28,10 @@ class LoginModuleResult {
     required this.token,
     required this.networkMode,
     this.language,
-    required String cachedKey,
-    required List<ManagementAccounts>? managementAccount,
-    required ManagementAccounts selectedManagementAccount,
+    this.cachedKey,
+    this.managementAccount,
+    this.selectedManagementAccount,
   }) : success = true,
-       cachedKey = cachedKey ?? null,
-       selectedManagementAccount = selectedManagementAccount ?? null,
-       managementAccount = managementAccount ?? null,
        timestamp = DateTime.now(),
        resultType = LoginResultType.success,
        error = null;
@@ -39,7 +43,7 @@ class LoginModuleResult {
       networkMode = 0,
       timestamp = DateTime.now(),
       cachedKey = null,
-      managementAccount = null,
+      managementAccount = [],
       selectedManagementAccount = null,
       language = null,
       resultType = LoginResultType.error,
@@ -59,42 +63,21 @@ class LoginModuleResult {
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 
-  Map<String, dynamic> toJson() => {
-    'Success': success,
-    'Token': token,
-    'User': user?.toJson(),
-    'Error': error,
-    'NetworkMode': networkMode,
-    'CachedKey': cachedKey,
-    'ManagementAccount': managementAccount,
-    'SelectedManagementAccount': selectedManagementAccount,
-    'ResultType': resultType.index,
-    'Language': language,
-    'Timestamp': timestamp.toIso8601String(),
-  };
+  static int _toJson(DateTime value) => value.millisecondsSinceEpoch;
 
-  factory LoginModuleResult.fromJson(Map<String, dynamic> json) {
-    return LoginModuleResult(
-      success: json['Success'] as bool? ?? false,
-      networkMode: json['NetworkMode'] as int ?? 0,
-      token: json['Token'] as String?,
-      user: json['User'] != null ? UserDto.fromJson(json['User']) : null,
-      error: json['Error'] as String?,
-      cachedKey: json['CachedKey'] as String?,
-      language: json['Language'] as Language?,
-      selectedManagementAccount: json['SelectedManagementAccount'] != null
-          ? ManagementAccounts.fromJson(json)
-          : null,
-      managementAccount: (json['ManagementAccount'] as List)
-          .map((e) => ManagementAccounts.fromJson(e))
-          .toList(),
-      resultType: LoginResultType
-          .values[json['ResultType'] as int? ?? LoginResultType.error.index],
-      timestamp: json['Timestamp'] != null
-          ? DateTime.parse(json['Timestamp'])
-          : DateTime.now(),
-    );
+  static DateTime _fromJson(dynamic value) {
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    } else if (value is String) {
+      return DateTime.parse(value);
+    }
+    return DateTime.now();
   }
+
+  factory LoginModuleResult.fromJson(Map<String, dynamic> json) =>
+      _$LoginModuleResultFromJson(json);
+
+  Map<String, dynamic> toJson() => _$LoginModuleResultToJson(this);
 
   LoginModuleResult copyWith({
     bool? success,
@@ -119,4 +102,8 @@ class LoginModuleResult {
       resultType: resultType ?? this.resultType,
     );
   }
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => throw UnimplementedError();
 }

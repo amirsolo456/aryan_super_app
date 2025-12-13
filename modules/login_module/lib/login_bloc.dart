@@ -65,7 +65,7 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
           User.Request(userName: event.username, deviceToken: _deviveToken),
           (json) => Response.fromJson(
             json,
-            (item) => User.ResponseData.fromJson(item),
+            // (item) => User.ResponseData.fromJson(item),
           ),
         );
         if (response != null) {

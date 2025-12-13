@@ -1,3 +1,10 @@
+import 'dart:core';
+
+import 'package:json_annotation/json_annotation.dart';
+
+part 'base_response.g.dart';
+
+@JsonSerializable(genericArgumentFactories: true)
 class BaseResponse<D> {
   BaseResponse({
     this.result = "Failed",
@@ -6,18 +13,27 @@ class BaseResponse<D> {
     this.exception,
     this.data,
     this.additionalInfo,
-    this.totalCount = 0,
+    this.totalCount,
     this.key,
   });
 
   String? result;
   int? status;
   String? error;
-  Exception? exception;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final Exception? exception;
   List<D>? data;
   String? additionalInfo;
-  int totalCount;
+  int? totalCount;
   int? key;
+
+  factory BaseResponse.fromJson(
+    Map<String, dynamic> json,
+    D Function(Object? json) fromJsonD,
+  ) => _$BaseResponseFromJson<D>(json, fromJsonD);
+
+  Map<String, dynamic> toJson(Object? Function(D value) toJsonD) =>
+      _$BaseResponseToJson<D>(this, toJsonD);
 
   factory BaseResponse.error(Exception e) {
     try {
@@ -28,7 +44,7 @@ class BaseResponse<D> {
         exception: Exception(e.toString()),
         data: null,
         additionalInfo: 'a',
-        totalCount: 0,
+        totalCount: null,
         key: null,
       );
     } catch (ex) {
@@ -39,7 +55,7 @@ class BaseResponse<D> {
         exception: null,
         data: null,
         additionalInfo: null,
-        totalCount: 0,
+        totalCount: null,
         key: null,
       );
     }
@@ -47,34 +63,5 @@ class BaseResponse<D> {
 
   factory BaseResponse.success(String? message) {
     return BaseResponse<D>(result: "Success", error: message);
-  }
-
-  factory BaseResponse.fromjson(
-    Map<String, dynamic> json, {
-    D Function(Map<String, dynamic>)? fromDataJson,
-  }) {
-    List<D>? parsedData;
-
-    try {
-      if (json["Data"] != null && fromDataJson != null) {
-        if (json["Data"] is List) {
-          parsedData = (json["Data"] as List)
-              .map((e) => fromDataJson(e as Map<String, dynamic>))
-              .toList();
-        }
-      }
-      return BaseResponse<D>(
-        data: parsedData,
-        totalCount: json["TotalCount"],
-        result: json["Failed"],
-      );
-    } catch (e) {
-      return BaseResponse<D>(
-        data: null,
-        totalCount: json["TotalCount"],
-        exception: Exception(e.toString()),
-        result: json["Failed"],
-      );
-    }
   }
 }

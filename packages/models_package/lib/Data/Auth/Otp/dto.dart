@@ -1,4 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
 import '../../../Base/base_response.dart';
+
+part 'dto.g.dart';
 
 class Request {
   final String userName;
@@ -20,6 +24,7 @@ class Request {
   }
 }
 
+@JsonSerializable()
 class Response extends BaseResponse<ResponseData> {
   ValidationData? validationData;
   bool? isPendingOperated;
@@ -27,26 +32,34 @@ class Response extends BaseResponse<ResponseData> {
 
   Response({this.validationData, this.isPendingOperated, this.lastKey});
 
-  factory Response.fromJson(Map<String, dynamic> json) {
-    return Response(
-      validationData: json['validationData'] != null
-          ? ValidationData.fromJson(json['validationData'])
-          : null,
-      isPendingOperated: json['isPendingOperated'] as bool?,
-      lastKey: json['lastKey'] as int?,
-    );
+  factory Response.fromJson(Map<String, dynamic> json) =>
+      _$ResponseFromJson(json);
+
+  @override
+  Map<String, dynamic> toJson(toJsonD) {
+    return _$ResponseToJson(this);
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'validationData': validationData?.toJson(),
-      'isPendingOperated': isPendingOperated,
-      'lastKey': lastKey,
-      'result': result,
-      'error': error,
-      'data': data,
-    };
-  }
+  // factory Response.fromJson(Map<String, dynamic> json) {
+  //   return Response(
+  //     validationData: json['validationData'] != null
+  //         ? ValidationData.fromJson(json['validationData'])
+  //         : null,
+  //     isPendingOperated: json['isPendingOperated'] as bool?,
+  //     lastKey: json['lastKey'] as int?,
+  //   );
+  // }
+  //
+  // Map<String, dynamic> toJson() {
+  //   return {
+  //     'validationData': validationData?.toJson(),
+  //     'isPendingOperated': isPendingOperated,
+  //     'lastKey': lastKey,
+  //     'result': result,
+  //     'error': error,
+  //     'data': data,
+  //   };
+  // }
 }
 
 class ResponseData {
@@ -63,6 +76,7 @@ class ResponseData {
   }
 }
 
+@JsonSerializable()
 class ValidationData {
   final String? token;
 

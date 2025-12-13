@@ -23,10 +23,7 @@ class LoginService implements ILoginService {
             loginRequest,
             false,
             Exception('خطا در ورود'),
-            (json) => LoginResponse.fromJson(
-              json,
-              (item) => ResponseData.fromJson(json),
-            ),
+            (json) => LoginResponse.fromJson(json),
           );
 
       result = response;
@@ -82,7 +79,7 @@ class LoginService implements ILoginService {
               Exception('خطا در ورود'),
               (json) => LoginResponseNextStep.fromJson(
                 json,
-                (item) => ResponseData.fromJson(json),
+                // (item) => ResponseData.fromJson(json),
               ),
             );
       }

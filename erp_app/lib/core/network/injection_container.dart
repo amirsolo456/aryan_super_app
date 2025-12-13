@@ -8,7 +8,7 @@ import 'package:models_package/Base/base_request.dart';
 import 'package:models_package/Data/Auth/Menu/dto.dart' as menu;
 import 'package:models_package/Data/Com/Person/dto.dart' as person_list;
 import 'package:services_package/Interfaces/front_helper_services/isnackbar_service.dart'
-    as snack_bar;
+as snack_bar;
 import 'package:services_package/api_client_service.dart';
 import 'package:services_package/api_service.dart';
 
@@ -37,6 +37,7 @@ void initStandAlone() {
   final secureClient = SecureStorageUseCase();
   final sharedClient = SharedStorageUseCase();
   final sqliteClient = SqliteStorageUseCase();
+
 
   final _storage = StorageService(
     secureStorageUseCase: secureClient,
@@ -68,7 +69,7 @@ void initStandAlone() {
 
   if (!sl.isRegistered<ApiClient>()) {
     sl.registerLazySingleton<ApiClient>(
-      () => ApiClient(storage: _storage, appSettings: _apisetting),
+          () => ApiClient(storage: _storage, appSettings: _apisetting),
     );
   }
   final apiClient = ApiClient(storage: _storage, appSettings: _apisetting);
@@ -78,16 +79,17 @@ void initStandAlone() {
   }
   if (!sl.isRegistered<UserExistService>()) {
     sl.registerLazySingleton<UserExistService>(
-      () => UserExistService(apiClientr: apiClient),
+          () => UserExistService(apiClientr: apiClient),
     );
   }
 
   if (!sl.isRegistered<NotificationService>()) {
     sl.registerLazySingleton<NotificationService>(
-      () => NotificationService(
-        storage: _storage,
-        refreshInterval: Duration(minutes: 5),
-      ),
+          () =>
+          NotificationService(
+            storage: _storage,
+            refreshInterval: Duration(minutes: 5),
+          ),
     );
   }
 
@@ -97,7 +99,7 @@ void initStandAlone() {
 
   if (!sl.isRegistered<ExceptionHelperService>()) {
     sl.registerLazySingleton<ExceptionHelperService>(
-      () => ExceptionHelperService(),
+          () => ExceptionHelperService(),
     );
   }
 
@@ -108,16 +110,16 @@ void initStandAlone() {
 
   if (!sl.isRegistered<LoginService>()) {
     sl.registerLazySingleton<LoginService>(
-      () => LoginService(client: apiClient),
+          () => LoginService(client: apiClient),
     );
   }
 
   if (!sl
       .isRegistered<
-        ApiService<menu.Response, menu.ResponseData, menu.Request>
-      >()) {
+      ApiService<menu.Response, menu.ResponseData, menu.Request>
+  >()) {
     sl.registerFactory(
-      () => ApiService<menu.Response, menu.ResponseData, menu.Request>,
+          () => ApiService<menu.Response, menu.ResponseData, menu.Request>,
     );
   }
 
@@ -126,7 +128,7 @@ void initStandAlone() {
   }
   if (!sl.isRegistered<MenuBloc>()) {
     sl.registerFactory(
-      () => MenuBloc(getMenuUseCase: GetIt.instance<MenuService>()),
+          () => MenuBloc(getMenuUseCase: GetIt.instance<MenuService>()),
     );
   }
 
@@ -144,7 +146,7 @@ void initStandAlone() {
 
   if (!sl.isRegistered<PersonListBloc>()) {
     sl.registerFactory(
-      () => PersonListBloc(personService: sl<PersonService>()),
+          () => PersonListBloc(personService: sl<PersonService>()),
     );
   }
 
@@ -161,12 +163,12 @@ void initStandAlone() {
 
   if (!sl.isRegistered<GenericPage>()) {
     sl.registerFactory(
-      () =>
+          () =>
           GenericPage<
-            SearchPersonBloc,
-            person_list.Response,
-            person_list.ResponseData,
-            person_list.Request
+              SearchPersonBloc,
+              person_list.Response,
+              person_list.ResponseData,
+              person_list.Request
           >(
             createBloc: () => SearchPersonBloc(sl.get<PersonRepository>()),
             builder: (context, state, bloc) {

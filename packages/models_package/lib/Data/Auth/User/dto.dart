@@ -1,5 +1,9 @@
+import 'package:json_annotation/json_annotation.dart';
+
 import '../../../Base/base_request.dart';
 import '../../../Base/base_response.dart';
+
+part 'dto.g.dart';
 
 /// -------------------- Request --------------------
 class Request extends BaseRequest {
@@ -22,35 +26,38 @@ class Request extends BaseRequest {
 }
 
 /// -------------------- Response --------------------
+@JsonSerializable()
 class Response extends BaseResponse<ResponseData> {
   Response({List<ResponseData>? data}) {
     this.data = data ?? [];
   }
 
-  Response.fromJson(
-    Map<String, dynamic> json,
-    ResponseData Function(Map<String, dynamic>) fromJsonT,
-  ) {
-    result = json['Result'] ?? "";
-    error = json['Error']   ?? "";
+  // Response.fromJson(
+  //   Map<String, dynamic> json,
+  //   ResponseData Function(Map<String, dynamic>) fromJsonT,
+  // ) {
+  //   result = json['Result'] ?? "";
+  //   error = json['Error']   ?? "";
+  //
+  //   if (json['Data'] is List) {
+  //
+  //     totalCount = json['TotalCount'];
+  //     data = (json['Data'] as List)
+  //         .map((e) => fromJsonT(e as Map<String, dynamic>))
+  //         .toList();
+  //   } else if (json['Data'] is Map) {
+  //     data = [fromJsonT(json['Data'])];
+  //   } else {
+  //     data = [];
+  //   }
 
-    if (json['Data'] is List) {
+  // }
+  factory Response.fromJson(Map<String, dynamic> json) =>
+      _$ResponseFromJson(json);
 
-      totalCount = json['TotalCount'];
-      data = (json['Data'] as List)
-          .map((e) => fromJsonT(e as Map<String, dynamic>))
-          .toList();
-    } else if (json['Data'] is Map) {
-      data = [fromJsonT(json['Data'])];
-    } else {
-      data = [];
-    }
-
-
-  }
-
-  Map<String, dynamic> toJson() {
-    return {'Data': data?.map((x) => x.toJson()).toList() ?? []};
+  @override
+  Map<String, dynamic> toJson(toJsonD) {
+    return _$ResponseToJson(this);
   }
 }
 

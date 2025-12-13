@@ -1,4 +1,5 @@
 import 'package:models_package/Base/base_request.dart';
+import 'package:models_package/Base/login_module.dart';
 import 'package:services_package/storage/data/datasource/storage_datasource.dart';
 
 abstract class ISqliteStorageDataSource extends StorageDatasource {
@@ -21,4 +22,8 @@ abstract class ISqliteStorageDataSource extends StorageDatasource {
   Future<Defaults> loadDefaults();
   Future<void> saveDefaults(Defaults defaults);
   Future<void> removeDefaults();
+
+  Future<LoginModuleResult> sqlLoadLoginSessionModel();
+  Future<void> sqlSaveLoginSessionModel(LoginModuleResult loginSessionModel);
+  Future<void> sqlRemoveLoginSessionModel();
 }

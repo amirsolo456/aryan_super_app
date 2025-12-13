@@ -1,6 +1,12 @@
+import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
+
 import '../../../Base/base_request.dart';
 import '../../../Base/base_response.dart';
 
+part 'dto.g.dart';
+
+@JsonSerializable()
 class LoginRequest extends BaseRequest {
   String? userName;
   String? password;
@@ -24,45 +30,29 @@ class LoginRequest extends BaseRequest {
     this.refreshToken,
   });
 
-  factory LoginRequest.fromJson(Map<String, dynamic> json) {
-    return LoginRequest(
-      userName: json['userName'] as String?,
-      password: json['password'] as String?,
-      deviceToken: json['deviceToken'] as String?,
-      grantType: json['grantType'] as String?,
-      isRefreshToken: json['isRefreshToken'] as bool?,
-      langId: json['langId'] as int?,
-      managementAccountId: json['managementAccountId'] as int?,
-      deviceType: json['deviceType'] as int?,
-      refreshToken: json['refreshToken'] as String?,
-    );
-  }
+  factory LoginRequest.fromJson(Map<String, dynamic> fromJsonD) =>
+      _$LoginRequestFromJson(fromJsonD);
 
+  @override
   Map<String, dynamic> toJson() {
-    return {
-      'userName': userName,
-      'password': password,
-      'deviceToken': deviceToken,
-      'grantType': grantType,
-      'isRefreshToken': isRefreshToken,
-      'langId': langId,
-      'managementAccountId': managementAccountId,
-      'deviceType': deviceType,
-      'refreshToken': refreshToken,
-    };
+    return _$LoginRequestToJson(this);
   }
 }
 
+@JsonSerializable()
 class LoginResponse extends BaseResponse<ResponseData> {
-  bool? isExpire;
-  int? status;
-  String? accessToken;
-  String? tokenType;
-  String? refreshToken;
-  UserSession? userSession;
-  bool? isMMA;
+  final bool? isExpire;
+  final int? status;
+  @JsonKey(name: "access_token", includeToJson: true, includeFromJson: true)
+  final String? accessToken;
+  @JsonKey(name: "token_type")
+  final String? tokenType;
+  @JsonKey(name: "refresh_token")
+  final String? refreshToken;
+  final UserSession? userSession;
+  final bool? isMMA;
   String? cacheKey;
-  List<ManagementAccounts>? managementAccounts;
+  final List<ManagementAccounts>? managementAccounts;
 
   LoginResponse({
     this.isExpire,
@@ -76,53 +66,26 @@ class LoginResponse extends BaseResponse<ResponseData> {
     this.managementAccounts,
   });
 
-  LoginResponse.fromJson(Map<String, dynamic> json,
-      ResponseData Function(Map<String, dynamic>?) fromJsonT,) {
-    result = json['Result'];
-    data = null;
-    totalCount = 0;
-    isExpire = json['IsExpire'];
-    status = json['status'];
-    accessToken = json['access_token'] as String?;
-    tokenType = json['token_type'] as String?;
-    refreshToken = json['refresh_token'] as String?;
-    userSession = json['UserSession'] != null
-        ? UserSession.fromJson(json['UserSession'])
-        : null;
-    isMMA = json['IsMMA'] as bool?;
-    managementAccounts = json['ManagementAccounts'] != null
-        ? (json['ManagementAccounts'] as List)
-        .map((e) => ManagementAccounts.fromJson(e))
-        .toList()
-        : null;
-  }
+  factory LoginResponse.fromJson(Map<String, dynamic> json) =>
+      _$LoginResponseFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'IsExpire': isExpire,
-      'Result': result,
-      'status': status,
-      'access_token': accessToken,
-      'token_type': tokenType,
-      'refresh_token': refreshToken,
-      'UserSession': userSession?.toJson(),
-      'IsMMA': isMMA,
-      'ManagementAccounts': managementAccounts?.map((e) => e.toJson()).toList(),
-    };
+  @override
+  Map<String, dynamic> toJson(json) {
+    return _$LoginResponseToJson(this);
   }
 }
 
+@JsonSerializable()
 class LoginResponseNextStep extends BaseResponse<ResponseData> {
-  String? accessToken;
-  bool? expiresIn;
-  String? tokenType;
-  String? refreshToken;
-  String? scope;
-  bool? isMFA;
-  bool? isMMA;
-  List<ManagementAccounts>? managementAccounts;
-  UserSession? userSession;
-
+  final String? accessToken;
+  final bool? expiresIn;
+  final String? tokenType;
+  final String? refreshToken;
+  final String? scope;
+  final bool? isMFA;
+  final bool? isMMA;
+  final List<ManagementAccounts>? managementAccounts;
+  final UserSession? userSession;
 
   LoginResponseNextStep({
     super.result,
@@ -137,73 +100,43 @@ class LoginResponseNextStep extends BaseResponse<ResponseData> {
     this.userSession,
   });
 
-  factory LoginResponseNextStep.fromJson(Map<String, dynamic> json,
-      ResponseData Function(Map<String, dynamic>?) fromJsonT,) {
-    return LoginResponseNextStep(
-      accessToken: json['access_token'] as String?,
-      result: json['Result'] as String?,
-      expiresIn: json['IsExpire'] as bool?,
-      tokenType: json['token_type'] as String?,
-      refreshToken: json['refresh_token'] as String?,
-      scope: json['Scope'] as String?,
-      isMFA: json['IsMFA'] as bool?,
-      isMMA: json['IsMMA'] as bool?,
-      managementAccounts: json['ManagementAccounts'] != null
-          ? (json['ManagementAccounts'] as List)
-          .map((e) => ManagementAccounts.fromJson(e))
-          .toList() : null,
-      userSession: json['UserSession'] != null
-          ? UserSession.fromJson(json['UserSession'])
-          : null,
-    );
-  }
+  factory LoginResponseNextStep.fromJson(Map<String, dynamic> json) =>
+      _$LoginResponseNextStepFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'accessToken': accessToken,
-      'IsExpire': expiresIn,
-      'token_Type': tokenType,
-      'refresh_Token': refreshToken,
-      'Scope': scope,
-      'IsMFA': isMFA,
-      'IsMMA': isMMA,
-      'ManagementAccounts': managementAccounts?.map((e) => e.toJson()).toList(),
-      'UserSession': userSession?.toJson(),
-    };
+  Map<String, dynamic> toJson(json) {
+    return _$LoginResponseNextStepToJson(this);
   }
 }
 
+@JsonSerializable()
 class UserSession {
-  UserInfo? userInfo;
-  dynamic yearInfo;
-  List<RoleDto>? roleDto;
-  int? langId;
+  final UserInfo? userInfo;
+  final YearInfo? yearInfo;
+  final List<RoleDto>? roleDto;
+  final int? langId;
 
   UserSession({this.userInfo, this.yearInfo, this.roleDto, this.langId});
 
-  factory UserSession.fromJson(Map<String, dynamic> json) {
-    return UserSession(
-      userInfo: json['UserInfo'] != null
-          ? UserInfo.fromJson(json['UserInfo'])
-          : null,
-      yearInfo: json['YearInfo'],
-      roleDto: json['RoleDto'] != null
-          ? (json['RoleDto'] as List).map((e) => RoleDto.fromJson(e)).toList()
-          : null,
-      langId: json['LangId'] as int?,
-    );
-  }
+  factory UserSession.fromJson(Map<String, dynamic> json) =>
+      _$UserSessionFromJson(json);
 
   Map<String, dynamic> toJson() {
-    return {
-      'UserInfo': userInfo?.toJson(),
-      'YearInfo': yearInfo,
-      'RoleDto': roleDto?.map((e) => e.toJson()).toList(),
-      'LangId': langId,
-    };
+    return _$UserSessionToJson(this);
   }
 }
 
+@JsonSerializable()
+class YearInfo {
+  final Object? size;
+
+  YearInfo({this.size});
+  factory YearInfo.fromJson(Map<String, dynamic> json) =>
+      _$YearInfoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$YearInfoToJson(this);
+}
+
+@JsonSerializable()
 class UserInfo {
   String? userName;
   bool? isAdmin;
@@ -223,91 +156,48 @@ class UserInfo {
     this.packageExpireDate,
   });
 
-  factory UserInfo.fromJson(Map<String, dynamic> json) {
-    return UserInfo(
-      userName: json['UserName'] as String?,
-      isAdmin: json['IsAdmin'] as bool?,
-      userId: json['UserId'] as int?,
-      userType: json['UserType'] as int?,
-      userPic: json['UserPic'] as String?,
-      packageId: json['PackageId'] as int?,
-      packageExpireDate: json['PackageExpireDate'] as String?,
-    );
-  }
+  factory UserInfo.fromJson(Map<String, dynamic> json) =>
+      _$UserInfoFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'UserName': userName,
-      'IsAdmin': isAdmin,
-      'UserId': userId,
-      'UserType': userType,
-      'UserPic': userPic,
-      'PackageId': packageId,
-      'PackageExpireDate': packageExpireDate,
-    };
-  }
+  Map<String, dynamic> toJson() => _$UserInfoToJson(this);
 }
 
+@JsonSerializable()
 class RoleDto {
-  int? roleId;
-  bool? isSupporter;
-  String? roleName;
-  List<Places>? places;
+  final int? roleId;
+  final bool? isSupporter;
+  final String? roleName;
+  final List<Places>? places;
 
-  RoleDto({this.roleId, this.roleName, this.places,this.isSupporter});
+  RoleDto({this.roleId, this.roleName, this.places, this.isSupporter});
 
-  factory RoleDto.fromJson(Map<String, dynamic> json) {
-    return RoleDto(
-      roleId: json['RoleId'] as int?,
-      isSupporter: json['IsSupporter'] as bool?,
-      roleName: json['RoleName'] as String?,
-      places: json['Places'] != null
-          ? (json['Places'] as List).map((e) => Places.fromJson(e)).toList()
-          : null,
-    );
-  }
+  factory RoleDto.fromJson(Map<String, dynamic> json) =>
+      _$RoleDtoFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'RoleId': roleId,
-      'RoleName': roleName,
-      'IsSupporter': isSupporter,
-      'Places': places?.map((e) => e.toJson()).toList(),
-    };
-  }
+  Map<String, dynamic> toJson() => _$RoleDtoToJson(this);
 }
 
+@JsonSerializable()
 class Places {
-  int? placeId;
-  String? placeShortCut;
-  String? placeDesc;
+  final int? placeId;
+  final String? placeShortCut;
+  final String? placeDesc;
 
   Places({this.placeId, this.placeShortCut, this.placeDesc});
 
-  factory Places.fromJson(Map<String, dynamic> json) {
-    return Places(
-      placeId: json['PlaceId'] as int?,
-      placeShortCut: json['PlaceShortCut'] as String?,
-      placeDesc: json['PlaceDesc'] as String?,
-    );
-  }
+  factory Places.fromJson(Map<String, dynamic> json) => _$PlacesFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'PlaceId': placeId,
-      'PlaceShortCut': placeShortCut,
-      'PlaceDesc': placeDesc,
-    };
-  }
+  Map<String, dynamic> toJson() => _$PlacesToJson(this);
 }
 
-class ManagementAccounts {
-  int? managementAccountId;
-  String? managementAccountDesc;
-  int? credit;
-  String? expireDate;
-  int? packageId;
-  bool? inActive;
+@JsonSerializable()
+class ManagementAccounts extends Equatable {
+  final int? managementAccountId;
+  final String? managementAccountDesc;
+  final int? credit;
+  final String? expireDate;
+  final int? packageId;
+  final bool? inActive;
 
   ManagementAccounts({
     this.managementAccountId,
@@ -318,39 +208,24 @@ class ManagementAccounts {
     this.inActive,
   });
 
-  factory ManagementAccounts.fromJson(Map<String, dynamic> json) {
-    return ManagementAccounts(
-      managementAccountId: json['ManagementAccountId'] as int?,
-      managementAccountDesc: json['ManagementAccountDesc'] as String?,
-      credit: json['Credit'] as int?,
-      expireDate: json['ExpireDate'] as String?,
-      packageId: json['PackageId'] as int?,
-      inActive: json['InActive'] as bool?,
-    );
-  }
+  factory ManagementAccounts.fromJson(Map<String, dynamic> json) =>
+      _$ManagementAccountsFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'ManagementAccountId': managementAccountId,
-      'ManagementAccountDesc': managementAccountDesc,
-      'Credit': credit,
-      'ExpireDate': expireDate,
-      'PackageId': packageId,
-      'InActive': inActive,
-    };
-  }
+  Map<String, dynamic> toJson() => _$ManagementAccountsToJson(this);
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => throw UnimplementedError();
 }
 
+@JsonSerializable()
 class ResponseData {
   bool? isSelected;
 
   ResponseData({this.isSelected});
 
-  factory ResponseData.fromJson(Map<String, dynamic> json) {
-    return ResponseData(isSelected: json['isSelected'] as bool? ?? false);
-  }
+  factory ResponseData.fromJson(Map<String, dynamic> json) =>
+      _$ResponseDataFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {'isSelected': isSelected};
-  }
+  Map<String, dynamic> toJson() => _$ResponseDataToJson(this);
 }
