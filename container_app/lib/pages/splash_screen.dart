@@ -29,8 +29,8 @@ class _SplashScreenState extends State<SplashScreenPage>
   late Animation<double> _opacity;
   final storageService = sl.get<StorageService>();
   bool _loaderVisible = false;
-  bool _isNavigating = false;
-  bool _minimumTimeElapsed = false;
+
+
 
   @override
   void didChangeDependencies() {
@@ -42,18 +42,18 @@ class _SplashScreenState extends State<SplashScreenPage>
           {
             storageService.sqlLoadLoginSessionModel().then(
               (loginSession) => {
-                if (loginSession == null ||
+                if (
                     loginSession.token == null ||
                     !loginSession.success)
                   {
                     storageService.loadDeviceToken().then(
                       (isOk) => {
-                        if (isOk != null)
+                        if (isOk.isNotEmpty)
                           {
                             LoginWrapper()
                                 .navigateToLogin(
                                   context,
-                                  isOk ?? "a",
+                                  isOk ,
                                   widget.networkMode,
                                 )
                                 .then(
@@ -142,7 +142,7 @@ class _SplashScreenState extends State<SplashScreenPage>
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
     if (!mounted) return;
-    setState(() => _minimumTimeElapsed = true);
+
     if (widget.mode == 1) {
       storageService.removeLoginSessionModel();
     }
@@ -165,7 +165,7 @@ class _SplashScreenState extends State<SplashScreenPage>
 
   @override
   void dispose() {
-    _isNavigating = true;
+
     _controller.dispose();
     super.dispose();
   }
