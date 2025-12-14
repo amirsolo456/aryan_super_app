@@ -62,7 +62,6 @@ Response _$ResponseFromJson(Map json) => Response(
 Map<String, dynamic> _$ResponseToJson(Response instance) => <String, dynamic>{
   'Result': instance.result,
   'Status': instance.status,
-  'Error': instance.error,
   'Data': instance.data?.map((e) => e.toJson()).toList(),
   'AdditionalInfo': instance.additionalInfo,
   'TotalCount': instance.totalCount,

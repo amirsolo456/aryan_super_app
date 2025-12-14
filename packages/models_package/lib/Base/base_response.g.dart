@@ -25,7 +25,6 @@ Map<String, dynamic> _$BaseResponseToJson<D>(
 ) => <String, dynamic>{
   'Result': instance.result,
   'Status': instance.status,
-  'Error': instance.error,
   'Data': instance.data?.map(toJsonD).toList(),
   'AdditionalInfo': instance.additionalInfo,
   'TotalCount': instance.totalCount,

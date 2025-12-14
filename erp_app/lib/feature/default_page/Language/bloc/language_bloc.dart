@@ -22,7 +22,7 @@ class LanguageBloc extends Bloc<LanguageEvent, LanguageState> {
     emit(const LanguageLoading());
     try {
       final languages = await getLanguageUseCase.get(
-        Request(repoViewId: AppConstants.repoViewId100007),
+        Request(repoViewId: AppConstants().LanguageRepoViewId),
         (json) => Response.fromJson(json),
       );
 

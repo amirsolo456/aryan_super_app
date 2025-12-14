@@ -102,7 +102,6 @@ LoginResponse _$LoginResponseFromJson(Map json) =>
 Map<String, dynamic> _$LoginResponseToJson(LoginResponse instance) =>
     <String, dynamic>{
       'Result': instance.result,
-      'Error': instance.error,
       'Data': instance.data?.map((e) => e.toJson()).toList(),
       'AdditionalInfo': instance.additionalInfo,
       'TotalCount': instance.totalCount,
@@ -159,7 +158,6 @@ Map<String, dynamic> _$LoginResponseNextStepToJson(
 ) => <String, dynamic>{
   'Result': instance.result,
   'Status': instance.status,
-  'Error': instance.error,
   'Data': instance.data?.map((e) => e.toJson()).toList(),
   'AdditionalInfo': instance.additionalInfo,
   'TotalCount': instance.totalCount,

@@ -50,9 +50,6 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     emit(const MenuLoadingState());
     try {
       StorageService storage = sl<StorageService>();
-      final Language? currentLang = await storage.loadLanguage();
-      final String? deviceToken = await storage.loadDeviceToken();
-
       await storage.signOut();
       await erpNavigator.to('/signOut');
     } catch (e) {

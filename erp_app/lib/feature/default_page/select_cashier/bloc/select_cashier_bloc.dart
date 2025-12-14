@@ -24,7 +24,7 @@ class SelectCashierBloc extends Bloc<SelectCashierEvent, SelectCashierState> {
     emit(const SelectCashierLoading());
     try {
       final selectCashier = await getSelectCashierUseCase.get(
-        SelectOptionRequest(repoViewId: AppConstants.repoViewId140002),
+        SelectOptionRequest(repoViewId: AppConstants().CashierRepoViewId),
         (json) => SelectOptionResponse.fromJson(json),
       );
 

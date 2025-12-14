@@ -22,7 +22,7 @@ class SelectCurrencyBloc
     try {
       final selectCurrencys = await getSelectCurrencyUseCase.get(
         CurrencyRequest(
-          repoViewId: AppConstants.repoViewId207003,
+          repoViewId: AppConstants().YearRepoViewId,
           showMode: 10,
         ),
         (json) => CurrencyResponse.fromJson(json),

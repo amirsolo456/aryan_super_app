@@ -1,7 +1,3 @@
-
-
-
-
 //Ehsan Change
 import 'package:json_annotation/json_annotation.dart';
 
@@ -10,10 +6,8 @@ import '../../../../../Base/base_response.dart';
 
 part 'dashboard_dto.g.dart';
 
-
 @JsonSerializable()
 class Request extends BaseRequest {
-
   Request();
 }
 
@@ -28,30 +22,30 @@ class Response extends BaseResponse<DashboardModel> {
     int? status,
     int? key,
   }) : super(
-    result: result,
-    data: data,
-    error: error,
-    totalCount: totalCount,
-    additionalInfo: additionalInfo,
-    status: status,
-    key: key,
-  );
+         result: result,
+         data: data,
+         error: error,
+         totalCount: totalCount,
+         additionalInfo: additionalInfo,
+         status: status,
+         key: key,
+       );
 
   Response.fromData(List<DashboardModel> dataList)
-      : super(
-    result: 'Success',
-    data: dataList,
-    error: null,
-    totalCount: dataList.length,
-    additionalInfo: null,
-    status: 200,
-    key: null,
-  );
+    : super(
+        result: 'Success',
+        data: dataList,
+        error: null,
+        totalCount: dataList.length,
+        additionalInfo: null,
+        status: 200,
+        key: null,
+      );
 
   factory Response.fromJson(Map<String, dynamic> json) {
     // یافتن کلید data در JSON (حساس به بزرگی/کوچکی حروف)
     final dataKey = json.keys.firstWhere(
-          (key) => key.toLowerCase() == 'data',
+      (key) => key.toLowerCase() == 'data',
       orElse: () => 'data',
     );
 
@@ -70,11 +64,12 @@ class Response extends BaseResponse<DashboardModel> {
     final additionalInfo = json['additionalInfo'] ?? json['AdditionalInfo'];
     final status =
         json['status'] ??
-            json['Status'] ??
-            json['statusCode'] ??
-            json['StatusCode'];
+        json['Status'] ??
+        json['statusCode'] ??
+        json['StatusCode'];
     final key = json['key'] ?? json['Key'];
-    final totalCount = json['totalCount'] ?? json['TotalCount'] ?? dataList.length;
+    final totalCount =
+        json['totalCount'] ?? json['TotalCount'] ?? dataList.length;
 
     return Response(
       result: result?.toString(),
@@ -108,7 +103,6 @@ class Response extends BaseResponse<DashboardModel> {
 }
 
 @JsonSerializable()
-
 class DashboardModel {
   final String htmlContent;
   final Map<String, String> headers;

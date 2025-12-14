@@ -1,6 +1,3 @@
-
-
-
 // import 'package:flutter/cupertino.dart';
 
 // class DefaultPage extends StatelessWidget {
@@ -12,14 +9,17 @@
 //   }
 // }
 
-
 // default_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:models_package/Data/Default/Com/Select/Select_Currency/currency_dto.dart' as currency_model;
-import 'package:models_package/Data/Default/trh/select/select_option_dto.dart' as cashier_model;
-import 'package:models_package/Data/Default/mng/select/place/place_dto.dart' as place_model;
-import 'package:models_package/Data/Default/Com/Select/Select_Year/select_year_dto.dart' as select_year;
+import 'package:models_package/Data/Default/Com/Select/Select_Currency/currency_dto.dart'
+    as currency_model;
+import 'package:models_package/Data/Default/trh/select/select_option_dto.dart'
+    as cashier_model;
+import 'package:models_package/Data/Default/mng/select/place/place_dto.dart'
+    as place_model;
+import 'package:models_package/Data/Default/Com/Select/Select_Year/select_year_dto.dart'
+    as select_year;
 
 import '../Language/bloc/language_bloc.dart';
 import '../Language/bloc/language_state.dart';
@@ -201,7 +201,7 @@ class _DefaultPageState extends State<DefaultPage> {
         }
 
         if (state is PlaceLoaded) {
-          final  places = state.places;
+          final places = state.places;
 
           return horizontalSelector<place_model.ResponseData>(
             title: 'محل',

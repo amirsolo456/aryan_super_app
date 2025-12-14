@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:navigation_builder/navigation_builder.dart';
 
 import '../Data/Auth/Login/dto.dart';
 import '../Data/Auth/User/dto.dart';

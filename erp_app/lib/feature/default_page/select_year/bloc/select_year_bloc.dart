@@ -13,8 +13,9 @@ import 'select_year_state.dart';
 
 class SelectYearBloc extends Bloc<SelectYearEvent, SelectYearState> {
   final YearSelectService getSelectYearUseCase;
+  final int? ShowMode;
 
-  SelectYearBloc({required this.getSelectYearUseCase})
+  SelectYearBloc({required this.getSelectYearUseCase,this.ShowMode})
     : super(const SelectYearInitial()) {
     on<LoadSelectYearEvent>(_onLoadSelectYear);
   }
@@ -26,7 +27,7 @@ class SelectYearBloc extends Bloc<SelectYearEvent, SelectYearState> {
     emit(const SelectYearLoading());
     try {
       final selectYears = await getSelectYearUseCase.get(
-        Request(repoViewId: AppConstants.repoViewId207003, showMode: 10),
+        Request(repoViewId: AppConstants().YearRepoViewId, showMode: ShowMode ?? 10),
         (json) => Response.fromJson(json),
       );
 

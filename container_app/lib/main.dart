@@ -23,8 +23,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   initStandAlone();
-  sl.registerLazySingleton(() => LoginModuleManager());
-  sl.registerLazySingleton<SnackBarService>(() => SnackBarService());
+  if (!sl.isRegistered<LoginModuleManager>()) {
+    sl.registerLazySingleton(() => LoginModuleManager());
+  }
+
+  if (!sl.isRegistered<SnackBarService>()) {
+    sl.registerLazySingleton<SnackBarService>(() => SnackBarService());
+  }
+
   Locale initialLocale = Locale('fa');
 
   ThemeManager.init();
@@ -106,31 +112,31 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-//
-// final containerNavigator = NavigationBuilder.create(
-//   routes: {
-//     '/signOut': (RouteData data) {
-//       try {
-//         return SplashScreenPage(networkMode: 0, mode: 0);
-//       } catch (e) {
-//         exit(0);
-//       }
-//     },
-//     '/luncherPage': (RouteData data) {
-//       final Map<String, dynamic> loginSession =
-//           data.pathParams['erpMenuTabBarId'] ?? Map<String, dynamic>()[data];
-//       return LauncherPage(loginSession: loginSession);
-//     },
-//   },
-//   initialLocation: '/',
-//   unknownRoute: (route) => Scaffold(appBar: AppBar(), body: SizedBox()),
-//   builder: (Widget outlet) => Scaffold(body: outlet),
-//   transitionsBuilder: (context, anim, secAnim, child) =>
-//       FadeTransition(opacity: anim, child: child),
-//   transitionDuration: const Duration(milliseconds: 1000),
-//   debugPrintWhenRouted: true,
-// );
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+final containerNavigator = NavigationBuilder.create(
+  routes: {
+    '/signOut': (RouteData data) {
+      try {
+        return SplashScreenPage(networkMode: 0, mode: 0);
+      } catch (e) {
+        exit(0);
+      }
+    },
+    '/luncherPage': (RouteData data) {
+      final Map<String, dynamic> loginSession =
+          data.pathParams['erpMenuTabBarId'] ?? Map<String, dynamic>()[data];
+      return LauncherPage(loginSession: loginSession);
+    },
+  },
+  initialLocation: '/',
+  unknownRoute: (route) => Scaffold(appBar: AppBar(), body: SizedBox()),
+  builder: (Widget outlet) => Scaffold(body: outlet),
+  transitionsBuilder: (context, anim, secAnim, child) =>
+      FadeTransition(opacity: anim, child: child),
+  transitionDuration: const Duration(milliseconds: 1000),
+  debugPrintWhenRouted: true,
+);
 
 class MyHttpOverrides extends HttpOverrides {
   @override
