@@ -1,12 +1,13 @@
-
-import 'package:models_package/Data/Auth/Menu/dto.dart';
+import 'package:models_package/Data/dashboard/dashboard_dto.dart';
 import 'package:services_package/Interfaces/backend_api_services/iapi_service.dart';
+
 import '../../api_client_service.dart';
 
-class MenuService implements IApiService<Response, ResponseData, Request> {
+class DashboardService
+    implements IApiService<Response, DashboardModel, Request> {
   final ApiClient apiClient;
 
-  MenuService(this.apiClient);
+  DashboardService(this.apiClient);
 
   @override
   Future<Response?> delete(
@@ -22,9 +23,9 @@ class MenuService implements IApiService<Response, ResponseData, Request> {
     Request request,
     Response Function(Map<String, dynamic>) fromJsonD,
   ) async {
-    return await apiClient.sendRequestAsync<Response, ResponseData, Request>(
-      "api/auth/menu",
-      HttpMethods.post,
+    return await apiClient.sendRequestAsync<Response, DashboardModel, Request>(
+      "dashboard",
+      HttpMethods.get,
       request,
       true,
       Exception('menu error'),

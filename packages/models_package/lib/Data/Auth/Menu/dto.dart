@@ -58,9 +58,7 @@ class Response extends BaseResponse<ResponseData> {
       _$ResponseFromJson(json);
 
   @override
-  Map<String, dynamic> toJson(toJsonD) {
-    return _$ResponseToJson(this);
-  }
+  Map<String, dynamic> toJson(toJsonD) {return _$ResponseToJson(this);}
 }
 
 @JsonSerializable()
