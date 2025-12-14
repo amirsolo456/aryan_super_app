@@ -1,14 +1,14 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
-import 'package:http_exception/src/http_exception_base.dart';
-import 'package:models_package/Base/base_request.dart' show BaseRequest, Defaults;
+import 'package:models_package/Base/base_request.dart'
+    show BaseRequest, Defaults;
 import 'package:models_package/Base/base_response.dart';
-import 'package:services_package/storage_service.dart';
-import 'api_exception_service.dart';
+import 'package:services_package/storage/domain/usecases/storage_service.dart';
+
 import 'safe_exquter.dart';
 
 typedef FromJson<T> = T Function(Map<String, dynamic> json);
@@ -16,22 +16,34 @@ typedef FromJson<T> = T Function(Map<String, dynamic> json);
 abstract interface class IApiClient {
   Future<T?>
   sendRequestAsync<T extends BaseResponse<D>, D, C extends BaseRequest>(
-    String url,
-    HttpMethods method,
-    C? data,
-    bool? setToken,
-    Exception? fallbackMessage,
-    T Function(Map<String, dynamic>) fromJsonD,
-  );
+      String url,
+      HttpMethods method,
+      C? data,
+      bool? setToken,
+      Exception? fallbackMessage,
+      T Function(Map<String, dynamic>) fromJsonD,
+      );
 
   Future<T?> sendObjectRequestAsync<T extends BaseResponse<D>, D>(
-    String url,
-    HttpMethods method,
-    Object? data,
-    bool? setToken,
-    Exception? fallbackMessage,
+      String url,
+      HttpMethods method,
+      Object? data,
+      bool? setToken,
+      Exception? fallbackMessage,
+      T Function(Map<String, dynamic>) fromJsonD,
+      );
+}
+
+T returnDefaultValueOnException<T extends BaseResponse<D>, D>(
     T Function(Map<String, dynamic>) fromJsonD,
-  );
+    String? message,
+    ) {
+  return fromJsonD({
+    "Result": "Failed",
+    "Error": message ?? "",
+    "Data": [],
+    "Status": 500,
+  });
 }
 
 class ApiClient extends IApiClient {
@@ -48,26 +60,20 @@ class ApiClient extends IApiClient {
 
   @override
   Future<T?> sendObjectRequestAsync<T extends BaseResponse<D>, D>(
-    String url,
-    HttpMethods method,
-    Object? data,
-    bool? setToken,
-    Exception? fallbackMessage,
-    T Function(Map<String, dynamic>) fromJsonD,
-  ) async {
+      String url,
+      HttpMethods method,
+      Object? data,
+      bool? setToken,
+      Exception? fallbackMessage,
+      T Function(Map<String, dynamic>) fromJsonD,
+      ) async {
     T? result;
     try {
       String? token = null;
       if (setToken ?? false) {
         token = await _getTokenIfNeeded(true);
       }
-      result = await _internalSendRequest<T, D>(
-        url: url,
-        method: method,
-        data: data,
-        token: token,
-        fromJsonD: fromJsonD,
-      );
+
       result = await _internalSendRequest<T, D>(
         url: url,
         method: method,
@@ -76,12 +82,7 @@ class ApiClient extends IApiClient {
         fromJsonD: fromJsonD,
       );
     } catch (e) {
-      result = fromJsonD({
-        "result": "Failed",
-        "error": e.toString(),
-        "data": [],
-        "status": 500,
-      });
+      result = returnDefaultValueOnException(fromJsonD, e.toString());
     }
     return result;
   }
@@ -90,13 +91,13 @@ class ApiClient extends IApiClient {
   @override
   Future<T?>
   sendRequestAsync<T extends BaseResponse<D>, D, C extends BaseRequest>(
-    String url,
-    HttpMethods method, // 'GET', 'POST', etc
-    C? data,
-    bool? setToken,
-    Exception? fallbackMessage,
-    T Function(Map<String, dynamic>) fromJsonD,
-  ) async {
+      String url,
+      HttpMethods method, // 'GET', 'POST', etc
+      C? data,
+      bool? setToken,
+      Exception? fallbackMessage,
+      T Function(Map<String, dynamic>) fromJsonD,
+      ) async {
     T? result;
     try {
       data?.defaults = appSettings.appDefaults;
@@ -117,9 +118,7 @@ class ApiClient extends IApiClient {
           (result.result == "Failed" || result.result == "Pending") &&
           (result.error == null || result.error!.isEmpty)) {}
     } catch (e) {
-      result =
-          BaseResponse<D>.error(e is Exception ? e : Exception(e.toString()))
-              as T;
+      returnDefaultValueOnException(fromJsonD, e.toString());
     }
     return result;
   }
@@ -145,17 +144,17 @@ class ApiClient extends IApiClient {
       });
 
       if (!isBaseUrlValid) {
-        return BaseResponse<D>.error(Exception("BaseUrl Is invalid")) as T;
+        return returnDefaultValueOnException(fromJsonD, "BaseUrl Is invalid");
       }
 
       // 2. Validate HTTP method
       if (method == HttpMethods.unknown) {
-        return BaseResponse<D>.error(Exception("Method Is invalid")) as T;
+        return returnDefaultValueOnException(fromJsonD, "Method Is invalid");
       }
 
       // 3. Prepare headers
       final headers = <String, String>{'Content-Type': 'application/json'};
-
+      headers[HttpHeaders.cacheControlHeader] = 'no-cache';
       // 4. Handle token if needed
 
       if (token != null && token.isNotEmpty) {
@@ -168,32 +167,38 @@ class ApiClient extends IApiClient {
 
       // 6. Prepare request body
       final String? body = data != null ? json.encode(data) : null;
-
+      http.ClientException("test");
       // 7. Execute request
       final client = RetryClient(http.Client());
       http.Response response;
-
       switch (method) {
         case HttpMethods.get:
-          response = await client.get(uri, headers: headers);
+          response = await http.get(uri, headers: headers);
           break;
         case HttpMethods.post:
-          response = await client.post(uri, headers: headers, body: body);
+          response = await http.post(
+            uri,
+            headers: headers,
+            body: body,
+            encoding: Utf8Codec(allowMalformed: false),
+          );
           break;
         case HttpMethods.put:
-          response = await client.put(uri, headers: headers, body: body);
+          response = await http.put(uri, headers: headers, body: body);
           break;
         case HttpMethods.delete:
-          response = await client.delete(uri, headers: headers);
+          response = await http.delete(uri, headers: headers);
           break;
         default:
-          return BaseResponse<D>.error(Exception('Unsupported HTTP method'))
-              as T;
+          return returnDefaultValueOnException(
+            fromJsonD,
+            "Unsupported HTTP method",
+          );
       }
 
       if (response.statusCode == 401) {
         _pendingRequests.add(
-          () async => await _internalSendRequest(
+              () async => await _internalSendRequest(
             url: url,
             method: method,
             fromJsonD: fromJsonD,
@@ -213,8 +218,10 @@ class ApiClient extends IApiClient {
             );
           }
         }
-        return BaseResponse<D>.error(Exception(response.statusCode.toString()))
-            as T;
+        return returnDefaultValueOnException(
+          fromJsonD,
+          "Unsupported HTTP method",
+        );
       }
       try {
         final decoded = json.decode(response.body);
@@ -225,15 +232,11 @@ class ApiClient extends IApiClient {
           return await fromJsonD(decoded) as T;
         }
       } catch (e) {
-        return BaseResponse<T>.error(
-              Exception('Failed to parse response: ${e.toString()}'),
-            )
-            as T;
+        return returnDefaultValueOnException(fromJsonD, e.toString());
       }
       // 9. Parse successful response
     } catch (e) {
-      return BaseResponse<T>.error(e is Exception ? e : Exception(e.toString()))
-          as T;
+      return returnDefaultValueOnException(fromJsonD, e.toString());
     }
   }
 
@@ -249,28 +252,20 @@ class ApiClient extends IApiClient {
 
     switch (method) {
       case HttpMethods.get:
-        response = await client.get(uri, headers: headers);
-        break;
+        return json.decode((await client.get(uri, headers: headers)).body);
+
       case HttpMethods.post:
-        response = await client.post(uri, headers: headers, body: body);
-        break;
+        return json.decode((await client.post(uri, headers: headers)).body);
+
       case HttpMethods.put:
-        response = await client.put(uri, headers: headers, body: body);
-        break;
+        return json.decode((await client.put(uri, headers: headers)).body);
+
       case HttpMethods.delete:
-        response = await client.delete(uri, headers: headers);
-        break;
+        return json.decode((await client.delete(uri, headers: headers)).body);
+
       default:
         throw Exception('Unsupported HTTP method');
     }
-
-    final HttpException? exception = apiExceptionValidator(response);
-    if (exception != null) {
-      return BaseResponse<D>.error(exception) as T;
-    }
-
-    final decoded = json.decode(response.body);
-    return BaseResponse<D>.fromjson(decoded) as T;
   }
 
   Future<bool> refreshToken() async {
@@ -279,8 +274,8 @@ class ApiClient extends IApiClient {
     bool success = false;
 
     try {
-      final user = await storage.getUser();
-      final deviceToken = await storage.getDeviceToken();
+      final user = await storage.loadUser();
+      final deviceToken = await storage.loadDeviceToken();
 
       if (user == null || (user.refreshToken?.isEmpty ?? true)) {
         return false;
@@ -311,8 +306,8 @@ class ApiClient extends IApiClient {
 
       if (newToken != null && newToken.isNotEmpty) {
         user.token = newToken;
-        await storage.setUser(user);
-        await storage.setToken(newToken);
+        await storage.saveUser(user);
+        await storage.saveToken(newToken);
         success = true;
 
         // اجرای درخواست‌های صف‌بندی شده
@@ -323,8 +318,6 @@ class ApiClient extends IApiClient {
         }
       }
     } catch (e) {
-      // اینجا می‌توانید Exception handler خودتون رو فراخوانی کنید
-      print('Refresh token failed: $e');
       return false;
     } finally {
       _isRefreshing = false;
@@ -349,53 +342,12 @@ class ApiClient extends IApiClient {
   // --------------------- Token ---------------------
   Future<String?> _getTokenIfNeeded(bool includeToken) async {
     if (!includeToken) return null;
-    final user = await storage.getUser();
+    final user = await storage.loadUser();
     if (user != null && isTokenValid(user.token ?? '')) return user.token;
-    return await storage.getToken();
+    return await storage.loadToken();
   }
 
   bool isTokenValid(String token) => token.isNotEmpty;
-
-  //   // ------------------------- Exception Handling -------------------------
-  //   Future<void> _exceptionHandler(dynamic ex) async {
-  //     if (ex is Exception) {
-  //       /*
-  //       notifier.raise(ex, context: context);
-  // */
-  //     } else {
-  //       /*
-  //       notifier.raise(Exception(ex.toString()), context: context);
-  // */
-  //     }
-  //   }
-  //
-  //   Future<void> _exceptionHandlerHttpStatus(int statusCode) async {
-  //     switch (statusCode) {
-  //       case 401:
-  //         /*
-  //         notifier.raise(Exception("توکن منقضی شده"), context: "401");
-  // */
-  //         break;
-  //       case 500:
-  //         /*        notifier.raise(
-  //           Exception("خطا در اتصال یا پاسخ نامعتبر از سرور"),
-  //           context: "500",
-  //         );*/
-  //         break;
-  //       case 408:
-  //         /*
-  //         notifier.raise(Exception("درخواست منقضی شد (Timeout)"));
-  // */
-  //         break;
-  //       case 502:
-  //         /*
-  //         notifier.raise(Exception("خطا در پردازش داده‌ها"));
-  // */
-  //         break;
-  //       default:
-  //         break;
-  //     }
-  //   }
 }
 
 class RequestQueue {
@@ -457,11 +409,13 @@ class ApiSettings {
   final String baseUrl;
   final String loginUrl;
   final Defaults appDefaults;
+  final Duration timeOut;
 
   ApiSettings({
     required this.baseUrl,
     required this.loginUrl,
     required this.appDefaults,
+    required this.timeOut,
   });
 }
 
@@ -479,7 +433,6 @@ class ApiUriBuilder {
       cleanedBase = '$cleanedBase/';
     }
 
-    // Remove double slashes that might occur
     final String fullUrl =
         '$cleanedBase${endpoint.replaceFirst(RegExp(r'^/'), '')}';
 

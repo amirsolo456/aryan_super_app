@@ -1,9 +1,9 @@
-import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
-import 'package:http/http.dart' as http;
-import 'package:models_package/Data/Default/mng/select/Language/Language.dart';
-import 'package:services_package/Repo_ViewId/repo_view_id.dart';
+
+import 'package:models_package/Data/Default/mng/select/Language/language_dto.dart';
 import 'package:services_package/default/mng/select/language_service.dart';
+import 'package:services_package/repo_view_id/repo_view_id.dart';
 import 'language_event.dart';
 import 'language_state.dart';
 
@@ -22,7 +22,7 @@ class LanguageBloc extends Bloc<LanguageEvent, LanguageState> {
     emit(const LanguageLoading());
     try {
       final languages = await getLanguageUseCase.get(
-        Request(RepoViewId: AppConstants.repoViewId100007),
+        Request(repoViewId: AppConstants.repoViewId100007),
         (json) => Response.fromJson(json),
       );
 
@@ -30,7 +30,7 @@ class LanguageBloc extends Bloc<LanguageEvent, LanguageState> {
         emit(LanguageError('Language Is Null'));
         return;
       }
-      emit(LanguageLoaded(languages!.data ?? []));
+      emit(LanguageLoaded(languages.data ?? []));
     } catch (e) {
       emit(LanguageError(e.toString()));
     }

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:models_package/Data/Default/mng/select/place/place.dart';
+import 'package:models_package/Data/Default/mng/select/place/place_dto.dart';
 
 
 

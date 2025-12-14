@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:models_package/Data/Default/trh/select/select_cashier.dart';
+import 'package:models_package/Data/Default/trh/select/select_option_dto.dart';
 
 
 
@@ -23,7 +23,7 @@ class SelectCashierLoading extends SelectCashierState {
 
 
 class SelectCashierLoaded extends SelectCashierState {
-  final List<ResponseData> selectCashier;
+  final List<SelectOptionData> selectCashier;
   const SelectCashierLoaded(this.selectCashier);
 
 

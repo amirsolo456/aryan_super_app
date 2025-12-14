@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:models_package/Data/Default/mng/select/Language/Language.dart';
+import 'package:models_package/Data/Default/mng/select/Language/language_dto.dart';
 
 
 

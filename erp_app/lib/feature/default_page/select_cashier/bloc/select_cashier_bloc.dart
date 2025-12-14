@@ -1,11 +1,16 @@
 
 
 import 'package:bloc/bloc.dart';
-import 'package:models_package/Data/Default/trh/select/select_cashier.dart';
-import 'package:services_package/Repo_ViewId/repo_view_id.dart';
+import 'package:models_package/Data/Auth/Menu/dto.dart';
+import 'package:services_package/repo_view_id/repo_view_id.dart';
 import 'package:services_package/default/trh/select/cashier_service.dart';
+import 'package:services_package/default/trh/select/cashier_service.dart';
+import 'package:models_package/Data/Default/trh/select/select_option_dto.dart';
 import 'select_cashier_event.dart';
 import 'select_cashier_state.dart';
+import 'package:services_package/default/trh/select/cashier_service.dart';
+
+
 
 class SelectCashierBloc extends Bloc<SelectCashierEvent, SelectCashierState> {
   final CashierSelectService getSelectCashierUseCase;
@@ -22,8 +27,8 @@ class SelectCashierBloc extends Bloc<SelectCashierEvent, SelectCashierState> {
     emit(const SelectCashierLoading());
     try {
       final selectCashier = await getSelectCashierUseCase.get(
-        Request(RepoViewId: AppConstants.repoViewId140002),
-        (json) => Response.fromJson(json),
+        SelectOptionRequest(repoViewId: AppConstants.repoViewId140002),
+        (json) => SelectOptionResponse.fromJson(json),
       );
 
       if (selectCashier == null || selectCashier.data == null) {

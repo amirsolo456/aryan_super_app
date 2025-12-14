@@ -1,9 +1,13 @@
 
 
 import 'package:bloc/bloc.dart';
-import 'package:models_package/Data/Default/Com/Select/Select_Year/select_year.dart';
-import 'package:services_package/Repo_ViewId/repo_view_id.dart';
+import 'package:models_package/Data/Default/Com/Select/Select_Year/select_year_dto.dart';
+import "package:services_package/repo_view_id//repo_view_id.dart";
 import 'package:services_package/default/com/select/Year_Select_Service.dart';
+import 'package:models_package/Data/Default/Com/Select/Select_Year/select_year_dto.dart' hide Request;
+
+
+
 import 'select_year_event.dart';
 import 'select_year_state.dart';
 
@@ -22,7 +26,7 @@ class SelectYearBloc extends Bloc<SelectYearEvent, SelectYearState> {
     emit(const SelectYearLoading());
     try {
       final selectYears = await getSelectYearUseCase.get(
-        Request(RepoViewId: AppConstants.repoViewId207003, ShowMode: 10),
+        Request(repoViewId: AppConstants.repoViewId207003, showMode: 10),
         (json) => Response.fromJson(json),
       );
 

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:models_package/Data/Default/Com/Select/Select_Currency/select_currency.dart';
+import 'package:models_package/Data/Default/Com/Select/Select_Currency/currency_dto.dart';
 
 
 

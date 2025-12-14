@@ -1,16 +1,27 @@
+
+
+
+// import 'package:flutter/cupertino.dart';
+
+// class DefaultPage extends StatelessWidget {
+//   const DefaultPage({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Center(child: Text("Default Page"),);
+//   }
+// }
+
+
 // default_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:models_package/Data/Default/Com/Select/Select_Currency/select_currency.dart'
-    as currency_model;
-import 'package:models_package/Data/Default/trh/select/select_cashier.dart'
-    as cashier_model;
-import 'package:models_package/Data/Default/mng/select/place/place.dart'
-    as place_model;
-import 'package:models_package/Data/Default/Com/Select/Select_Year/select_year.dart';
+import 'package:models_package/Data/Default/Com/Select/Select_Currency/currency_dto.dart' as currency_model;
+import 'package:models_package/Data/Default/trh/select/select_option_dto.dart' as cashier_model;
+import 'package:models_package/Data/Default/mng/select/place/place_dto.dart' as place_model;
+import 'package:models_package/Data/Default/Com/Select/Select_Year/select_year_dto.dart' as select_year;
 
 import '../Language/bloc/language_bloc.dart';
-import '../Language/bloc/language_event.dart';
 import '../Language/bloc/language_state.dart';
 import '../Place/bloc/place_bloc.dart';
 import '../Place/bloc/place_event.dart';
@@ -190,7 +201,7 @@ class _DefaultPageState extends State<DefaultPage> {
         }
 
         if (state is PlaceLoaded) {
-          final List<place_model.ResponseData> places = state.places;
+          final  places = state.places;
 
           return horizontalSelector<place_model.ResponseData>(
             title: 'محل',
@@ -224,7 +235,7 @@ class _DefaultPageState extends State<DefaultPage> {
         if (state is SelectCashierLoaded) {
           final cashiers = state.selectCashier;
 
-          return horizontalSelector<cashier_model.ResponseData>(
+          return horizontalSelector<cashier_model.SelectOptionData>(
             title: 'صندوقدار',
             icon: Icons.person,
             items: cashiers,
@@ -286,7 +297,7 @@ class _DefaultPageState extends State<DefaultPage> {
         }
 
         if (state is SelectYearLoaded) {
-          return horizontalSelector<ResponseData>(
+          return horizontalSelector<select_year.ResponseData>(
             title: 'سال مالی',
             icon: Icons.calendar_today,
             items: state.selectYears,

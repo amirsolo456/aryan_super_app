@@ -1,5 +1,4 @@
 import 'package:erp_app/core/list_generic/presentation/features/generic_page.dart';
-import 'package:erp_app/core/navigation/navigation_service.dart';
 import 'package:erp_app/feature/person/domain/repositories/person_repository.dart';
 import 'package:erp_app/feature/person/presentation/blocs/person_bloc/person_list_bloc.dart';
 import 'package:erp_app/feature/person/presentation/blocs/search_person_bloc/search_person_bloc.dart';
@@ -8,130 +7,159 @@ import 'package:get_it/get_it.dart';
 import 'package:models_package/Base/base_request.dart';
 import 'package:models_package/Data/Auth/Menu/dto.dart' as menu;
 import 'package:models_package/Data/Com/Person/dto.dart' as person_list;
-import 'package:services_package/Interfaces/apiclient_middleware_service.dart';
-import 'package:services_package/Interfaces/iapi_service.dart';
+import 'package:services_package/Interfaces/front_helper_services/isnackbar_service.dart'
+as snack_bar;
 import 'package:services_package/api_client_service.dart';
 import 'package:services_package/api_service.dart';
 
 import 'package:services_package/auth/menu/menu_service.dart';
 import 'package:services_package/com/person/person_service.dart';
 import 'package:services_package/device_token_service.dart';
+import 'package:services_package/extension/exception_handler_service.dart';
 import 'package:services_package/login_service.dart';
 import 'package:services_package/otp_service.dart';
+import 'package:services_package/storage/domain/usecases/secure_storage_usecasae.dart';
+import 'package:services_package/storage/domain/usecases/shared_storage_usecase.dart';
+import 'package:services_package/storage/domain/usecases/sqlite_storage_usecase.dart';
+import 'package:services_package/storage/domain/usecases/storage_service.dart';
 import 'package:services_package/storage_service.dart';
 import 'package:services_package/user_exist.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Buttons/absoluted_button.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Expanders/list_datas_expander.dart';
 
 import '../../feature/menu/bloc/menu_bloc.dart';
-import '../list_generic/presentation/blocs/generic_cubit.dart';
-import 'api_client.dart';
+import '../messengers_services/exception_helper_service.dart';
+import '../messengers_services/snackbar_service.dart';
 
 final sl = GetIt.instance;
 
 void initStandAlone() {
-  final _storage = StorageService();
+  final secureClient = SecureStorageUseCase();
+  final sharedClient = SharedStorageUseCase();
+  final sqliteClient = SqliteStorageUseCase();
+
+
+  final _storage = StorageService(
+    secureStorageUseCase: secureClient,
+    sharedStorageUseCase: sharedClient,
+    sqliteStorageUseCase: sqliteClient,
+  );
   final _defaults = Defaults(
     placeId: 1,
     yearId: 1403,
     languageId: 2,
     managementAccountId: 1,
   );
-  final _apisetting = ApiSettings(
-    // baseUrl: 'https://216.65.200.215/',
-     baseUrl: 'https://bff.arian.net/',
 
+  final _apisetting = ApiSettings(
+    baseUrl: 'https://bff.ariansystem.net' ?? 'http://216.65.200.215:30006',
     loginUrl: 'api/auth/login',
+    timeOut: Duration(seconds: 40),
     appDefaults: _defaults,
   );
 
   // Providers
-  sl.registerSingleton<StorageService>(_storage);
-  final apiClient = ApiClient(storage: _storage, appSettings: _apisetting);
-  final _otp = OtpService(apiClient);
-  sl.registerLazySingleton<ApiSettings>(() => _apisetting);
-  sl.registerLazySingleton<ApiClient>(
-        () => ApiClient(storage: _storage, appSettings: _apisetting),
-  );
-  sl.registerLazySingleton<OtpService>(() => _otp);
-  sl.registerLazySingleton<UserExistService>(
-        () => UserExistService(apiClientr: apiClient),
-  );
-  sl.registerLazySingleton<NavigationService>(() => NavigationService());
-  sl.registerLazySingleton<IApiService>(() => ApiService());
-  sl.registerLazySingleton<ApiClientMiddlewareService>(
-        () => ApiClientMiddlewareService(apiClient: apiClient),
-  );
-  sl.registerLazySingleton<NotificationService>(
-        () =>
-        NotificationService(
-          storage: _storage,
-          refreshInterval: Duration(minutes: 5),
-        ),
-  );
-  if (!sl.isRegistered<PersonRepository>()) {
-    sl.registerLazySingleton(() => PersonRepository());
+  if (!sl.isRegistered<StorageService>()) {
+    sl.registerSingleton<StorageService>(_storage);
   }
-  sl.registerLazySingleton<LoginService>(
-        () => LoginService(client: apiClient, storage: _storage),
-  );
 
-  if (!sl
-      .isRegistered<
-      IApiService<menu.Response, menu.ResponseData, menu.Request>
-  >()) {
-    sl.registerFactory(
-          () => IApiService<menu.Response, menu.ResponseData, menu.Request>,
+  if (!sl.isRegistered<ApiSettings>()) {
+    sl.registerLazySingleton<ApiSettings>(() => _apisetting);
+  }
+
+  if (!sl.isRegistered<ApiClient>()) {
+    sl.registerLazySingleton<ApiClient>(
+          () => ApiClient(storage: _storage, appSettings: _apisetting),
     );
   }
-  if (sl.isRegistered<MenuService>() == false) {
-    sl.registerFactory<MenuService>(() => MenuService(apiClient));
+  final apiClient = ApiClient(storage: _storage, appSettings: _apisetting);
+
+  if (!sl.isRegistered<OtpService>()) {
+    sl.registerLazySingleton<OtpService>(() => OtpService(apiClient));
   }
-  if (sl.isRegistered<MenuBloc>() == false) {
-    sl.registerFactory(
+  if (!sl.isRegistered<UserExistService>()) {
+    sl.registerLazySingleton<UserExistService>(
+          () => UserExistService(apiClientr: apiClient),
+    );
+  }
+
+  if (!sl.isRegistered<NotificationService>()) {
+    sl.registerLazySingleton<NotificationService>(
           () =>
-          MenuBloc(
-            getMenuUseCase:
-            GetIt.instance<
-                MenuService
-            >(),
+          NotificationService(
+            storage: _storage,
+            refreshInterval: Duration(minutes: 5),
           ),
     );
   }
 
-  if (sl.isRegistered<SearchPersonBloc>() == false) {
+  if (!sl.isRegistered<PersonRepository>()) {
+    sl.registerLazySingleton(() => PersonRepository());
+  }
+
+  if (!sl.isRegistered<ExceptionHelperService>()) {
+    sl.registerLazySingleton<ExceptionHelperService>(
+          () => ExceptionHelperService(),
+    );
+  }
+
+  final messengerService = sl<ExceptionHelperService>();
+  AppErrorHandler.registerMessengerService(messengerService);
+
+  sl.registerLazySingleton<snack_bar.ISnackbarService>(() => SnackBarService());
+
+  if (!sl.isRegistered<LoginService>()) {
+    sl.registerLazySingleton<LoginService>(
+          () => LoginService(client: apiClient),
+    );
+  }
+
+  if (!sl
+      .isRegistered<
+      ApiService<menu.Response, menu.ResponseData, menu.Request>
+  >()) {
+    sl.registerFactory(
+          () => ApiService<menu.Response, menu.ResponseData, menu.Request>,
+    );
+  }
+
+  if (!sl.isRegistered<MenuService>()) {
+    sl.registerFactory<MenuService>(() => MenuService(apiClient));
+  }
+  if (!sl.isRegistered<MenuBloc>()) {
+    sl.registerFactory(
+          () => MenuBloc(getMenuUseCase: GetIt.instance<MenuService>()),
+    );
+  }
+
+  // if (!sl.isRegistered<SnackBarService>()) {
+  //   sl.registerFactory<SnackBarService>(() => SnackBarService());
+  // }
+
+  if (!sl.isRegistered<SearchPersonBloc>()) {
     sl.registerFactory(() => SearchPersonBloc(sl.get<PersonRepository>()));
   }
 
-  if (sl.isRegistered<PersonService>() == false) {
+  if (!sl.isRegistered<PersonService>()) {
     sl.registerFactory(() => PersonService(apiClient));
   }
 
   if (!sl.isRegistered<PersonListBloc>()) {
     sl.registerFactory(
-          () => PersonListBloc(personService:  sl<PersonService>()),
+          () => PersonListBloc(personService: sl<PersonService>()),
     );
   }
 
-}
-
-void initPartition() {
-  // Blocs
-  final sl = GetIt.instance;
-  final apiClient = GetIt.I<ApiClient>();
-
-
-
-  if (!sl.isRegistered<GenericBloc>()) {
-    sl.registerFactory(
-          () =>
-      GenericBloc<
-          person_list.Response,
-          person_list.ResponseData,
-          person_list.Request
-      >,
-    );
-  }
+  // if (!sl.isRegistered<GenericBloc>()) {
+  //   sl.registerFactory(
+  //     () =>
+  //         GenericBloc<
+  //           person_list.Response,
+  //           person_list.ResponseData,
+  //           person_list.Request
+  //         >,
+  //   );
+  // }
 
   if (!sl.isRegistered<GenericPage>()) {
     sl.registerFactory(
@@ -178,17 +206,4 @@ void initPartition() {
           ),
     );
   }
-
-
-  // if (sl
-  //     .isRegistered<
-  //     IApiService<menu.Response, menu.ResponseData, menu.Request>
-  // >() ==
-  //     false) {
-  //   sl.registerFactory(
-  //         () => IApiService<menu.Response, menu.ResponseData, menu.Request>,
-  //   );
-  // }
-
-  // sl.registerFactory(() => IApiService<person_list.Response, person_list.ResponseData, person_list.Request>);
 }
