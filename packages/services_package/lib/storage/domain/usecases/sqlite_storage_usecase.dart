@@ -145,14 +145,18 @@ class SqliteStorageUseCase implements ISqliteStorageDataSource {
   @override
   Future<void> removeAll() async {
     final db = await _db;
-    await db.transaction((txn) async {
-      await txn.delete(_loginSessionTable);
-      await txn.delete(_defaultsTable);
-      await txn.delete(_filtersTable);
-      await txn.delete(_filterInfoTable);
-      await txn.delete(_orderInfoTable);
-      await txn.delete(_pagingInfoTable);
-    });
+    try {
+      await db.transaction((txn) async {
+        await txn.delete(_loginSessionTable);
+        await txn.delete(_defaultsTable);
+        await txn.delete(_filtersTable);
+        await txn.delete(_filterInfoTable);
+        await txn.delete(_orderInfoTable);
+        await txn.delete(_pagingInfoTable);
+      });
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   @override

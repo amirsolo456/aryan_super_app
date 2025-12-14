@@ -1,10 +1,11 @@
-import 'package:erp_app/feature/person/presentation/blocs/search_person_bloc/search_person_bloc.dart';
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Buttons/absoluted_button.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Expanders/list_datas_expander.dart';
-import '../../../../core/list_generic/presentation/blocs/generic_cubit.dart';
+
+import '../../../../../core/list_generic/presentation/blocs/generic_cubit.dart';
+import '../blocs/search_person_bloc/search_person_bloc.dart';
 
 class PersonListPage extends StatefulWidget {
   final bool refreshData;
@@ -39,17 +40,17 @@ class _PersonListPageState extends State<PersonListPage> {
       bloc: GetIt.instance<SearchPersonBloc>(),
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Users'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () {
-                  GetIt.instance<SearchPersonBloc>().loadData();
-                },
-              ),
-            ],
-          ),
+          // appBar: AppBar(
+          //   title: const Text('Users'),
+          //   actions: [
+          //     IconButton(
+          //       icon: const Icon(Icons.refresh),
+          //       onPressed: () {
+          //         GetIt.instance<SearchPersonBloc>().loadData();
+          //       },
+          //     ),
+          //   ],
+          // ),
           body: Stack(
             children: [
               Padding(

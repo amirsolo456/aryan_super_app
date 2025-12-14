@@ -1,17 +1,20 @@
 import 'dart:io';
-import 'package:erp_app/feature/person/domain/repositories/person_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:get_it/get_it.dart';
+import 'package:login_module/login_page.dart';
+import 'package:login_module/services/login_manager_service.dart';
 import 'package:models_package/Base/enums.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:models_package/Base/login_module.dart';
 import 'package:models_package/Data/Auth/Login/dto.dart';
+import 'package:models_package/Data/Auth/User/dto.dart';
 import 'package:navigation_builder/navigation_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:services_package/api_client_service.dart';
 import 'package:services_package/com/person/person_service.dart';
 import 'package:services_package/extension/exception_handler_service.dart';
@@ -24,11 +27,13 @@ import 'components/mainlayout/main_layout.dart';
 import 'core/messengers_services/exception_helper_service.dart';
 import 'core/network/custom_http_override.dart';
 import 'core/network/injection_container.dart';
-import 'feature/menu/bloc/menu_bloc.dart';
-import 'feature/menu/bloc/menu_event.dart';
-import 'feature/person/presentation/blocs/person_bloc/person_list_bloc.dart';
-import 'feature/person/presentation/blocs/search_person_bloc/search_person_bloc.dart';
-import 'feature/person/presentation/features/person_list_page.dart';
+import 'data/models/login_module_model.dart';
+import 'feature/auth/menu/bloc/menu_bloc.dart';
+import 'feature/auth/menu/bloc/menu_event.dart';
+import 'feature/com/person/domain/repositories/person_repository.dart';
+import 'feature/com/person/presentation/blocs/person_bloc/person_list_bloc.dart';
+import 'feature/com/person/presentation/blocs/search_person_bloc/search_person_bloc.dart';
+import 'feature/com/person/presentation/features/person_list_page.dart';
 import 'feature/profile/profile_bloc.dart';
 
 void main() async {
@@ -104,8 +109,8 @@ class MainApp extends StatelessWidget {
 Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
   if (loginDatas.isEmpty) return const SizedBox();
 
-  if (loginDatas[SessionKeys.language.key] == null) {
-    loginDatas[SessionKeys.language.key] = Language(
+  if (loginDatas[SessionKeysExt(SessionKeys.language).key] == null) {
+    loginDatas[SessionKeysExt(SessionKeys.language).key] = Language(
       languageCode: 'fa',
       smallName: 'fa',
       id: 0,
@@ -113,22 +118,41 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
       completeName: 'fa_IR',
     );
   }
-
   usePathUrlStrategy();
   final storageService = GetIt.instance<StorageService>();
-
-  // ذخیره session
-  storageService.saveLoginSessionModel(
-    LoginModuleResult.success(
-      user: loginDatas[SessionKeys.user.key],
-      token: loginDatas[SessionKeys.token.key],
-      networkMode: 0,
-      cachedKey: '',
-      language: loginDatas[SessionKeys.language.key],
-      managementAccount:  [],
-      selectedManagementAccount: loginDatas[SessionKeys.selectedManagement.key],
+  final loginModuleResult = LoginModuleResult.success(
+    user: UserDto.fromJson(loginDatas[SessionKeysExt(SessionKeys.user).key]),
+    token: loginDatas[SessionKeysExt(SessionKeys.token).key],
+    networkMode:
+        loginDatas[SessionKeysExt(SessionKeys.networkType).key] ?? 0 as int,
+    cachedKey: '',
+    language: Language.fromJson(
+      loginDatas[SessionKeysExt(SessionKeys.language).key],
+    ),
+    managementAccount:
+        (loginDatas[SessionKeysExt(SessionKeys.managementAccount).key]
+                as List<dynamic>)
+            .map((e) => ManagementAccounts.fromJson(e as Map<String, dynamic>))
+            .toList(),
+    success:
+        loginDatas[SessionKeysExt(SessionKeys.success).key] ?? false as bool,
+    error: loginDatas[SessionKeysExt(SessionKeys.error).key] as String?,
+    timestamp: loginDatas[SessionKeysExt(SessionKeys.timeStamp).key] != null
+        ? DateTime.fromMillisecondsSinceEpoch(
+            loginDatas[SessionKeysExt(SessionKeys.timeStamp).key] as int,
+          )
+        : DateTime.now(),
+    selectedManagementAccount: ManagementAccounts.fromJson(
+      loginDatas[SessionKeysExt(SessionKeys.selectedManagement).key],
     ),
   );
+
+  if ((loginDatas[LoginRouter.isLoginModuleModel] ?? false) as bool == true &&
+      loginDatas[LoginRouter.loginNavigator] != null &&
+      loginDatas[LoginRouter.loginNavigator] is GuardedNavigationBuilder) {
+  } else {}
+
+  storageService.saveLoginSessionModel(loginModuleResult);
 
   final apiClient = GetIt.instance<ApiClient>();
   final personRepo = GetIt.instance<PersonRepository>();
@@ -142,17 +166,14 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
       ),
       BlocProvider(create: (_) => ProfileBloc()),
       BlocProvider(create: (_) => PersonListBloc(personService: personService)),
-      BlocProvider(
-        // ✅ این خط اضافه شد
-        create: (_) => SearchPersonBloc(personRepo),
-      ),
+      BlocProvider(create: (_) => SearchPersonBloc(personRepo)),
     ],
-    child: PartOfContainerApp(loginModuleResult: loginDatas),
+    child: PartOfContainerApp(loginModuleResult: loginModuleResult),
   );
 }
 
 class PartOfContainerApp extends StatelessWidget {
-  final Map<String, dynamic> loginModuleResult;
+  final LoginModuleResult loginModuleResult;
 
   const PartOfContainerApp({super.key, required this.loginModuleResult});
 
@@ -161,11 +182,7 @@ class PartOfContainerApp extends StatelessWidget {
     return MaterialApp.router(
       routerConfig: erpNavigator.routerConfig,
       debugShowCheckedModeBanner: false,
-      locale: Locale(
-        (loginModuleResult[SessionKeys.language.key] as Language?)
-                ?.languageCode ??
-            'fa',
-      ),
+      locale: Locale((loginModuleResult.language)?.languageCode ?? 'fa'),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
         AppLocalizations.delegate,
@@ -182,16 +199,24 @@ class PartOfContainerApp extends StatelessWidget {
   }
 }
 
+final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
 final erpNavigator = NavigationBuilder.create(
   routes: {
+    '/signOut': (RouteData data) {
+      Restart.restartApp(
+        notificationTitle: 'Restarting App',
+        notificationBody: 'Please tap here to open the app again.',
+      );
+      return SizedBox();
+    },
     '/': (RouteData data) =>
         const MainLayoutPage(tab: NavButtonTabBarMode.erpDashboardTabMode),
-    '/:erpMenuTabBarId': (RouteData data) {
+    '/:erpMenuTabBarsId': (RouteData data) {
       final id = data.pathParams['erpMenuTabBarId']; // دسترسی به پارامترها
       NavButtonTabBarMode tab = NavButtonTabBarMode.values.firstWhere(
         (e) => e.value == id,
         orElse: () =>
-            NavButtonTabBarMode.erpNotFound, // اگر پیدا نشد، erpNotFound
+            NavButtonTabBarMode.erpNotFound,
       );
       return MainLayoutPage(tab: tab);
     },
@@ -204,15 +229,15 @@ final erpNavigator = NavigationBuilder.create(
     '/notFound': (RouteData data) {
       return ErpNotFound();
     },
+
     '/home/*': (RouteData data) => data.redirectTo('/'),
-    // wildcard برای همه زیرمسیرها
+
     '/page6': (RouteData data) => RouteWidget(),
   },
 
   initialLocation: '/',
 
   unknownRoute: (route) => Scaffold(appBar: AppBar(), body: SizedBox()),
-  // صفحه برای مسیر نامعلوم
   builder: (Widget outlet) => Scaffold(
     appBar: ErpAppBar(mode: AppBarsMode.erpNotFound),
     body: outlet,

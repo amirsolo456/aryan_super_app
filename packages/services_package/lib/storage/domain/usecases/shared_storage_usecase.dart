@@ -89,9 +89,10 @@ class SharedStorageUseCase implements ISharedStorageDataSource {
   @override
   Future<void> removeAll() async {
     await _init();
+    await _sharedPrefs.clear();
     // فقط کلیدهایی که این usecase استفاده می‌کند را پاک می‌کنیم
-    await _sharedPrefs.remove(_deviceTokenKey);
-    await _sharedPrefs.remove(_languageKey);
+    // await _sharedPrefs.remove(_deviceTokenKey);
+    // await _sharedPrefs.remove(_languageKey);
   }
 
   @override

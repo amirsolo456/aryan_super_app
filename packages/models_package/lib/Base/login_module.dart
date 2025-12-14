@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:navigation_builder/navigation_builder.dart';
 
 import '../Data/Auth/Login/dto.dart';
 import '../Data/Auth/User/dto.dart';
@@ -27,14 +28,14 @@ class LoginModuleResult extends Equatable {
     required this.user,
     required this.token,
     required this.networkMode,
-    this.language,
+    required this.language,
     this.cachedKey,
-    this.managementAccount,
-    this.selectedManagementAccount,
-  }) : success = true,
-       timestamp = DateTime.now(),
-       resultType = LoginResultType.success,
-       error = null;
+    required this.managementAccount,
+    required this.timestamp,
+    required this.success,
+    required this.error,
+    required this.selectedManagementAccount,
+  }) : resultType = LoginResultType.success;
 
   LoginModuleResult.failure(String message)
     : success = false,

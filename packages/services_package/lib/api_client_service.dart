@@ -34,18 +34,6 @@ abstract interface class IApiClient {
   );
 }
 
-T returnDefaultValueOnException<T extends BaseResponse<D>, D>(
-  T Function(Map<String, dynamic>) fromJsonD,
-  String? message,
-) {
-  return fromJsonD({
-    "Result": "Failed",
-    "Error": message ?? "",
-    "Data": [],
-    "Status": 500,
-  });
-}
-
 class ApiClient extends IApiClient {
   final StorageService storage;
   final ApiSettings appSettings;
@@ -57,6 +45,22 @@ class ApiClient extends IApiClient {
   ApiClient({required this.storage, required this.appSettings});
 
   late final http.Client _httpClient = RetryClient(http.Client());
+
+  T returnDefaultValueOnException<T extends BaseResponse<D>, D>(
+    T Function(Map<String, dynamic>) fromJsonD,
+    String? message,
+    int? httpStatus,
+  ) {
+    if (httpStatus == HttpStatus.unauthorized) {
+      storage.signOut();
+    }
+    return fromJsonD({
+      "Result": "Failed",
+      "Error": message ?? "",
+      "Data": [],
+      "Status": httpStatus ?? 500,
+    });
+  }
 
   @override
   Future<T?> sendObjectRequestAsync<T extends BaseResponse<D>, D>(
@@ -82,7 +86,11 @@ class ApiClient extends IApiClient {
         fromJsonD: fromJsonD,
       );
     } catch (e) {
-      result = returnDefaultValueOnException(fromJsonD, e.toString());
+      result = returnDefaultValueOnException(
+        fromJsonD,
+        e.toString(),
+        HttpStatus.unavailableForLegalReasons,
+      );
     }
     return result;
   }
@@ -118,7 +126,11 @@ class ApiClient extends IApiClient {
           (result.result == "Failed" || result.result == "Pending") &&
           (result.error == null || result.error!.isEmpty)) {}
     } catch (e) {
-      returnDefaultValueOnException(fromJsonD, e.toString());
+      returnDefaultValueOnException(
+        fromJsonD,
+        e.toString(),
+        HttpStatus.unavailableForLegalReasons,
+      );
     }
     return result;
   }
@@ -144,12 +156,20 @@ class ApiClient extends IApiClient {
       });
 
       if (!isBaseUrlValid) {
-        return returnDefaultValueOnException(fromJsonD, "BaseUrl Is invalid");
+        return returnDefaultValueOnException(
+          fromJsonD,
+          "BaseUrl Is invalid",
+          HttpStatus.unsupportedMediaType,
+        );
       }
 
       // 2. Validate HTTP method
       if (method == HttpMethods.unknown) {
-        return returnDefaultValueOnException(fromJsonD, "Method Is invalid");
+        return returnDefaultValueOnException(
+          fromJsonD,
+          "Method Is invalid",
+          500,
+        );
       }
 
       // 3. Prepare headers
@@ -192,7 +212,9 @@ class ApiClient extends IApiClient {
         default:
           return returnDefaultValueOnException(
             fromJsonD,
+
             "Unsupported HTTP method",
+            HttpStatus.methodNotAllowed,
           );
       }
 
@@ -217,10 +239,17 @@ class ApiClient extends IApiClient {
               body: body,
             );
           }
+        } else {
+          return returnDefaultValueOnException(
+            fromJsonD,
+            "UnAuthorized",
+            HttpStatus.unauthorized,
+          );
         }
         return returnDefaultValueOnException(
           fromJsonD,
           "Unsupported HTTP method",
+          HttpStatus.unsupportedMediaType,
         );
       }
       try {
@@ -232,11 +261,11 @@ class ApiClient extends IApiClient {
           return await fromJsonD(decoded) as T;
         }
       } catch (e) {
-        return returnDefaultValueOnException(fromJsonD, e.toString());
+        return returnDefaultValueOnException(fromJsonD, e.toString(), 500);
       }
       // 9. Parse successful response
     } catch (e) {
-      return returnDefaultValueOnException(fromJsonD, e.toString());
+      return returnDefaultValueOnException(fromJsonD, e.toString(), 500);
     }
   }
 
@@ -323,7 +352,7 @@ class ApiClient extends IApiClient {
       _isRefreshing = false;
     }
 
-    return success;
+    return _isRefreshing;
   }
 
   Future<T> enqueueRequest<T>(Future<T> Function() request) {

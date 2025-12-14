@@ -3,6 +3,7 @@ import 'dart:core';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:models_package/Base/login_module.dart' as prefix0;
+import 'package:models_package/Base/login_module.dart';
 import 'package:models_package/Data/Auth/User/dto.dart';
 import 'package:services_package/storage/data/datasource/secure_storage_datasource.dart';
 import 'package:services_package/storage/data/model/secure_storage_data_model.dart';
@@ -235,32 +236,71 @@ class SecureStorageUseCase implements ISecureStorageDataSource {
 
   @override
   Future<void> saveLoginSessionModel(
-    prefix0.LoginModuleResult loginSessionModel,
+    LoginModuleResult loginSessionModel,
   ) async {
-    Map<String, dynamic> map;
-    final dyn = loginSessionModel as dynamic;
-
     try {
-      map = (dyn.toJson() as Map<String, dynamic>);
-    } catch (_) {
-      try {
-        map = (dyn.toMap() as Map<String, dynamic>);
-      } catch (_) {
-        try {
-          map = jsonDecode(jsonEncode(dyn)) as Map<String, dynamic>;
-        } catch (e) {
-          throw Exception('Unable to convert LoginSessionModel to Map: $e');
-        }
+      // 1️⃣ ذخیره Token
+      final accessToken = loginSessionModel.token;
+      if (accessToken != null && accessToken.isNotEmpty) {
+        await saveToken(accessToken);
       }
-    }
 
-    // این قسمت اضافه شده - ذخیره‌سازی واقعی
-    final jsonString = jsonEncode(map);
-    await _secureStorage.write(
-      key: _sessionTable,
-      value: jsonString,
-      aOptions: _androidOptions,
-      iOptions: _iosOptions,
-    );
+      // 2️⃣ ذخیره User
+      final user = loginSessionModel.user;
+      if (user != null) {
+        await saveUser(user);
+      }
+
+      // 3️⃣ ذخیره Session Meta (بدون token و user)
+      final Map<String, dynamic> sessionMap =
+          Map<String, dynamic>.from(loginSessionModel.toJson())
+            ..remove('access_token')
+            ..remove('Access_Token')
+            ..remove('user');
+
+      final jsonString = jsonEncode(sessionMap);
+
+      await _secureStorage.write(
+        key: _sessionTable,
+        value: jsonString,
+        aOptions: _androidOptions,
+        iOptions: _iosOptions,
+      );
+    } catch (e) {
+      print('Error saving login session model: $e');
+      throw Exception('Failed to save login session model');
+    }
   }
+
+  //
+  // @override
+  // Future<void> saveLoginSessionModel(
+  //   LoginModuleResult loginSessionModel,
+  // ) async {
+  //   Map<String, dynamic> map;
+  //   final dyn = loginSessionModel as dynamic;
+  //
+  //   try {
+  //     map = (dyn.toJson() as Map<String, dynamic>);
+  //   } catch (_) {
+  //     try {
+  //       map = (dyn.toMap() as Map<String, dynamic>);
+  //     } catch (_) {
+  //       try {
+  //         map = jsonDecode(jsonEncode(dyn)) as Map<String, dynamic>;
+  //       } catch (e) {
+  //         throw Exception('Unable to convert LoginSessionModel to Map: $e');
+  //       }
+  //     }
+  //   }
+  //
+  //   // این قسمت اضافه شده - ذخیره‌سازی واقعی
+  //   final jsonString = jsonEncode(map);
+  //   await _secureStorage.write(
+  //     key: _sessionTable,
+  //     value: jsonString,
+  //     aOptions: _androidOptions,
+  //     iOptions: _iosOptions,
+  //   );
+  // }
 }

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:models_package/Data/Auth/Menu/dto.dart';
-import '../../../main.dart';
+import '../../../../main.dart';
 import '../bloc/menu_bloc.dart';
+import '../bloc/menu_event.dart';
 import '../bloc/menu_state.dart';
 
 class MenuPage extends StatefulWidget {
@@ -58,9 +59,12 @@ class _MenuPageState extends State<MenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(title: const Text('منو')),
       body: BlocBuilder<MenuBloc, MenuState>(
         builder: (context, state) {
+          if (state is MenuTokenNeedState) {
+            context.read<MenuBloc>().add(MenuTokenNeedEvent());
+            return const Center(child: Text('لطفا دوباره وارد شوید!'));
+          }
           if (state is MenuLoadingState) {
             return const Center(child: CircularProgressIndicator());
           }

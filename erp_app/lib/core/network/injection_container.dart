@@ -1,7 +1,4 @@
 import 'package:erp_app/core/list_generic/presentation/features/generic_page.dart';
-import 'package:erp_app/feature/person/domain/repositories/person_repository.dart';
-import 'package:erp_app/feature/person/presentation/blocs/person_bloc/person_list_bloc.dart';
-import 'package:erp_app/feature/person/presentation/blocs/search_person_bloc/search_person_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:models_package/Base/base_request.dart';
@@ -22,13 +19,15 @@ import 'package:services_package/storage/domain/usecases/secure_storage_usecasae
 import 'package:services_package/storage/domain/usecases/shared_storage_usecase.dart';
 import 'package:services_package/storage/domain/usecases/sqlite_storage_usecase.dart';
 import 'package:services_package/storage/domain/usecases/storage_service.dart';
-import 'package:services_package/storage_service.dart';
 import 'package:services_package/user_exist.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Buttons/absoluted_button.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Expanders/list_datas_expander.dart';
 
-import '../../feature/menu/bloc/menu_bloc.dart';
-import '../messengers_services/exception_helper_service.dart';
+import '../../feature/auth/menu/bloc/menu_bloc.dart';
+import '../../feature/com/person/domain/repositories/person_repository.dart';
+import '../../feature/com/person/presentation/blocs/person_bloc/person_list_bloc.dart';
+import '../../feature/com/person/presentation/blocs/search_person_bloc/search_person_bloc.dart';
+ import '../messengers_services/exception_helper_service.dart';
 import '../messengers_services/snackbar_service.dart';
 
 final sl = GetIt.instance;

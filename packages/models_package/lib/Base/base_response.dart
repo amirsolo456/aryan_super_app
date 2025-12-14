@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:io';
 
 import 'package:json_annotation/json_annotation.dart';
 
@@ -6,6 +7,17 @@ part 'base_response.g.dart';
 
 @JsonSerializable(genericArgumentFactories: true)
 class BaseResponse<D> {
+  String? result;
+  int? status;
+  @JsonKey(includeFromJson: true, includeToJson: false)
+  String? error;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final Exception? exception;
+  List<D>? data;
+  String? additionalInfo;
+  int? totalCount;
+  int? key;
+
   BaseResponse({
     this.result = "Failed",
     this.status,
@@ -16,16 +28,6 @@ class BaseResponse<D> {
     this.totalCount,
     this.key,
   });
-
-  String? result;
-  int? status;
-  String? error;
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  final Exception? exception;
-  List<D>? data;
-  String? additionalInfo;
-  int? totalCount;
-  int? key;
 
   factory BaseResponse.fromJson(
     Map<String, dynamic> json,

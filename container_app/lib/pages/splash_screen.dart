@@ -1,9 +1,12 @@
 import 'dart:core';
 
 import 'package:erp_app/core/network/injection_container.dart';
+import 'package:erp_app/data/models/login_module_model.dart';
 import 'package:flutter/material.dart';
+import 'package:models_package/Base/enums.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:models_package/Base/login_module.dart';
+import 'package:navigation_builder/navigation_builder.dart';
 import 'package:services_package/storage/domain/usecases/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/common/aryan_logo.dart';
 import 'login_wrapper.dart';
@@ -30,21 +33,17 @@ class _SplashScreenState extends State<SplashScreenPage>
   final storageService = sl.get<StorageService>();
   bool _loaderVisible = false;
 
-
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
     storageService.waitUntilDbBuild().then(
       (db) => {
-        if (db != null && db.isOpen  )
+        if (db != null && db.isOpen)
           {
             storageService.sqlLoadLoginSessionModel().then(
               (loginSession) => {
-                if (
-                    loginSession.token == null ||
-                    !loginSession.success)
+                if (loginSession.token == null || !loginSession.success)
                   {
                     storageService.loadDeviceToken().then(
                       (isOk) => {
@@ -53,7 +52,7 @@ class _SplashScreenState extends State<SplashScreenPage>
                             LoginWrapper()
                                 .navigateToLogin(
                                   context,
-                                  isOk ,
+                                  isOk,
                                   widget.networkMode,
                                 )
                                 .then(
@@ -61,10 +60,14 @@ class _SplashScreenState extends State<SplashScreenPage>
                                     if (loginSuccess != null)
                                       {
                                         storageService
-                                            .sqlSaveLoginSessionModel(
+                                            .saveLoginSessionModel(
                                               LoginModuleResult.success(
                                                 token: loginSuccess.token ?? "",
                                                 user: loginSuccess.user!,
+                                                error: loginSuccess.error,
+                                                success: loginSuccess.success!,
+                                                timestamp:
+                                                    loginSuccess.timestamp,
                                                 networkMode: 0,
                                                 language:
                                                     loginSession.language ??
@@ -165,7 +168,6 @@ class _SplashScreenState extends State<SplashScreenPage>
 
   @override
   void dispose() {
-
     _controller.dispose();
     super.dispose();
   }
@@ -201,3 +203,44 @@ class _SplashScreenState extends State<SplashScreenPage>
     );
   }
 }
+
+// --- نسخهٔ Builder (زنجیره‌ای) برای استفادهٔ راحت ---
+// class GuardedNavigationBuilderBuilder {
+//   final GuardedNavigationBuilder _inner = GuardedNavigationBuilder();
+//
+//   GuardedNavigationBuilderBuilder routes(
+//     Map<String, Widget Function(RouteData)> r,
+//   ) {
+//     _inner.routes = r;
+//     return this;
+//   }
+//
+//   GuardedNavigationBuilderBuilder unknownRoute(Widget Function(RouteData) r) {
+//     _inner.unknownRoute = r;
+//     return this;
+//   }
+//
+//   GuardedNavigationBuilderBuilder initialLocation(String loc) {
+//     _inner.initialLocation = loc;
+//     return this;
+//   }
+//
+//   GuardedNavigationBuilderBuilder transitionsBuilder(
+//     RouteTransitionsBuilder tb,
+//   ) {
+//     _inner.transitionsBuilder = tb;
+//     return this;
+//   }
+//
+//   GuardedNavigationBuilderBuilder transitionDuration(Duration d) {
+//     _inner.transitionDuration = d;
+//     return this;
+//   }
+//
+//   GuardedNavigationBuilderBuilder debugPrint(bool v) {
+//     _inner.debugPrintWhenRouted = v;
+//     return this;
+//   }
+//
+//   GuardedNavigationBuilder build() => _inner;
+// }

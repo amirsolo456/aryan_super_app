@@ -1,9 +1,9 @@
 import 'dart:ffi';
 
-import 'package:erp_app/feature/person/domain/repositories/person_repository.dart';
 import 'package:flutter/cupertino.dart' show immutable;
 import 'package:models_package/Data/Com/Person/dto.dart';
-import '../../../../../core/list_generic/presentation/blocs/generic_cubit.dart';
+import '../../../../../../core/list_generic/presentation/blocs/generic_cubit.dart';
+import '../../../domain/repositories/person_repository.dart';
 
 part 'search_person_event.dart';
 

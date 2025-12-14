@@ -127,8 +127,13 @@ class StorageService
   @override
   Future<void> saveLoginSessionModel(
     LoginModuleResult loginSessionModel,
-  ) async =>
-      await _secureStorageUseCase.saveLoginSessionModel(loginSessionModel);
+  ) async {
+    await _secureStorageUseCase.saveLoginSessionModel(loginSessionModel);
+    await _sqliteStorageUseCase.sqlSaveLoginSessionModel(loginSessionModel);
+    if (loginSessionModel.language != null)
+      await _sharedStorageUseCase.saveLanguage(loginSessionModel.language!);
+    // await _sharedStorageUseCase.saveDeviceToken(loginSessionModel.de );
+  }
 
   @override
   Future<void> saveOrderInfo(OrderInfo filters) async =>
@@ -158,9 +163,10 @@ class StorageService
 
   @override
   Future<void> signOut() async {
-    await removeToken();
-    await removeUser();
-    await removeLoginSessionModel();
+    // await removeToken();
+    // await removeUser();
+    // await removeLoginSessionModel();
+    await removeAll();
   }
 
   Future<StorageDataModel> loadAll() async {

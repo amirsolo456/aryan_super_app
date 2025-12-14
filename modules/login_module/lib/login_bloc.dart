@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:login_module/services/snackbar_service.dart';
 import 'package:models_package/Base/enums.dart';
+import 'package:models_package/Base/language.dart';
 import 'package:models_package/Base/login_module.dart';
 import 'package:models_package/Data/Auth/Login/dto.dart' as Login;
 import 'package:models_package/Data/Auth/Login/dto.dart';
@@ -347,6 +348,10 @@ class LoginBloc extends Bloc<LoginEvents, LoginStates> {
                 user: moduleResult.user,
                 token: moduleResult.token,
                 cachedKey: cachedKey,
+                language: Language(id: 0, languageCode: 'fa'),
+                error: null,
+                success: true,
+                timestamp: DateTime.now(),
                 managementAccount: moduleResult.managementAccount,
                 selectedManagementAccount: management,
               );

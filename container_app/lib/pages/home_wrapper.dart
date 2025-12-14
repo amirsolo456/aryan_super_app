@@ -2,11 +2,7 @@ import 'package:container_app/pages/launcher_page.dart';
 import 'package:container_app/pages/splash_screen.dart';
 import 'package:erp_app/core/network/injection_container.dart';
 import 'package:flutter/material.dart';
-import 'package:models_package/Base/language.dart';
-import 'package:models_package/Base/login_module.dart';
-import 'package:services_package/setup_services.dart';
 import 'package:services_package/storage/domain/usecases/storage_service.dart';
-import 'package:services_package/storage_service.dart';
 
 class HomeWrapper extends StatefulWidget {
   const HomeWrapper({super.key});
@@ -95,11 +91,6 @@ class _HomeWrapperState extends State<HomeWrapper> {
     );
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

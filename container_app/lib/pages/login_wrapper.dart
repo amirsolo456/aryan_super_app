@@ -5,10 +5,10 @@ import 'launcher_page.dart';
 
 class LoginWrapper<T> {
   Future<T?> navigateToLogin(
-      BuildContext context,
-      String devToken,
-      int networkMode,
-      ) async {
+    BuildContext context,
+    String devToken,
+    int networkMode,
+  ) async {
     try {
       final result = await Navigator.push(
         context,
@@ -28,13 +28,14 @@ class LoginWrapper<T> {
   }
 
   Future<T?> navigateToLauncherPage(
-      BuildContext context,
-      Map<String, dynamic> sessionResult,
-      ) async {
+    BuildContext context,
+    Map<String, dynamic> sessionResult,
+  ) async {
     try {
       final result = await Navigator.pushReplacement(
         context,
         MaterialPageRoute(
+
           builder: (context) =>
               LauncherPage(key: UniqueKey(), loginSession: sessionResult),
         ),
