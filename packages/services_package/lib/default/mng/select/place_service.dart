@@ -1,12 +1,13 @@
+// Ehsan Change
 
-import 'package:models_package/Data/Auth/Menu/dto.dart';
-import 'package:services_package/Interfaces/backend_api_services/iapi_service.dart';
-import '../../api_client_service.dart';
+import 'package:models_package/Data/Default/mng/select/place/place_dto.dart';
+import '../../../Interfaces/backend_api_services/iapi_service.dart';
+import '../../../api_client_service.dart';
 
-class MenuService implements IApiService<Response, ResponseData, Request> {
+class PlaceService implements IApiService<Response, ResponseData, Request> {
   final ApiClient apiClient;
 
-  MenuService(this.apiClient);
+  PlaceService(this.apiClient);
 
   @override
   Future<Response?> delete(
@@ -23,11 +24,11 @@ class MenuService implements IApiService<Response, ResponseData, Request> {
     Response Function(Map<String, dynamic>) fromJsonD,
   ) async {
     return await apiClient.sendRequestAsync<Response, ResponseData, Request>(
-      "api/auth/menu",
+      "api/mng/select/place",
       HttpMethods.post,
       request,
       true,
-      Exception('menu error'),
+      Exception('place error'),
       (json) => Response.fromJson(json),
     );
   }

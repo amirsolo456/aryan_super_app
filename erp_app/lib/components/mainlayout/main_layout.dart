@@ -8,8 +8,8 @@ import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_
 
 import '../../feature/add_new/add-new_page.dart';
 import '../../feature/auth/menu/pages/menu_page.dart';
-import '../../feature/dashboard_page/dashboard/dashboard.dart';
-import '../../feature/default_page/default_page.dart';
+import '../../feature/dashboard_page/page/dashboard.dart';
+import '../../feature/default_page/pages/default_page.dart';
 import '../../feature/open_page/Open_Page.dart';
 
 class MainLayoutPage extends StatefulWidget {
