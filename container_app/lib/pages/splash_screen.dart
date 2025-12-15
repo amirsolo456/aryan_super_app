@@ -66,29 +66,17 @@ class _SplashScreenState extends State<SplashScreenPage>
                                                 user: loginSuccess.user!,
                                                 error: loginSuccess.error,
                                                 success: loginSuccess.success!,
-                                                timestamp:
-                                                    loginSuccess.timestamp,
+                                                timestamp: loginSuccess.timestamp,
                                                 networkMode: 0,
-                                                language:
-                                                    loginSession.language ??
-                                                    Language(id: 0),
-                                                selectedManagementAccount:
-                                                    loginSuccess
-                                                        .selectedManagementAccount,
+                                                language: loginSession.language ?? Language(id: 0),
+                                                selectedManagementAccount: loginSuccess.selectedManagementAccount,
                                                 cachedKey: '',
                                                 managementAccount: [],
                                               ),
                                             )
                                             .then(
                                               (_) => {
-                                                storageService
-                                                    .sqlLoadLoginSessionModel()
-                                                    .then(
-                                                      (loaded) => {
-                                                        LoginWrapper()
-                                                            .navigateToLauncherPage(
-                                                              context,
-                                                              loaded.toJson(),
+                                                storageService.sqlLoadLoginSessionModel().then((loaded) => {LoginWrapper().navigateToLauncherPage(context, loaded.toJson(),
                                                             ),
                                                       },
                                                     ),

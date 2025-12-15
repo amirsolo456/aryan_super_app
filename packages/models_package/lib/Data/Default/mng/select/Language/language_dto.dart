@@ -111,45 +111,45 @@ class Response extends BaseResponse<ResponseData> {
 
 @JsonSerializable()
 class ResponseData {
-  final int languageId;
-  final String languageDesc;
-  final String code;
-  final int placeId;
-  final DateTime createDate;
-  final int createUserId;
-  final bool inactive;
+  final int LanguageId;
+  final String LanguageDesc;
+  final String Code;
+  final int PlaceId;
+  final DateTime CreateDate;
+  final int CreateUserId;
+  final bool Inactive;
 
   ResponseData({
-    required this.languageId,
-    required this.languageDesc,
-    required this.code,
-    required this.placeId,
-    required this.createDate,
-    required this.createUserId,
-    required this.inactive,
+    required this.LanguageId,
+    required this.LanguageDesc,
+    required this.Code,
+    required this.PlaceId,
+    required this.CreateDate,
+    required this.CreateUserId,
+    required this.Inactive,
   });
 
   factory ResponseData.fromJson(Map<String, dynamic> json) {
     return ResponseData(
-      languageId: json["LanguageId"] ?? 0,
-      languageDesc: json["LanguageDesc"] ?? "",
-      code: json["Code"] ?? "",
-      placeId: json["PlaceId"] ?? 0,
-      createDate: DateTime.parse(json["CreateDate"]),
-      createUserId: json["CreateUserId"] ?? 0,
-      inactive: json["Inactive"] ?? false,
+      LanguageId: json["LanguageId"] ?? 0,
+      LanguageDesc: json["LanguageDesc"] ?? "",
+      Code: json["Code"] ?? "",
+      PlaceId: json["PlaceId"] ?? 0,
+      CreateDate: DateTime.parse(json["CreateDate"]),
+      CreateUserId: json["CreateUserId"] ?? 0,
+      Inactive: json["Inactive"] ?? false,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "LanguageId": languageId,
-      "LanguageDesc": languageDesc,
-      "Code": code,
-      "PlaceId": placeId,
-      "CreateDate": createDate.toIso8601String(),
-      "CreateUserId": createUserId,
-      "Inactive": inactive,
+      "LanguageId": LanguageId,
+      "LanguageDesc": LanguageDesc,
+      "Code": Code,
+      "PlaceId": PlaceId,
+      "CreateDate": CreateDate.toIso8601String(),
+      "CreateUserId": CreateUserId,
+      "Inactive": Inactive,
     };
   }
 }

@@ -53,6 +53,10 @@ flutter:
     - assets/images/menu.png
     - assets/images/activemenu.png
     - assets/images/new.png
+    - assets/images/money.png
+    - assets/images/Cash Out.png
+    - assets/images/Calendar.png
+    - assets/images/Buildings.png
     - assets/images/activenew.png
     - assets/images/opened.png
     - assets/images/activeopened.png

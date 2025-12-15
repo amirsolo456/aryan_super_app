@@ -35,6 +35,10 @@ final class AryanAssets {
   static const String add = 'assets/images/add.png';
   static const String aryanApp = 'assets/images/aryan_app.png';
   static const String langIcon = 'assets/images/lang_icon.png';
+  static const String buildingsIcon = 'assets/images/Buildings.png';
+  static const String calendarIcon = 'assets/images/Calendar.png';
+  static const String cashOutIcon = 'assets/images/Cash Out.png';
+  static const String moneyIcon = 'assets/images/money.png';
   static const String eyesClose = 'assets/images/eyes_close.png';
   static const String eyesOpen = 'assets/images/eyes_open.png';
   static const String smallGoCaret = 'assets/images/small_go_caret.png';

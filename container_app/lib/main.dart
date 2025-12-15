@@ -7,16 +7,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:get_it/get_it.dart';
 import 'package:login_module/services/login_manager_service.dart';
 import 'package:login_module/services/snackbar_service.dart';
-
-import 'package:models_package/Base/language.dart';
 import 'package:navigation_builder/navigation_builder.dart';
 import 'package:resources_package/Resources/Theme/theme_manager.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
 import 'package:services_package/storage/domain/usecases/storage_service.dart';
-import 'package:services_package/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/common/Buttons/language_button_standalone/language_button_stand_alone_cubit.dart';
 
 void main() async {
@@ -30,6 +26,8 @@ void main() async {
   if (!sl.isRegistered<SnackBarService>()) {
     sl.registerLazySingleton<SnackBarService>(() => SnackBarService());
   }
+
+
 
   Locale initialLocale = Locale('fa');
 

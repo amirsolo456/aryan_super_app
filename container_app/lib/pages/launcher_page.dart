@@ -1,6 +1,13 @@
 import 'package:container_app/pages/splash_screen.dart';
+import 'package:erp_app/core/network/injection_container.dart';
+import 'package:erp_app/feature/default_page/Language/bloc/language_bloc.dart';
+import 'package:erp_app/feature/default_page/Place/bloc/place_bloc.dart';
+import 'package:erp_app/feature/default_page/select_cashier/bloc/select_cashier_bloc.dart';
+import 'package:erp_app/feature/default_page/select_currency/bloc/select_currency_bloc.dart';
+import 'package:erp_app/feature/default_page/select_year/bloc/select_year_bloc.dart';
 import 'package:erp_app/main.dart' as erp_app;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ShellApp extends StatelessWidget {
   final Map<String, dynamic> loginSession;
@@ -44,10 +51,27 @@ class LauncherPage extends StatelessWidget {
         children: options.map((opt) {
           return GestureDetector(
             onTap: () {
+
+              //Ehsan Change
+
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => opt.builder()),
+                MaterialPageRoute(
+                  builder: (_) => MultiBlocProvider(
+                    providers: [
+                      BlocProvider<PlaceBloc>(create: (_) => sl<PlaceBloc>()),
+                      BlocProvider<SelectCashierBloc>(create: (_) => sl<SelectCashierBloc>()),
+                      BlocProvider<SelectCurrencyBloc>(create: (_) => sl<SelectCurrencyBloc>()),
+                      BlocProvider<SelectYearBloc>(create: (_) => sl<SelectYearBloc>()),
+                      BlocProvider<LanguageBloc>(create: (_) => sl<LanguageBloc>()),
+                    ],
+                    child: opt.builder(), // اینجا DefaultPage یا صفحه ERP App فراخوانی میشه
+                  ),
+                ),
               );
+
+              //Ehsan Change
+
             },
             child: Card(
               elevation: 4,
