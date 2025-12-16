@@ -20,6 +20,8 @@ class SelectCurrencyBloc
   ) async {
     emit(const SelectCurrencyLoading());
     try {
+
+
       final selectCurrencys = await getSelectCurrencyUseCase.get(
         CurrencyRequest(
           repoViewId: AppConstants().YearRepoViewId,

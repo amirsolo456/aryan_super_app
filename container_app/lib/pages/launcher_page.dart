@@ -2,12 +2,14 @@ import 'package:container_app/pages/splash_screen.dart';
 import 'package:erp_app/core/network/injection_container.dart';
 import 'package:erp_app/feature/default_page/Language/bloc/language_bloc.dart';
 import 'package:erp_app/feature/default_page/Place/bloc/place_bloc.dart';
+import 'package:erp_app/feature/default_page/pages/default_selection_state__bloc.dart';
 import 'package:erp_app/feature/default_page/select_cashier/bloc/select_cashier_bloc.dart';
 import 'package:erp_app/feature/default_page/select_currency/bloc/select_currency_bloc.dart';
 import 'package:erp_app/feature/default_page/select_year/bloc/select_year_bloc.dart';
 import 'package:erp_app/main.dart' as erp_app;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:services_package/api_client_service.dart';
 
 class ShellApp extends StatelessWidget {
   final Map<String, dynamic> loginSession;
@@ -59,6 +61,14 @@ class LauncherPage extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (_) => MultiBlocProvider(
                     providers: [
+
+                      //Ehsan Chage
+                      BlocProvider(
+                        create: (_) => DefaultSelectionBloc(sl<ApiSettings>()),
+                      ),
+                      //Ehsan Chage
+
+
                       BlocProvider<PlaceBloc>(create: (_) => sl<PlaceBloc>()),
                       BlocProvider<SelectCashierBloc>(create: (_) => sl<SelectCashierBloc>()),
                       BlocProvider<SelectCurrencyBloc>(create: (_) => sl<SelectCurrencyBloc>()),

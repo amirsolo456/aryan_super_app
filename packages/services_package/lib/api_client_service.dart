@@ -11,6 +11,7 @@ import 'package:services_package/storage/domain/usecases/storage_service.dart';
 
 import 'safe_exquter.dart';
 
+
 typedef FromJson<T> = T Function(Map<String, dynamic> json);
 
 abstract interface class IApiClient {

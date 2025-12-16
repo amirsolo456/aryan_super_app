@@ -1,4 +1,3 @@
-
 //Ehsan Change
 import 'package:json_annotation/json_annotation.dart';
 
@@ -6,17 +5,14 @@ import '../../../../../Base/base_request.dart';
 import '../../../../../Base/base_response.dart';
 import '../../../debugger/dto.dart';
 
-
 part 'language_dto.g.dart'; // این خط را اضافه کنید
-
 
 @JsonSerializable()
 class Request extends BaseRequest {
-
   @override
   int? repoViewId;
 
-  Request({ this.repoViewId});
+  Request({this.repoViewId});
 }
 
 @JsonSerializable()
@@ -30,30 +26,30 @@ class Response extends BaseResponse<ResponseData> {
     int? status,
     int? key,
   }) : super(
-    result: result,
-    data: data,
-    error: error,
-    totalCount: totalCount,
-    additionalInfo: additionalInfo,
-    status: status,
-    key: key,
-  );
+         result: result,
+         data: data,
+         error: error,
+         totalCount: totalCount,
+         additionalInfo: additionalInfo,
+         status: status,
+         key: key,
+       );
 
   Response.fromData(List<ResponseData> dataList)
-      : super(
-    result: 'Success',
-    data: dataList,
-    error: null,
-    totalCount: dataList.length,
-    additionalInfo: null,
-    status: 200,
-    key: null,
-  );
+    : super(
+        result: 'Success',
+        data: dataList,
+        error: null,
+        totalCount: dataList.length,
+        additionalInfo: null,
+        status: 200,
+        key: null,
+      );
 
   factory Response.fromJson(Map<String, dynamic> json) {
     // یافتن کلید data در JSON (حساس به بزرگی/کوچکی حروف)
     final dataKey = json.keys.firstWhere(
-          (key) => key.toLowerCase() == 'data',
+      (key) => key.toLowerCase() == 'data',
       orElse: () => 'data',
     );
 
@@ -72,11 +68,12 @@ class Response extends BaseResponse<ResponseData> {
     final additionalInfo = json['additionalInfo'] ?? json['AdditionalInfo'];
     final status =
         json['status'] ??
-            json['Status'] ??
-            json['statusCode'] ??
-            json['StatusCode'];
+        json['Status'] ??
+        json['statusCode'] ??
+        json['StatusCode'];
     final key = json['key'] ?? json['Key'];
-    final totalCount = json['totalCount'] ?? json['TotalCount'] ?? dataList.length;
+    final totalCount =
+        json['totalCount'] ?? json['TotalCount'] ?? dataList.length;
 
     return Response(
       result: result?.toString(),
@@ -153,10 +150,6 @@ class ResponseData {
     };
   }
 }
-
-
-
-
 
 class LanguageResponse {
   final List<ResponseData> data;

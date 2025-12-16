@@ -28,7 +28,9 @@ class SelectCashierBloc extends Bloc<SelectCashierEvent, SelectCashierState> {
         (json) => SelectOptionResponse.fromJson(json),
       );
 
-      if (selectCashier == null || selectCashier.data == null) {
+
+
+          if (selectCashier == null || selectCashier.data == null) {
         emit(SelectCashierError('Select Cashier Is Null'));
         return;
       }

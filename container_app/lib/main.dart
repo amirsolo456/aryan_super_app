@@ -86,6 +86,7 @@ class MyApp extends StatelessWidget {
             storage: sl.get<StorageService>(),
           ),
         ),
+
       ],
       child: BlocBuilder<LanguageButtonStandAloneCubit, Locale>(
         builder: (context, locale) {
