@@ -8,6 +8,6 @@ class AppConstants {
 
   int get LanguageRepoViewId => _repoViewIdLanguage;
   int get YearRepoViewId => _repoViewIdYear;
-  int get PlaceRepoViewId => _repoViewIdPlace;
+    int get PlaceRepoViewId => _repoViewIdPlace;
   int get CashierRepoViewId => _repoViewIdCashier;
 }

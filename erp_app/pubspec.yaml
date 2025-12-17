@@ -47,6 +47,7 @@ dependencies:
   google_fonts: ^6.3.2
   skeletonizer: ^2.1.0+1
   equatable: ^2.0.7
+  provider: ^6.1.5+1
   shared_preferences: ^2.5.3
   flutter_svg: ^2.2.3
   flutter_secure_storage: ^9.2.2

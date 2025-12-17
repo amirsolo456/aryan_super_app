@@ -7,10 +7,10 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_appbar.dart';
 
 import '../../feature/add_new/add-new_page.dart';
-import '../../feature/auth/menu/pages/menu_page.dart';
-import '../../feature/dashboard_page/page/dashboard.dart';
-import '../../feature/default_page/pages/default_page.dart';
-import '../../feature/open_page/Open_Page.dart';
+import 'package:erp_app/feature/auth/menu/pages/menu_page.dart';
+import 'package:erp_app/feature/dashboard_page/page/dashboard.dart';
+import 'package:erp_app/feature/default_page/pages/default_page.dart';
+import 'package:erp_app/feature/open_page/Open_Page.dart';
 
 class MainLayoutPage extends StatefulWidget {
   final NavButtonTabBarMode tab;
@@ -101,7 +101,20 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
           return const AddNewPage();
 
         case NavButtonTabBarMode.erpOpenedTabMode:
-          return const OpenPage();
+
+          //Ehsan Change
+
+          return const OpenedPage(items: [
+            {'اشخاص و شرکت ها': 'Com/PersonList'},
+            {'مرکز هزینه': 'com/costCenterList'},
+            {'تنخواه': 'trh/cashFundList'},
+            {'فاکتور فروش': 'sale/salesInvoiceList'},
+
+
+          ],);
+
+          //Ehsan Change
+
 
         case NavButtonTabBarMode.erpDefaultTabMode:
           return const DefaultPage();

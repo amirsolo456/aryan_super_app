@@ -89,6 +89,8 @@ flutter:
     - assets/images/info_icon.png
     - assets/images/error_icon.png
     - assets/images/question_box_icon.png
+    - assets/images/Close.png
+    - assets/images/pluse.png
 
 
   generate: true
