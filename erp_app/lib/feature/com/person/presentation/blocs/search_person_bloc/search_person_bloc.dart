@@ -14,7 +14,7 @@ class SearchPersonBloc extends GenericBloc<Response, ResponseData, Request> {
 
   SearchPersonBloc(this._repository) : super();
 
-  @override
+
   Future<void> loadWithParams(Request params) async {
     emit(const LoadingState());
     try {
@@ -25,7 +25,7 @@ class SearchPersonBloc extends GenericBloc<Response, ResponseData, Request> {
     }
   }
 
-  @override
+
   Future<void> filterData(String query) async {
     final currentState = state;
     if (currentState is LoadedState<ResponseData>) {

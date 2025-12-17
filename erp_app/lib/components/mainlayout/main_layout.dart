@@ -1,16 +1,25 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:models_package/Base/enums.dart';
+import 'package:navigation_builder/navigation_builder.dart';
+import 'package:restart_app/restart_app.dart';
+import 'package:services_package/Repo_ViewId/repo_view_id.dart';
+import 'package:services_package/com/person/person_service.dart';
 import 'package:services_package/page_cache_manager.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_appbar.dart';
-
+import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_not_found.dart';
+import 'package:models_package/Data/Com/Person/dto.dart' as person;
 import '../../feature/add_new/add-new_page.dart';
 import '../../feature/auth/menu/pages/menu_page.dart';
 import '../../feature/dashboard_page/page/dashboard.dart';
 import '../../feature/default_page/pages/default_page.dart';
 import '../../feature/open_page/Open_Page.dart';
+import '../../feature/redux/generic_lists/erp_store/models/field_display_config.dart';
+import '../../feature/redux/generic_lists/erp_store/models/generic_list_entity_state.dart';
+import '../../feature/redux/generic_lists/ui/generic_list_page.dart';
 
 class MainLayoutPage extends StatefulWidget {
   final NavButtonTabBarMode tab;
@@ -18,15 +27,16 @@ class MainLayoutPage extends StatefulWidget {
   const MainLayoutPage({super.key, required this.tab});
 
   @override
-  State<MainLayoutPage> createState() => _MainLayoutPageState(
-    selectedTab: NavButtonTabBarMode.values.firstWhere((c) => c == tab),
-  );
+  State<MainLayoutPage> createState() =>
+      _MainLayoutPageState(
+        selectedTab: NavButtonTabBarMode.values.firstWhere((c) => c == tab),
+      );
 }
 
 class _MainLayoutPageState extends State<MainLayoutPage> {
   _MainLayoutPageState({required this.selectedTab});
 
-  NavButtonTabBarMode selectedTab = NavButtonTabBarMode.erpNotFound;
+  NavButtonTabBarMode selectedTab;
 
   late final Widget accountIcon = _paddedIcon('assets/images/account.png');
   late final Widget activeAccountIcon = _paddedIcon(
@@ -61,19 +71,27 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
   static double size = 40;
 
   final Map<NavButtonTabBarMode, int> _tabToIndex = {
-    NavButtonTabBarMode.erpMenuTabMode: 0,
-    NavButtonTabBarMode.erpNewTabMode: 1,
-    NavButtonTabBarMode.erpOpenedTabMode: 2,
-    NavButtonTabBarMode.erpDefaultTabMode: 3,
-    NavButtonTabBarMode.erpProfileTabMode: 4,
+    NavButtonTabBarMode.erpMenuTabMode: NavButtonTabBarMode.erpMenuTabMode
+        .value,
+    NavButtonTabBarMode.erpNewTabMode: NavButtonTabBarMode.erpNewTabMode.value,
+    NavButtonTabBarMode.erpOpenedTabMode: NavButtonTabBarMode.erpOpenedTabMode
+        .value,
+    NavButtonTabBarMode.erpDefaultTabMode: NavButtonTabBarMode.erpDefaultTabMode
+        .value,
+    NavButtonTabBarMode.erpProfileTabMode: NavButtonTabBarMode.erpProfileTabMode
+        .value,
   };
 
   final Map<int, NavButtonTabBarMode> _indexToTab = {
-    0: NavButtonTabBarMode.erpMenuTabMode,
-    1: NavButtonTabBarMode.erpNewTabMode,
-    2: NavButtonTabBarMode.erpOpenedTabMode,
-    3: NavButtonTabBarMode.erpDefaultTabMode,
-    4: NavButtonTabBarMode.erpProfileTabMode,
+    NavButtonTabBarMode.erpMenuTabMode.value: NavButtonTabBarMode
+        .erpMenuTabMode,
+    NavButtonTabBarMode.erpNewTabMode.value: NavButtonTabBarMode.erpNewTabMode,
+    NavButtonTabBarMode.erpOpenedTabMode.value: NavButtonTabBarMode
+        .erpOpenedTabMode,
+    NavButtonTabBarMode.erpDefaultTabMode.value: NavButtonTabBarMode
+        .erpDefaultTabMode,
+    NavButtonTabBarMode.erpProfileTabMode.value: NavButtonTabBarMode
+        .erpProfileTabMode,
   };
 
   Widget _getPage(NavButtonTabBarMode? tab) {
@@ -172,9 +190,9 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
   @override
   Widget build(BuildContext context) {
     final tabs = NavButtonTabBarMode.values;
-    final currentIndex = _tabToIndex[selectedTab] ?? 10;
+    final currentIndex = _tabToIndex[selectedTab] ?? NavButtonTabBarMode.erpNotFound;
     return Scaffold(
-      appBar: _getAppBar(selectedTab),
+      // appBar: _getAppBar(selectedTab),
       body: SafeArea(child: _getPage(selectedTab)),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -201,7 +219,7 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
               icon: accountIcon,
               activeIcon: activeAccountIcon,
               isActive: currentIndex == 4,
-              onTap: () => _onItemTapped(_indexToTab[4]!),
+              onTap: () => _onItemTapped(_indexToTab[NavButtonTabBarMode.erpProfileTabMode.value]!),
             ),
 
             //defaultIcon
@@ -209,7 +227,7 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
               icon: defaultIcon,
               activeIcon: activeDefaultIcon,
               isActive: currentIndex == 3,
-              onTap: () => _onItemTapped(_indexToTab[3]!),
+              onTap: () => _onItemTapped(_indexToTab[NavButtonTabBarMode.erpDefaultTabMode.value]!),
             ),
 
             //openedIcon
@@ -217,7 +235,7 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
               icon: openedIcon,
               activeIcon: activeOpenedIcon,
               isActive: currentIndex == 2,
-              onTap: () => _onItemTapped(_indexToTab[2]!),
+              onTap: () => _onItemTapped(_indexToTab[NavButtonTabBarMode.erpOpenedTabMode.value]!),
             ),
 
             //newIcon
@@ -225,7 +243,7 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
               icon: newIcon,
               activeIcon: activeNewIcon,
               isActive: currentIndex == 1,
-              onTap: () => _onItemTapped(_indexToTab[1]!),
+              onTap: () => _onItemTapped(_indexToTab[NavButtonTabBarMode.erpNewTabMode.value]!),
             ),
 
             //menuIcon
@@ -233,7 +251,7 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
               icon: menuIcon,
               activeIcon: activeMenuIcon,
               isActive: currentIndex == 0,
-              onTap: () => _onItemTapped(_indexToTab[0]!),
+              onTap: () => _onItemTapped(_indexToTab[NavButtonTabBarMode.erpMenuTabMode.value]!),
             ),
           ],
         ),
@@ -252,13 +270,13 @@ class _MainLayoutPageState extends State<MainLayoutPage> {
       onTap: onTap,
       child: isActive
           ? Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(height: 2, width: 35, color: Colors.black),
-                SizedBox(height: 5),
-                activeIcon,
-              ],
-            )
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Container(height: 2, width: 35, color: Colors.black),
+          SizedBox(height: 5),
+          activeIcon,
+        ],
+      )
           : icon,
     );
   }

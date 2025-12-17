@@ -1,22 +1,17 @@
 import 'dart:io';
-import 'package:container_app/pages/launcher_page.dart';
 import 'package:container_app/pages/splash_screen.dart';
+
 import 'package:erp_app/core/network/injection_container.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:get_it/get_it.dart';
 import 'package:login_module/services/login_manager_service.dart';
 import 'package:login_module/services/snackbar_service.dart';
-
-import 'package:models_package/Base/language.dart';
-import 'package:navigation_builder/navigation_builder.dart';
 import 'package:resources_package/Resources/Theme/theme_manager.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
 import 'package:services_package/storage/domain/usecases/storage_service.dart';
-import 'package:services_package/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/common/Buttons/language_button_standalone/language_button_stand_alone_cubit.dart';
 
 void main() async {
@@ -54,9 +49,7 @@ void main() async {
       await storageService.saveDeviceToken(token);
       final _lang = await storageService.loadLanguage();
 
-      if (_lang != null) {
-        initialLocale = Locale(_lang.languageCode ?? 'fa');
-      }
+      initialLocale = Locale(_lang.languageCode ?? 'fa');
     }
   } catch (e) {
     debugPrint('Error in token/setup: $e');
@@ -80,15 +73,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => LanguageButtonStandAloneCubit(
-            initialLocale: initialLocal,
-            storage: sl.get<StorageService>(),
-          ),
-        ),
-      ],
+    return BlocProvider(
+      lazy: true,
+      create: (_) => LanguageButtonStandAloneCubit(
+        initialLocale: initialLocal,
+        storage: sl.get<StorageService>(),
+      ),
       child: BlocBuilder<LanguageButtonStandAloneCubit, Locale>(
         builder: (context, locale) {
           return MaterialApp(
@@ -111,32 +101,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-final containerNavigator = NavigationBuilder.create(
-  routes: {
-    '/signOut': (RouteData data) {
-      try {
-        return SplashScreenPage(networkMode: 0, mode: 0);
-      } catch (e) {
-        exit(0);
-      }
-    },
-    '/luncherPage': (RouteData data) {
-      final Map<String, dynamic> loginSession =
-          data.pathParams['erpMenuTabBarId'] ?? Map<String, dynamic>()[data];
-      return LauncherPage(loginSession: loginSession);
-    },
-  },
-  initialLocation: '/',
-  unknownRoute: (route) => Scaffold(appBar: AppBar(), body: SizedBox()),
-  builder: (Widget outlet) => Scaffold(body: outlet),
-  transitionsBuilder: (context, anim, secAnim, child) =>
-      FadeTransition(opacity: anim, child: child),
-  transitionDuration: const Duration(milliseconds: 1000),
-  debugPrintWhenRouted: true,
-);
 
 class MyHttpOverrides extends HttpOverrides {
   @override

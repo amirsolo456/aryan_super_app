@@ -11,7 +11,10 @@ class PersonListBloc extends Bloc<PersonListEvent, PersonListState> {
 
   PersonListBloc({required this.personService})
     : super(PersonListInitialState()) {
-    on<PersonListEvent>((event, emit) async {
+    on<LoadPersonListEvent>(_onLoadPersonList);
+    on<PersonListInitialEvent>(_onPersonListInitial);
+
+    /* on<LoadPersonListState>((event, emit) async {
       if (event is PersonListInitialEvent) {
         try {
           final Response? response = await personService.get(
@@ -52,6 +55,34 @@ class PersonListBloc extends Bloc<PersonListEvent, PersonListState> {
           emit(PaginationDataError());
         }
       } else {}
-    });
+    });*/
+  }
+
+  Future<void> _onPersonListInitial(
+    PersonListInitialEvent event,
+    Emitter<PersonListState> emit,
+  ) async {
+    emit(const PersonListLoadingState());
+    try {
+      emit(PersonListInitialState());
+    } catch (e) {
+      // emit(MenuErrorState(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadPersonList(
+    LoadPersonListEvent event,
+    Emitter<PersonListState> emit,
+  ) async {
+    emit(const PersonListLoadingState());
+    try {
+      final persons = await personService.get(
+        Request(repoViewId: 0),
+        (json) => Response.fromJson(json),
+      );
+      emit(PersonListLoadDataSourceState(data: persons));
+    } catch (e) {
+      // emit(MenuErrorState(e.toString()));
+    }
   }
 }

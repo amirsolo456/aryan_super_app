@@ -156,7 +156,7 @@ AppBar builderpdashvoardAppBar(BuildContext context) {
     backgroundColor: Colors.white,
     primary: true,
     title: Text(
-      AppLocalizations.of(context)!.dashboard,
+      AppLocalizations.of(context)!.defaults,
       style: const TextStyle(color: Color(0xFF585858)),
     ),
     centerTitle: false,

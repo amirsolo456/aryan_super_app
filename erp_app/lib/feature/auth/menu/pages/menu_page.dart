@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
+import 'package:models_package/Base/enums.dart';
+import 'package:models_package/Data/Com/Person/dto.dart' as person;
 import 'package:models_package/Data/Auth/Menu/dto.dart';
+import 'package:navigation_builder/navigation_builder.dart';
+import 'package:restart_app/restart_app.dart';
+import 'package:services_package/Repo_ViewId/repo_view_id.dart';
+import 'package:services_package/com/person/person_service.dart';
+import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_appbar.dart';
+import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_not_found.dart';
+import '../../../../components/mainlayout/main_layout.dart';
 import '../../../../main.dart';
+import '../../../redux/generic_lists/erp_store/models/field_display_config.dart';
+import '../../../redux/generic_lists/erp_store/models/generic_list_entity_state.dart';
+import '../../../redux/generic_lists/ui/generic_list_page.dart';
 import '../bloc/menu_bloc.dart';
 import '../bloc/menu_event.dart';
 import '../bloc/menu_state.dart';
@@ -42,7 +55,6 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   ResponseData? _filterMenu(ResponseData menu, String query) {
-    // فیلتر کردن خود منو یا زیرمنوها
     final bool matches = menu.menuDesc!.contains(query);
     final subMenusFiltered = menu.subMenus
         .map((e) => _filterMenu(e, query))
@@ -163,9 +175,6 @@ class _MenuTile extends StatelessWidget {
       ],
     );
 
-    /// -------------------------
-    /// بدون زیرمنو
-    /// -------------------------
     if (!hasChildren) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
@@ -175,9 +184,54 @@ class _MenuTile extends StatelessWidget {
           visualDensity: const VisualDensity(vertical: -3),
           contentPadding: const EdgeInsets.symmetric(horizontal: 12),
           title: titleWidget,
-          onTap: () => {
-            erpNavigator.to(((item.appLink ?? item.webLink) ?? '/notFound')),
+          onTap: () {
+            // ساخت URL به صورت صحیح
+            final link = item.appLink ?? item.webLink ?? '';
+
+            // حذف اسلش اول اگر وجود دارد
+            final cleanLink = link.startsWith('/') ? link.substring(1) : link;
+
+            // ساخت مسیر کامل
+            final basePath = '/GenericList/$cleanLink';
+
+            // اضافه کردن پارامتر repoViewId
+            final params = <String, String>{};
+            if (item.repoId != null && item.repoId! > 0) {
+              params['repoViewId'] = item.repoId!.toString();
+            }
+
+            // ساخت URL نهایی
+            final fullUrl = addQueryParams(basePath, params);
+
+            print('Navigating to: $fullUrl');
+
+            // navigation
+            erpNavigator.to(basePath);
           },
+        ),
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+            childrenPadding: const EdgeInsets.only(right: 20, bottom: 2),
+            splashColor: Colors.transparent,
+            controlAffinity: ListTileControlAffinity.trailing,
+            collapsedIconColor: Colors.black,
+            iconColor: Colors.black,
+            dense: true,
+            visualDensity: const VisualDensity(vertical: -3),
+            title: Row(
+              children: [
+                Expanded(child: titleWidget),
+                const SizedBox(width: 10),
+              ],
+            ),
+            children: item.subMenus.map((e) => _MenuTile(e)).toList(),
+          ),
         ),
       );
     }
@@ -185,32 +239,20 @@ class _MenuTile extends StatelessWidget {
     /// -------------------------
     /// با زیرمنو
     /// -------------------------
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-          childrenPadding: const EdgeInsets.only(right: 20, bottom: 2),
-          splashColor: Colors.transparent,
-          controlAffinity: ListTileControlAffinity.trailing,
-          collapsedIconColor: Colors.black,
-          iconColor: Colors.black,
-          dense: true,
-          visualDensity: const VisualDensity(vertical: -3),
-
-          title: Row(
-            children: [
-              Expanded(child: titleWidget),
-
-              /// فاصله بین عنوان و فلش (که چپ می‌رود)
-              const SizedBox(width: 10),
-            ],
-          ),
-
-          children: item.subMenus.map((e) => _MenuTile(e)).toList(),
-        ),
-      ),
-    );
   }
+}
+
+String addQueryParams(String url, Map<String, String>? extraParams) {
+  if (extraParams == null || extraParams.isEmpty) {
+    return url;
+  }
+
+  final uri = Uri.parse(url);
+  final params = Map<String, String>.from(uri.queryParameters);
+  params.addAll(extraParams);
+
+  return Uri(
+    path: uri.path,
+    queryParameters: params.isNotEmpty ? params : null,
+  ).toString();
 }

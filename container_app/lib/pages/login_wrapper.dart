@@ -10,7 +10,7 @@ class LoginWrapper<T> {
     int networkMode,
   ) async {
     try {
-      final result = await Navigator.push(
+      final result = await Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => LoginPage(

@@ -6,34 +6,33 @@ part of 'dto.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Request _$RequestFromJson(Map json) => Request()
-  ..url = json['Url'] as String
-  ..id = (json['Id'] as num?)?.toInt()
-  ..repoViewId = (json['RepoViewId'] as num?)?.toInt()
-  ..ids = (json['Ids'] as List<dynamic>?)
-      ?.map((e) => (e as num).toInt())
-      .toList()
-  ..fullSearchPhrase = json['FullSearchPhrase'] as String?
-  ..pagingInfo = PagingInfo.fromJson(
-    Map<String, dynamic>.from(json['PagingInfo'] as Map),
-  )
-  ..orderInfo = (json['OrderInfo'] as List<dynamic>)
-      .map((e) => OrderInfo.fromJson(Map<String, dynamic>.from(e as Map)))
-      .toList()
-  ..filters = Filters.fromJson(
-    Map<String, dynamic>.from(json['Filters'] as Map),
-  )
-  ..showTags = json['ShowTags'] as bool?
-  ..showMode = (json['ShowMode'] as num?)?.toInt()
-  ..showBookmarked = json['ShowBookmarked'] as bool?
-  ..defaults = Defaults.fromJson(
-    Map<String, dynamic>.from(json['Defaults'] as Map),
-  );
+Request _$RequestFromJson(Map json) =>
+    Request(repoViewId: (json['RepoViewId'] as num).toInt())
+      ..url = json['Url'] as String
+      ..id = (json['Id'] as num?)?.toInt()
+      ..ids = (json['Ids'] as List<dynamic>?)
+          ?.map((e) => (e as num).toInt())
+          .toList()
+      ..fullSearchPhrase = json['FullSearchPhrase'] as String?
+      ..pagingInfo = PagingInfo.fromJson(
+        Map<String, dynamic>.from(json['PagingInfo'] as Map),
+      )
+      ..orderInfo = (json['OrderInfo'] as List<dynamic>)
+          .map((e) => OrderInfo.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList()
+      ..filters = Filters.fromJson(
+        Map<String, dynamic>.from(json['Filters'] as Map),
+      )
+      ..showTags = json['ShowTags'] as bool?
+      ..showMode = (json['ShowMode'] as num?)?.toInt()
+      ..showBookmarked = json['ShowBookmarked'] as bool?
+      ..defaults = Defaults.fromJson(
+        Map<String, dynamic>.from(json['Defaults'] as Map),
+      );
 
 Map<String, dynamic> _$RequestToJson(Request instance) => <String, dynamic>{
   'Url': instance.url,
   'Id': instance.id,
-  'RepoViewId': instance.repoViewId,
   'Ids': instance.ids,
   'FullSearchPhrase': instance.fullSearchPhrase,
   'PagingInfo': instance.pagingInfo.toJson(),
@@ -43,6 +42,7 @@ Map<String, dynamic> _$RequestToJson(Request instance) => <String, dynamic>{
   'ShowMode': instance.showMode,
   'ShowBookmarked': instance.showBookmarked,
   'Defaults': instance.defaults.toJson(),
+  'RepoViewId': instance.repoViewId,
 };
 
 Response _$ResponseFromJson(Map json) =>
@@ -70,7 +70,7 @@ Map<String, dynamic> _$ResponseToJson(Response instance) => <String, dynamic>{
 };
 
 ResponseData _$ResponseDataFromJson(Map json) => ResponseData(
-  personId: (json['PersonId'] as num?)?.toInt(),
+  personId: (json['ID'] as num?)?.toInt(),
   firstName: json['FirstName'] as String?,
   lastName: json['LastName'] as String?,
   fullName: json['FullName'] as String?,
@@ -87,12 +87,12 @@ ResponseData _$ResponseDataFromJson(Map json) => ResponseData(
       ?.map((e) => TagData.fromJson(Map<String, dynamic>.from(e as Map)))
       .toList(),
   hasBookMark: json['HasBookMark'] as bool? ?? false,
-  pendingStatusId: (json['PendingStatusId'] as num?)?.toInt() ?? 0,
+  pendingStatusId: (json['pendingStatus'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$ResponseDataToJson(ResponseData instance) =>
     <String, dynamic>{
-      'PersonId': instance.personId,
+      'ID': instance.personId,
       'FirstName': instance.firstName,
       'LastName': instance.lastName,
       'FullName': instance.fullName,
@@ -107,5 +107,5 @@ Map<String, dynamic> _$ResponseDataToJson(ResponseData instance) =>
       'PlaceId': instance.placeId,
       'TagsInfo': instance.tagsInfo.map((e) => e.toJson()).toList(),
       'HasBookMark': instance.hasBookMark,
-      'PendingStatusId': instance.pendingStatusId,
+      'pendingStatus': instance.pendingStatusId,
     };
