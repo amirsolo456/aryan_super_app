@@ -67,22 +67,22 @@ Map<String, dynamic> _$ResponseToJson(Response instance) => <String, dynamic>{
 };
 
 ResponseData _$ResponseDataFromJson(Map json) => ResponseData(
-  languageId: (json['LanguageId'] as num).toInt(),
-  languageDesc: json['LanguageDesc'] as String,
-  code: json['Code'] as String,
-  placeId: (json['PlaceId'] as num).toInt(),
-  createDate: DateTime.parse(json['CreateDate'] as String),
-  createUserId: (json['CreateUserId'] as num).toInt(),
-  inactive: json['Inactive'] as bool,
+  LanguageId: (json['LanguageId'] as num).toInt(),
+  LanguageDesc: json['LanguageDesc'] as String,
+  Code: json['Code'] as String,
+  PlaceId: (json['PlaceId'] as num).toInt(),
+  CreateDate: DateTime.parse(json['CreateDate'] as String),
+  CreateUserId: (json['CreateUserId'] as num).toInt(),
+  Inactive: json['Inactive'] as bool,
 );
 
 Map<String, dynamic> _$ResponseDataToJson(ResponseData instance) =>
     <String, dynamic>{
-      'LanguageId': instance.languageId,
-      'LanguageDesc': instance.languageDesc,
-      'Code': instance.code,
-      'PlaceId': instance.placeId,
-      'CreateDate': instance.createDate.toIso8601String(),
-      'CreateUserId': instance.createUserId,
-      'Inactive': instance.inactive,
+      'LanguageId': instance.LanguageId,
+      'LanguageDesc': instance.LanguageDesc,
+      'Code': instance.Code,
+      'PlaceId': instance.PlaceId,
+      'CreateDate': instance.CreateDate.toIso8601String(),
+      'CreateUserId': instance.CreateUserId,
+      'Inactive': instance.Inactive,
     };

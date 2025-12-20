@@ -127,9 +127,7 @@ class _ParentAppScreenState extends State<ParentAppScreen>
     addTypedNotificationListener(NotificationType.errorOccurred, (
       notification,
     ) {
-      // خطایی از اپ فرزند آمده
-      print('Error from child app: ${notification.message}');
-      // نمایش به کاربر
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('خطا از اپ فرزند: ${notification.message}'),
@@ -141,9 +139,7 @@ class _ParentAppScreenState extends State<ParentAppScreen>
     addTypedNotificationListener(NotificationType.sessionExpired, (
       notification,
     ) {
-      // سشن اپ فرزند منقضی شده
-      print('Child app session expired');
-      // ارسال دستور لاگین مجدد به اپ فرزند
+
       const MethodChannel('parent_to_child_channel').invokeMethod('relogin');
     });
   }

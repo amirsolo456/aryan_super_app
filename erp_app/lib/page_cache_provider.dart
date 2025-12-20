@@ -57,7 +57,7 @@ class PageCacheProvider extends ChangeNotifier {
     NavButtonTabBarMode.erpDashboardTabMode: () => const DashboardPage(),
     NavButtonTabBarMode.erpMenuTabMode: () => const MenuPage(),
     NavButtonTabBarMode.erpNewTabMode: () => const AddNewPage(),
-    NavButtonTabBarMode.erpOpenedTabMode: () => const OpenPage(),
+    NavButtonTabBarMode.erpOpenedTabMode: () => const OpenedPage(items: [],) ,
     NavButtonTabBarMode.erpDefaultTabMode: () => const DefaultPage(),
     NavButtonTabBarMode.erpProfileTabMode: () =>
         const ProfilePage(refreshData: false),
