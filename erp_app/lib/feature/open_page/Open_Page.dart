@@ -1,7 +1,10 @@
+
+
 import 'package:flutter/material.dart';
+import 'package:models_package/Data/Auth/Menu/dto.dart';
 
 class OpenedPage extends StatefulWidget {
-  final List<Map<String, String>> items;
+  final List<ResponseData> items;
 
   const OpenedPage({super.key, required this.items});
 
@@ -10,12 +13,32 @@ class OpenedPage extends StatefulWidget {
 }
 
 class _OpenedPageState extends State<OpenedPage> {
-  late List<Map<String, String>> _items;
+  late List<ResponseData> _items;
 
   @override
   void initState() {
     super.initState();
-    _items = List.from(widget.items);
+    // تبدیل ساختار سلسله مراتبی به لیست مسطح
+    _items = _flattenItems(widget.items);
+  }
+
+  // تابع برای باز کردن تمام سطوح
+  List<ResponseData> _flattenItems(List<ResponseData> items) {
+    List<ResponseData> flattened = [];
+
+    for (var item in items) {
+      // فقط آیتم‌هایی را اضافه کن که actionType == 1 دارند (منوهای قابل کلیک)
+      if (item.actionType == 1) {
+        flattened.add(item);
+      }
+
+      // زیرمنوها را هم باز کن
+      if (item.subMenus.isNotEmpty) {
+        flattened.addAll(_flattenItems(item.subMenus));
+      }
+    }
+
+    return flattened;
   }
 
   void _removeItem(int index) {
@@ -49,7 +72,7 @@ class _OpenedPageState extends State<OpenedPage> {
                       'بستن همه',
                       style: TextStyle(fontSize: 12, color: Color(0xff292929)),
                     ),
-
+                    const SizedBox(width: 4),
                     InkWell(
                       onTap: _clearAll,
                       child: Image.asset(
@@ -57,44 +80,46 @@ class _OpenedPageState extends State<OpenedPage> {
                         package: 'resources_package',
                       ),
                     ),
-
                   ],
                 ),
               ),
-
             if (_items.isEmpty)
               const Expanded(
                 child: Center(
-                  child: Text('موردی وجود ندارد', style: TextStyle(fontSize: 16)),
+                  child: Text(
+                    'موردی وجود ندارد',
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ),
               )
             else
               Expanded(
                 child: ListView.builder(
-
                   itemCount: _items.length,
                   itemBuilder: (context, index) {
                     final item = _items[index];
-                    final title = item.keys.first;
-                    final route = item.values.first;
+
+                    final title = item.menuDesc ?? 'بدون عنوان';
+                    final route = item.appLink ?? item.webLink ?? '';
 
                     return InkWell(
                       onTap: () {
-                        Navigator.pushNamed(context, route);
+                        if (route.isNotEmpty) {
+                          Navigator.pushNamed(context, route);
+                        }
                       },
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
                         child: Row(
                           children: [
-                            // ➕ سمت چپ
-                             Image.asset(
-                          'assets/images/pluse.png',
-                          package: 'resources_package',
-                        ),
-
-                            const Spacer(),
-
-                            // عنوان
+                            Image.asset(
+                              'assets/images/pluse.png',
+                              package: 'resources_package',
+                            ),
+                            const Expanded(child: SizedBox()),
                             Text(
                               title,
                               style: const TextStyle(
@@ -103,9 +128,6 @@ class _OpenedPageState extends State<OpenedPage> {
                               ),
                             ),
 
-                            // ❌ سمت راست
-
-
                             InkWell(
                               onTap: () => _removeItem(index),
                               child: Image.asset(
@@ -113,9 +135,6 @@ class _OpenedPageState extends State<OpenedPage> {
                                 package: 'resources_package',
                               ),
                             ),
-
-
-
                           ],
                         ),
                       ),

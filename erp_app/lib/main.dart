@@ -30,6 +30,7 @@ import 'core/network/injection_container.dart';
 import 'data/models/login_module_model.dart';
 import 'feature/auth/menu/bloc/menu_bloc.dart';
 import 'feature/auth/menu/bloc/menu_event.dart';
+// import 'feature/add_new/add_new_page_event.dart';
 import 'feature/com/person/domain/repositories/person_repository.dart';
 import 'feature/com/person/presentation/blocs/person_bloc/person_list_bloc.dart';
 import 'feature/com/person/presentation/blocs/search_person_bloc/search_person_bloc.dart';
@@ -58,6 +59,10 @@ void main() async {
       BlocProvider(
         create: (_) => GetIt.instance<MenuBloc>()..add(LoadMenuEvent()),
       ),
+
+
+
+
     ],
     child: MainApp(
       initialLanguage: lang,

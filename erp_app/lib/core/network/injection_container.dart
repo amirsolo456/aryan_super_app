@@ -8,7 +8,7 @@ import 'package:models_package/Base/base_request.dart';
 import 'package:models_package/Data/Auth/Menu/dto.dart' as menu;
 import 'package:models_package/Data/Com/Person/dto.dart' as person_list;
 import 'package:services_package/Interfaces/front_helper_services/isnackbar_service.dart'
-as snack_bar;
+    as snack_bar;
 import 'package:services_package/Repo_ViewId/repo_view_id.dart';
 import 'package:services_package/api_client_service.dart';
 import 'package:services_package/api_service.dart';
@@ -79,7 +79,7 @@ void initStandAlone() {
 
   if (!sl.isRegistered<ApiClient>()) {
     sl.registerLazySingleton<ApiClient>(
-          () => ApiClient(storage: _storage, appSettings: _apisetting),
+      () => ApiClient(storage: _storage, appSettings: _apisetting),
     );
   }
   final apiClient = ApiClient(storage: _storage, appSettings: _apisetting);
@@ -89,17 +89,16 @@ void initStandAlone() {
   }
   if (!sl.isRegistered<UserExistService>()) {
     sl.registerLazySingleton<UserExistService>(
-          () => UserExistService(apiClientr: apiClient),
+      () => UserExistService(apiClientr: apiClient),
     );
   }
 
   if (!sl.isRegistered<NotificationService>()) {
     sl.registerLazySingleton<NotificationService>(
-          () =>
-          NotificationService(
-            storage: _storage,
-            refreshInterval: Duration(minutes: 5),
-          ),
+      () => NotificationService(
+        storage: _storage,
+        refreshInterval: Duration(minutes: 5),
+      ),
     );
   }
 
@@ -109,7 +108,7 @@ void initStandAlone() {
 
   if (!sl.isRegistered<ExceptionHelperService>()) {
     sl.registerLazySingleton<ExceptionHelperService>(
-          () => ExceptionHelperService(),
+      () => ExceptionHelperService(),
     );
   }
 
@@ -120,16 +119,16 @@ void initStandAlone() {
 
   if (!sl.isRegistered<LoginService>()) {
     sl.registerLazySingleton<LoginService>(
-          () => LoginService(client: apiClient),
+      () => LoginService(client: apiClient),
     );
   }
 
   if (!sl
       .isRegistered<
-      ApiService<menu.Response, menu.ResponseData, menu.Request>
-  >()) {
+        ApiService<menu.Response, menu.ResponseData, menu.Request>
+      >()) {
     sl.registerFactory(
-          () => ApiService<menu.Response, menu.ResponseData, menu.Request>,
+      () => ApiService<menu.Response, menu.ResponseData, menu.Request>,
     );
   }
 
@@ -139,10 +138,9 @@ void initStandAlone() {
 
   if (!sl.isRegistered<MenuBloc>()) {
     sl.registerFactory(
-          () => MenuBloc(getMenuUseCase: GetIt.instance<MenuService>()),
+      () => MenuBloc(getMenuUseCase: GetIt.instance<MenuService>()),
     );
   }
-
 
   // ==================   Defaults
 
@@ -150,24 +148,23 @@ void initStandAlone() {
     sl.registerFactory<PlaceService>(() => PlaceService(apiClient));
   }
 
-//Ehsan Change
+  //Ehsan Change
 
   if (!sl.isRegistered<PlaceBloc>()) {
-    sl.registerFactory(() =>
-        PlaceBloc(getPlaceUseCase: GetIt.instance<PlaceService>()),);
+    sl.registerFactory(
+      () => PlaceBloc(getPlaceUseCase: GetIt.instance<PlaceService>()),
+    );
   }
 
   //Ehsan Change
-
 
   if (!sl.isRegistered<PlaceService>()) {
     sl.registerFactory<PlaceService>(() => PlaceService(apiClient));
   }
 
-
   if (!sl.isRegistered<PlaceBloc>()) {
     sl.registerFactory(
-          () => PlaceBloc(getPlaceUseCase: GetIt.instance<PlaceService>()),
+      () => PlaceBloc(getPlaceUseCase: GetIt.instance<PlaceService>()),
     );
   }
 
@@ -177,61 +174,55 @@ void initStandAlone() {
 
   if (!sl.isRegistered<SelectYearBloc>()) {
     sl.registerFactory(
-          () =>
-          SelectYearBloc(
-            getSelectYearUseCase: GetIt.instance<YearSelectService>(),
-          ),
+      () => SelectYearBloc(
+        getSelectYearUseCase: GetIt.instance<YearSelectService>(),
+      ),
     );
   }
 
   if (!sl.isRegistered<LanguageService>()) {
     sl.registerFactory<LanguageService>(
-          () =>
-          LanguageService(
-            apiClient,
-            repoViewId: AppConstants().LanguageRepoViewId,
-          ),
+      () => LanguageService(
+        apiClient,
+        repoViewId: AppConstants().LanguageRepoViewId,
+      ),
     );
   }
 
   if (!sl.isRegistered<LanguageBloc>()) {
     sl.registerFactory(
-          () =>
-          LanguageBloc(getLanguageUseCase: GetIt.instance<LanguageService>()),
+      () => LanguageBloc(getLanguageUseCase: GetIt.instance<LanguageService>()),
     );
   }
 
   if (!sl.isRegistered<CashierSelectService>()) {
     sl.registerFactory<CashierSelectService>(
-          () =>
-          CashierSelectService(
-            apiClient,
-            RepoViewId: AppConstants().CashierRepoViewId,
-          ),
+      () => CashierSelectService(
+        apiClient,
+        RepoViewId: AppConstants().CashierRepoViewId,
+      ),
     );
   }
 
   if (!sl.isRegistered<SelectCashierBloc>()) {
     sl.registerFactory(
-          () =>
-          SelectCashierBloc(
-            getSelectCashierUseCase: GetIt.instance<CashierSelectService>(),
-          ),
+      () => SelectCashierBloc(
+        getSelectCashierUseCase: GetIt.instance<CashierSelectService>(),
+      ),
     );
   }
 
   if (!sl.isRegistered<CurrencySelectService>()) {
     sl.registerFactory<CurrencySelectService>(
-          () => CurrencySelectService(apiClient),
+      () => CurrencySelectService(apiClient),
     );
   }
 
   if (!sl.isRegistered<SelectCurrencyBloc>()) {
     sl.registerFactory(
-          () =>
-          SelectCurrencyBloc(
-            getSelectCurrencyUseCase: GetIt.instance<CurrencySelectService>(),
-          ),
+      () => SelectCurrencyBloc(
+        getSelectCurrencyUseCase: GetIt.instance<CurrencySelectService>(),
+      ),
     );
   }
 
@@ -247,7 +238,7 @@ void initStandAlone() {
 
   if (!sl.isRegistered<PersonListBloc>()) {
     sl.registerFactory(
-          () => PersonListBloc(personService: sl<PersonService>()),
+      () => PersonListBloc(personService: sl<PersonService>()),
     );
   }
 
@@ -264,12 +255,12 @@ void initStandAlone() {
 
   if (!sl.isRegistered<GenericPage>()) {
     sl.registerFactory(
-          () =>
+      () =>
           GenericPage<
-              SearchPersonBloc,
-              person_list.Response,
-              person_list.ResponseData,
-              person_list.Request
+            SearchPersonBloc,
+            person_list.Response,
+            person_list.ResponseData,
+            person_list.Request
           >(
             createBloc: () => SearchPersonBloc(sl.get<PersonRepository>()),
             builder: (context, state, bloc) {
