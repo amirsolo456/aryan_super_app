@@ -26,7 +26,7 @@ class ApiClientMiddlewareService {
           .sendRequestAsync<Response, ResponseData, Request>(
             url,
             method,
-            request ?? Request(),
+            request ?? Request(repoViewId: 0),
             setToken,
             Exception("خطا در دریافت اطلاعات"),
             Response.fromJson,

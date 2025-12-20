@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:models_package/Data/Com/Person/dto.dart';
 
-
 class PersonExpander extends StatefulWidget {
   final ResponseData person;
 
@@ -23,7 +22,7 @@ class _PersonExpanderState extends State<PersonExpander> {
       curve: Curves.easeInOut,
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
@@ -50,7 +49,6 @@ class _PersonExpanderState extends State<PersonExpander> {
           ),
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 200),
-
             crossFadeState: _expanded
                 ? CrossFadeState.showSecond
                 : CrossFadeState.showFirst,

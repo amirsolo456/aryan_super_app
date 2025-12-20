@@ -130,6 +130,7 @@ class YearInfo {
   final Object? size;
 
   YearInfo({this.size});
+
   factory YearInfo.fromJson(Map<String, dynamic> json) =>
       _$YearInfoFromJson(json);
 

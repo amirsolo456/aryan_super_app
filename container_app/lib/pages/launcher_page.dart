@@ -44,7 +44,7 @@ class LauncherPage extends StatelessWidget {
       ),
     ];
     return Scaffold(
-      appBar: AppBar(title: const Text('Super App Launcher')),
+     appBar: AppBar(title: const Text('Super App Launcher')),
       body: GridView.count(
         crossAxisCount: 2,
         padding: const EdgeInsets.all(16),

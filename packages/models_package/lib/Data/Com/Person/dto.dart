@@ -8,15 +8,18 @@ part 'dto.g.dart';
 
 @JsonSerializable()
 class Request extends BaseRequest {
-  Request();
+  final int repoViewId;
 
-  factory Request.fromJson(Map<String, dynamic> json) {
-    return Request();
-  }
+  Request({required this.repoViewId}) : super(repoViewId: repoViewId);
 
   @override
   Map<String, dynamic> toJson() {
-    return {};
+    return _$RequestToJson(this);
+  }
+
+  @override
+  factory Request.fromJson(Map<String, dynamic> json) {
+    return _$RequestFromJson(json);
   }
 }
 
@@ -37,6 +40,7 @@ class Response extends BaseResponse<ResponseData> {
 
 @JsonSerializable()
 class ResponseData {
+  @JsonKey(name: 'ID')
   int? personId;
   String? firstName;
   String? lastName;
@@ -52,6 +56,7 @@ class ResponseData {
   int? placeId;
   List<TagData> tagsInfo;
   bool hasBookMark;
+  @JsonKey(name: 'pendingStatus')
   int pendingStatusId;
 
   ResponseData({

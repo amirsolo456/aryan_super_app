@@ -1,29 +1,33 @@
 import 'dart:io';
+import 'package:erp_app/feature/navigation_button/presentation/widget/app_navigation_button.dart';
+import 'package:erp_app/feature/redux/generic_lists/erp_store/models/field_display_config.dart';
+import 'package:erp_app/page_cache_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:get_it/get_it.dart';
-import 'package:login_module/login_page.dart';
-import 'package:login_module/services/login_manager_service.dart';
 import 'package:models_package/Base/enums.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:models_package/Base/login_module.dart';
-import 'package:models_package/Data/Auth/Login/dto.dart';
-import 'package:models_package/Data/Auth/User/dto.dart';
+import 'package:models_package/Data/Auth/Login/dto.dart' as login;
+import 'package:models_package/Data/Auth/User/dto.dart' as user;
 import 'package:navigation_builder/navigation_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:services_package/api_client_service.dart';
 import 'package:services_package/com/person/person_service.dart';
+import 'package:services_package/default/com/select/Year_Select_Service.dart';
+import 'package:services_package/default/com/select/currency_service.dart';
+import 'package:services_package/default/mng/select/language_service.dart';
+import 'package:services_package/default/mng/select/place_service.dart';
+import 'package:services_package/default/trh/select/cashier_service.dart';
 import 'package:services_package/extension/exception_handler_service.dart';
 import 'package:services_package/login_service.dart';
 import 'package:services_package/storage/domain/usecases/storage_service.dart';
-import 'package:services_package/storage_service.dart';
-import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_appbar.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_not_found.dart';
-import 'components/mainlayout/main_layout.dart';
+import 'advance_router.dart';
 import 'core/messengers_services/exception_helper_service.dart';
 import 'core/network/custom_http_override.dart';
 import 'core/network/injection_container.dart';
@@ -33,8 +37,16 @@ import 'feature/auth/menu/bloc/menu_event.dart';
 import 'feature/com/person/domain/repositories/person_repository.dart';
 import 'feature/com/person/presentation/blocs/person_bloc/person_list_bloc.dart';
 import 'feature/com/person/presentation/blocs/search_person_bloc/search_person_bloc.dart';
-import 'feature/com/person/presentation/features/person_list_page.dart';
+import 'feature/default_page/Language/bloc/language_bloc.dart';
+import 'feature/default_page/Place/bloc/place_bloc.dart';
+import 'feature/default_page/select_cashier/bloc/select_cashier_bloc.dart';
+import 'feature/default_page/select_currency/bloc/select_currency_bloc.dart';
+import 'feature/default_page/select_year/bloc/select_year_bloc.dart';
+import 'feature/navigation_button/presentation/bloc/navigation_notifier.dart';
 import 'feature/profile/profile_bloc.dart';
+import 'package:services_package/shared_core/notifications/app_notifier.dart';
+
+final apiClient = GetIt.instance<ApiClient>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,29 +54,76 @@ void main() async {
   initStandAlone();
 
   final apiClient = GetIt.instance<ApiClient>();
+  final placeService = GetIt.instance<PlaceService>();
+  final getSelectCashierUseCase = GetIt.instance<CashierSelectService>();
+  final getSelectCurrencyUseCase = GetIt.instance<CurrencySelectService>();
+  final getSelectYearUseCase = GetIt.instance<YearSelectService>();
+  final getLanguageUseCase = GetIt.instance<LanguageService>();
   final storageService = GetIt.instance<StorageService>();
-  final personService = GetIt.instance<PersonService>();
-  final personRepo = GetIt.instance<PersonRepository>();
-  final lang =
-      await storageService.loadLanguage() ??
-      Language(id: 0, smallName: 'fa', completeName: 'fa_IR', bigName: 'IR');
+  final lang = await storageService.loadLanguage();
 
+  final loginModule = await storageService.sqlLoadLoginSessionModel();
   final rootWidget = MultiBlocProvider(
     providers: [
+      // ChangeNotifierProvider(
+      //   create: (_) => NavigationNotifier(),
+      //   lazy: false, // این خط اضافه شود
+      // ),
+      ChangeNotifierProvider(create: (_) => PageCacheProvider()),
       Provider<LoginService>(create: (_) => LoginService(client: apiClient)),
+      Provider<PlaceBloc>(
+        create: (_) => PlaceBloc(getPlaceUseCase: placeService),
+      ),
+      Provider<SelectCashierBloc>(
+        create: (_) =>
+            SelectCashierBloc(getSelectCashierUseCase: getSelectCashierUseCase),
+      ),
+      Provider<SelectCurrencyBloc>(
+        create: (_) =>
+            SelectCurrencyBloc(
+              getSelectCurrencyUseCase: getSelectCurrencyUseCase,
+            ),
+      ),
+      Provider<SelectYearBloc>(
+        create: (_) =>
+            SelectYearBloc(getSelectYearUseCase: getSelectYearUseCase),
+      ),
       BlocProvider(create: (_) => ProfileBloc()),
-      BlocProvider(create: (_) => PersonListBloc(personService: personService)),
-      BlocProvider(create: (_) => SearchPersonBloc(personRepo)),
       BlocProvider(
-        create: (_) => GetIt.instance<MenuBloc>()..add(LoadMenuEvent()),
+        create: (_) => LanguageBloc(getLanguageUseCase: getLanguageUseCase),
+      ),
+      BlocProvider(
+        create: (_) =>
+            PersonListBloc(personService: GetIt.instance<PersonService>()),
+      ),
+      BlocProvider(
+        create: (_) => SearchPersonBloc(GetIt.instance<PersonRepository>()),
+      ),
+      BlocProvider(
+        create: (_) =>
+        GetIt.instance<MenuBloc>()
+          ..add(LoadMenuEvent()),
       ),
     ],
     child: MainApp(
       initialLanguage: lang,
-      messengerService: sl<ExceptionHelperService>(),
+      messengerService: GetIt.instance<ExceptionHelperService>(),
     ),
   );
-
+  runApp(
+    ChangeNotifierProvider(
+      lazy: false,
+      create: (context) => PageCacheProvider(),
+      child: Consumer<PageCacheProvider>(
+        builder: (context, value, child) {
+          return MainApp(
+            initialLanguage: lang,
+            messengerService: GetIt.instance<ExceptionHelperService>(),
+          );
+        },
+      ),
+    ),
+  );
   AppErrorHandler.initializeErrorHandlers(rootWidget);
 }
 
@@ -83,25 +142,156 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      navigatorKey: messengerService.navigatorKey,
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      locale: Locale(initialLanguage.languageCode ?? "fa"),
-      supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
+      locale: Locale(initialLanguage.languageCode ?? 'fa'),
+      supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: invalidSession
-          ? Scaffold(
-              body: Center(
-                child: Text(
-                  'اطلاعات معتبر نمی‌باشد، لطفاً از ابتدا وارد شوید.',
-                ),
-              ),
-            )
-          : MainLayoutPage(tab: NavButtonTabBarMode.erpDashboardTabMode),
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+      ),
+      home: const MainAppScreen(),
+      scrollBehavior: ScrollBehavior(),
+    );
+  }
+}
+
+class MainAppScreen extends StatelessWidget {
+  const MainAppScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isRTL = Localizations
+        .localeOf(context)
+        .languageCode == 'fa';
+
+    return Consumer<PageCacheProvider>(
+      builder: (context, notifier, child) {
+        if (notifier.isSignOutNeed) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Restart.restartApp();
+          });
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(backgroundColor: Colors.white),
+            ),
+          );
+        }
+        return
+          // textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
+          _buildContent(context, notifier);
+
+      },
+    );
+  }
+
+  Widget _buildContent(BuildContext context, PageCacheProvider notifier) {
+    if (notifier.isErrorState) {
+      return _buildErrorWidget(notifier);
+    }
+
+    if (notifier.isSkeletonActive) {
+      return notifier.getPage(NavButtonTabBarMode.skeletion);
+    }
+
+    switch (notifier.pageType  ) {
+      case PageType.listGenerator:
+        final isListGeneratorActive =
+            (notifier.isListGeneratorActive?.values.last) ?? false;
+        if (isListGeneratorActive) {
+          return _buildListGeneratorContent(notifier, context);
+        }
+        return ErpNotFound();
+      case PageType.formGenerator:
+        final isFormGeneratorActive =
+            notifier.isFormGeneratorActive?.values.first ?? false;
+        if (isFormGeneratorActive) {
+          return _buildFormGeneratorContent();
+        }
+        return ErpNotFound();
+      case PageType.tabBar:
+        return _buildMainContent(context, notifier);
+      default:
+        return ErpNotFound();
+    }
+
+
+    // حالت فرم جنریک فعال
+
+
+  }
+
+  Widget _buildListGeneratorContent(PageCacheProvider notifier,
+      BuildContext context,) {
+    return AdvancedRouter.buildPage(
+      RouteData(
+        path: notifier.isListGeneratorActive.keys.last ?? '' as String,
+        location: 'vsa',
+        queryParams: {},
+        pathParams: {},
+        arguments: [],
+        pathEndsWithSlash: false,
+        redirectedFrom: [],
+        subLocation: '',
+        navigatorKey: navigatorKey,
+      ),
+      context,
+    ); // یا return YourListGeneratorWidget();
+  }
+
+  Widget _buildFormGeneratorContent() {
+    // محتوای فرم جنریک
+    return SizedBox(child: Text('Form Generator'));
+  }
+
+  Widget _buildMainContent(BuildContext context, PageCacheProvider notifier) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: notifier.appBarMode,
+      body: Column(
+        children: [
+          if (notifier.errorMessages.length > 1) _buildErrorWidget(notifier),
+
+          Expanded(
+            child: Consumer<PageCacheProvider>(
+              builder: (context, navNotifier, child) {
+                return navNotifier.getPage(notifier.selectedTab) ??
+                    const ErpNotFound();
+              },
+            ),
+          ),
+
+          AppNavigationButton(
+            selectedTab: notifier.selectedTab,
+            onTabSelected: (value) =>
+                notifier.changePage(PageType.tabBar, route: null, tab: value),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget(PageCacheProvider notifier) {
+    return Scaffold(
+      backgroundColor: Colors.red.withOpacity(0.1),
+
+      body: Row(
+        children: [
+          const Icon(Icons.error, color: Colors.red),
+          const SizedBox(width: 8),
+          Expanded(child: Text(notifier.errorMessages.last ?? 'a')),
+          IconButton(
+            onPressed: notifier.clearError,
+            icon: const Icon(Icons.close),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -118,64 +308,132 @@ Widget buildERPApp({required Map<String, dynamic> loginDatas}) {
       completeName: 'fa_IR',
     );
   }
+
   usePathUrlStrategy();
-  final storageService = GetIt.instance<StorageService>();
   final loginModuleResult = LoginModuleResult.success(
-    user: UserDto.fromJson(loginDatas[SessionKeysExt(SessionKeys.user).key]),
+    user: user.UserDto.fromJson(
+      loginDatas[SessionKeysExt(SessionKeys.user).key],
+    ),
     token: loginDatas[SessionKeysExt(SessionKeys.token).key],
     networkMode:
-        loginDatas[SessionKeysExt(SessionKeys.networkType).key] ?? 0 as int,
+    loginDatas[SessionKeysExt(SessionKeys.networkType).key] ?? 0 as int,
     cachedKey: '',
     language: Language.fromJson(
       loginDatas[SessionKeysExt(SessionKeys.language).key],
     ),
     managementAccount:
-        (loginDatas[SessionKeysExt(SessionKeys.managementAccount).key]
-                as List<dynamic>)
-            .map((e) => ManagementAccounts.fromJson(e as Map<String, dynamic>))
-            .toList(),
+    (loginDatas[SessionKeysExt(SessionKeys.managementAccount).key]
+    as List<dynamic>)
+        .map(
+          (e) =>
+          login.ManagementAccounts.fromJson(e as Map<String, dynamic>),
+    )
+        .toList(),
     success:
-        loginDatas[SessionKeysExt(SessionKeys.success).key] ?? false as bool,
+    loginDatas[SessionKeysExt(SessionKeys.success).key] ?? false as bool,
     error: loginDatas[SessionKeysExt(SessionKeys.error).key] as String?,
     timestamp: loginDatas[SessionKeysExt(SessionKeys.timeStamp).key] != null
         ? DateTime.fromMillisecondsSinceEpoch(
-            loginDatas[SessionKeysExt(SessionKeys.timeStamp).key] as int,
-          )
+      loginDatas[SessionKeysExt(SessionKeys.timeStamp).key] as int,
+    )
         : DateTime.now(),
-    selectedManagementAccount: ManagementAccounts.fromJson(
+    selectedManagementAccount: login.ManagementAccounts.fromJson(
       loginDatas[SessionKeysExt(SessionKeys.selectedManagement).key],
     ),
   );
 
+  if (!sl.isRegistered<AppNotifier>()) {
+    final AppNotifier appNotifier = AppNotifier();
+    AppNotifier.initialize(registerInGetIt: false, sl: sl);
+    sl.registerSingleton<AppNotifier>(appNotifier);
+  } else {
+    sl.unregister<AppNotifier>();
+    final AppNotifier appNotifier = AppNotifier();
+    AppNotifier.initialize(registerInGetIt: false, sl: sl);
+    sl.registerSingleton<AppNotifier>(appNotifier);
+  }
+  final appNotifier = sl<AppNotifier>();
+  appNotifier.notifyInfo('Child ERP app started', crossApp: true);
+  final storageService = GetIt.instance<StorageService>();
+
   if ((loginDatas[LoginRouter.isLoginModuleModel] ?? false) as bool == true &&
       loginDatas[LoginRouter.loginNavigator] != null &&
-      loginDatas[LoginRouter.loginNavigator] is GuardedNavigationBuilder) {
-  } else {}
+      loginDatas[LoginRouter
+          .loginNavigator] is GuardedNavigationBuilder) {} else {}
 
   storageService.saveLoginSessionModel(loginModuleResult);
 
-  final apiClient = GetIt.instance<ApiClient>();
-  final personRepo = GetIt.instance<PersonRepository>();
-  final personService = GetIt.instance<PersonService>();
+  final placeService = GetIt.instance<PlaceService>();
+  final getSelectCashierUseCase = GetIt.instance<CashierSelectService>();
+  final getSelectCurrencyUseCase = GetIt.instance<CurrencySelectService>();
+  final getSelectYearUseCase = GetIt.instance<YearSelectService>();
+  final getLanguageUseCase = GetIt.instance<LanguageService>();
 
-  return MultiBlocProvider(
+  final a = storageService.sqlLoadLoginSessionModel().then(
+        (value) => {print('b')},
+  );
+  final b = storageService.getDbPath().then(
+        (isok) =>
+    {
+      {print('')},
+    },
+  );
+  return MultiProvider(
     providers: [
-      Provider<LoginService>(create: (_) => LoginService(client: apiClient)),
+      // ChangeNotifierProvider(
+      //   create: (_) => NavigationNotifier(),
+      //   lazy: false, // این خط اضافه شود
+      // ),
+      ChangeNotifierProvider(create: (_) => PageCacheProvider()),
+      Provider<LoginService>(
+        create: (_) => LoginService(client: GetIt.instance<ApiClient>()),
+      ),
+      Provider<PlaceBloc>(
+        create: (_) => PlaceBloc(getPlaceUseCase: placeService),
+      ),
+      Provider<SelectCashierBloc>(
+        create: (_) =>
+            SelectCashierBloc(getSelectCashierUseCase: getSelectCashierUseCase),
+      ),
+      Provider<SelectCurrencyBloc>(
+        create: (_) =>
+            SelectCurrencyBloc(
+              getSelectCurrencyUseCase: getSelectCurrencyUseCase,
+            ),
+      ),
+      Provider<SelectYearBloc>(
+        create: (_) =>
+            SelectYearBloc(getSelectYearUseCase: getSelectYearUseCase),
+      ),
       BlocProvider(
-        create: (_) => GetIt.instance<MenuBloc>()..add(LoadMenuEvent()),
+        create: (_) => LanguageBloc(getLanguageUseCase: getLanguageUseCase),
+      ),
+      BlocProvider(
+        create: (_) =>
+        GetIt.instance<MenuBloc>()
+          ..add(LoadMenuEvent()),
       ),
       BlocProvider(create: (_) => ProfileBloc()),
-      BlocProvider(create: (_) => PersonListBloc(personService: personService)),
-      BlocProvider(create: (_) => SearchPersonBloc(personRepo)),
+      BlocProvider(
+        create: (_) =>
+            PersonListBloc(personService: GetIt.instance<PersonService>()),
+      ),
+      BlocProvider(
+        create: (_) => SearchPersonBloc(GetIt.instance<PersonRepository>()),
+      ),
     ],
-    child: PartOfContainerApp(loginModuleResult: loginModuleResult),
+    child: MainApp(
+      initialLanguage:
+      loginModuleResult.language ?? Language(languageCode: 'fa'),
+      messengerService: GetIt.instance<ExceptionHelperService>(),
+    ),
   );
 }
 
-class PartOfContainerApp extends StatelessWidget {
+class DynamicEntityApp extends StatelessWidget {
   final LoginModuleResult loginModuleResult;
 
-  const PartOfContainerApp({super.key, required this.loginModuleResult});
+  const DynamicEntityApp({super.key, required this.loginModuleResult});
 
   @override
   Widget build(BuildContext context) {
@@ -195,56 +453,9 @@ class PartOfContainerApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
       ),
+      scrollBehavior: ScrollBehavior(),
     );
   }
 }
 
 final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
-final erpNavigator = NavigationBuilder.create(
-  routes: {
-    '/signOut': (RouteData data) {
-      Restart.restartApp(
-        notificationTitle: 'Restarting App',
-        notificationBody: 'Please tap here to open the app again.',
-      );
-      return SizedBox();
-    },
-    '/': (RouteData data) =>
-        const MainLayoutPage(tab: NavButtonTabBarMode.erpDashboardTabMode),
-    '/:erpMenuTabBarsId': (RouteData data) {
-      final id = data.pathParams['erpMenuTabBarId']; // دسترسی به پارامترها
-      NavButtonTabBarMode tab = NavButtonTabBarMode.values.firstWhere(
-        (e) => e.value == id,
-        orElse: () =>
-            NavButtonTabBarMode.erpNotFound,
-      );
-      return MainLayoutPage(tab: tab);
-    },
-    '/Com/PersonList': (RouteData data) {
-      return BlocProvider<SearchPersonBloc>.value(
-        value: GetIt.instance<SearchPersonBloc>(),
-        child: PersonListPage(refreshData: true),
-      );
-    },
-    '/notFound': (RouteData data) {
-      return ErpNotFound();
-    },
-
-    '/home/*': (RouteData data) => data.redirectTo('/'),
-
-    '/page6': (RouteData data) => RouteWidget(),
-  },
-
-  initialLocation: '/',
-
-  unknownRoute: (route) => Scaffold(appBar: AppBar(), body: SizedBox()),
-  builder: (Widget outlet) => Scaffold(
-    appBar: ErpAppBar(mode: AppBarsMode.erpNotFound),
-    body: outlet,
-  ),
-  transitionsBuilder:
-      (context, anim, secAnim, child) => // انیمیشن جهانی
-          FadeTransition(opacity: anim, child: child),
-  transitionDuration: const Duration(milliseconds: 1000),
-  debugPrintWhenRouted: true, // لاگ برای دیباگ
-);

@@ -4,14 +4,15 @@ import 'package:models_package/Base/base_request.dart';
 import 'package:models_package/Base/language.dart';
 import 'package:models_package/Base/login_module.dart';
 import 'package:models_package/Data/Auth/User/dto.dart';
-import 'package:services_package/storage/data/datasource/secure_storage_datasource.dart';
-import 'package:services_package/storage/data/datasource/shared_storage_datasouce.dart';
-import 'package:services_package/storage/data/datasource/sqlite_storage_datasource.dart';
-import 'package:services_package/storage/data/model/storage_data_model.dart';
 import 'package:services_package/storage/domain/usecases/secure_storage_usecasae.dart';
 import 'package:services_package/storage/domain/usecases/shared_storage_usecase.dart';
 import 'package:services_package/storage/domain/usecases/sqlite_storage_usecase.dart';
 import 'package:sqflite/sqflite.dart';
+
+import '../../data/datasource/secure_storage_datasource.dart';
+import '../../data/datasource/shared_storage_datasouce.dart';
+import '../../data/datasource/sqlite_storage_datasource.dart';
+import '../../data/model/storage_data_model.dart';
 
 class StorageService
     implements
@@ -132,7 +133,6 @@ class StorageService
     await _sqliteStorageUseCase.sqlSaveLoginSessionModel(loginSessionModel);
     if (loginSessionModel.language != null)
       await _sharedStorageUseCase.saveLanguage(loginSessionModel.language!);
-    // await _sharedStorageUseCase.saveDeviceToken(loginSessionModel.de );
   }
 
   @override
@@ -196,4 +196,21 @@ class StorageService
     LoginModuleResult loginSessionModel,
   ) async =>
       await _sqliteStorageUseCase.sqlSaveLoginSessionModel(loginSessionModel);
+
+  Future<List<String>> getDbPath() async {
+    List<String> pathes = [];
+    pathes.add(await _secureStorageUseCase.getSecureDbPath() ?? '');
+    pathes.add(await _sharedStorageUseCase.getSharedDbPath() ?? '');
+    pathes.add(await _sqliteStorageUseCase.getSqliteDbPath() ?? '');
+    return pathes;
+  }
+
+  @override
+  Future<String?> getSecureDbPath() => _secureStorageUseCase.getSecureDbPath();
+
+  @override
+  Future<String?> getSharedDbPath() => _sharedStorageUseCase.getSharedDbPath();
+
+  @override
+  Future<String?> getSqliteDbPath() => _sqliteStorageUseCase.getSqliteDbPath();
 }

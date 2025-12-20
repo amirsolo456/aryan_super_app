@@ -5,9 +5,10 @@ import 'package:models_package/Base/base_request.dart';
 import 'package:models_package/Base/enums.dart';
 import 'package:models_package/Base/login_module.dart';
 import 'package:path/path.dart';
-import 'package:services_package/storage/data/datasource/sqlite_storage_datasource.dart';
-import 'package:services_package/storage/data/model/sqlite_storage_data_model.dart';
 import 'package:sqflite/sqflite.dart';
+
+import '../../data/datasource/sqlite_storage_datasource.dart';
+import '../../data/model/sqlite_storage_data_model.dart';
 
 class SqliteStorageUseCase implements ISqliteStorageDataSource {
   static const String _dbName = 'app_storage.db';
@@ -286,5 +287,15 @@ class SqliteStorageUseCase implements ISqliteStorageDataSource {
   Future<void> _remove(String table) async {
     final db = await _db;
     await db.delete(table, where: 'id = ?', whereArgs: [_singleRowId]);
+  }
+
+  @override
+  Future<String?> getSqliteDbPath() async {
+    if (_database != null) {
+      return _database!.path;
+    } else {
+      final dbPath = await getDatabasesPath();
+      return join(dbPath, _dbName);
+    }
   }
 }

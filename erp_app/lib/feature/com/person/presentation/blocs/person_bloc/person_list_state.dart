@@ -1,21 +1,35 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:models_package/Data/Com/Person/dto.dart';
 
-
-
 @immutable
-sealed class PersonListState {}
+
+abstract class PersonListState extends Equatable {
+  const PersonListState();
+
+  @override
+  List<Object?> get props => [];
+}
 
 final class PersonListInitialState extends PersonListState {}
+
+class LoadPersonListState extends PersonListState {
+  const LoadPersonListState();
+}
+
+class PersonListLoadingState extends PersonListState {
+
+  const PersonListLoadingState();
+}
 
 class LoadDataSuccess extends PersonListState {}
 
 class LoadDataError extends PersonListState {}
 
-class LoadDataSource extends PersonListState {
-  final Response data;
+class PersonListLoadDataSourceState extends PersonListState {
+  final Response? data;
 
-  LoadDataSource(this.data);
+  PersonListLoadDataSourceState({required this.data} );
 }
 
 class FilterDataLoading extends PersonListState {}

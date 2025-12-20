@@ -47,20 +47,24 @@ class ApiClient extends IApiClient {
 
   late final http.Client _httpClient = RetryClient(http.Client());
 
-  T returnDefaultValueOnException<T extends BaseResponse<D>, D>(
-    T Function(Map<String, dynamic>) fromJsonD,
+  T? returnDefaultValueOnException<T extends BaseResponse<D>, D>(
+    T Function(Map<String, dynamic>)? fromJsonD,
     String? message,
     int? httpStatus,
   ) {
     if (httpStatus == HttpStatus.unauthorized) {
       storage.signOut();
     }
-    return fromJsonD({
-      "Result": "Failed",
-      "Error": message ?? "",
-      "Data": [],
-      "Status": httpStatus ?? 500,
-    });
+    if (fromJsonD != null) {
+      return fromJsonD({
+        "Result": "Failed",
+        "Error": message ?? "",
+        "Data": [],
+        "Status": httpStatus ?? 500,
+      });
+    } else {
+      return null;
+    }
   }
 
   @override
@@ -72,6 +76,7 @@ class ApiClient extends IApiClient {
     Exception? fallbackMessage,
     T Function(Map<String, dynamic>) fromJsonD,
   ) async {
+    _isRefreshing = false;
     T? result;
     try {
       String? token = null;
@@ -87,7 +92,7 @@ class ApiClient extends IApiClient {
         fromJsonD: fromJsonD,
       );
     } catch (e) {
-      result = returnDefaultValueOnException(
+      result = returnDefaultValueOnException<T, D>(
         fromJsonD,
         e.toString(),
         HttpStatus.unavailableForLegalReasons,
@@ -105,8 +110,9 @@ class ApiClient extends IApiClient {
     C? data,
     bool? setToken,
     Exception? fallbackMessage,
-    T Function(Map<String, dynamic>) fromJsonD,
+    T Function(Map<String, dynamic>)? fromJsonD,
   ) async {
+    _isRefreshing = false;
     T? result;
     try {
       data?.defaults = appSettings.appDefaults;
@@ -142,7 +148,7 @@ class ApiClient extends IApiClient {
     required HttpMethods method,
     Object? data,
     String? token,
-    required T Function(Map<String, dynamic>) fromJsonD,
+    required T Function(Map<String, dynamic>)? fromJsonD,
   }) async {
     try {
       String? baseUrl = appSettings.baseUrl;
@@ -157,7 +163,7 @@ class ApiClient extends IApiClient {
       });
 
       if (!isBaseUrlValid) {
-        return returnDefaultValueOnException(
+        return returnDefaultValueOnException<T, D>(
           fromJsonD,
           "BaseUrl Is invalid",
           HttpStatus.unsupportedMediaType,
@@ -166,7 +172,7 @@ class ApiClient extends IApiClient {
 
       // 2. Validate HTTP method
       if (method == HttpMethods.unknown) {
-        return returnDefaultValueOnException(
+        return returnDefaultValueOnException<T, D>(
           fromJsonD,
           "Method Is invalid",
           500,
@@ -211,7 +217,7 @@ class ApiClient extends IApiClient {
           response = await http.delete(uri, headers: headers);
           break;
         default:
-          return returnDefaultValueOnException(
+          return returnDefaultValueOnException<T, D>(
             fromJsonD,
 
             "Unsupported HTTP method",
@@ -219,7 +225,7 @@ class ApiClient extends IApiClient {
           );
       }
 
-      if (response.statusCode == 401) {
+      if (_isRefreshing == false && response.statusCode == 401) {
         _pendingRequests.add(
           () async => await _internalSendRequest(
             url: url,
@@ -232,6 +238,7 @@ class ApiClient extends IApiClient {
           if (newToken != null && newToken.isNotEmpty) {
             headers[HttpHeaders.authorizationHeader] = 'Bearer $newToken';
 
+            // Retry the original request with new token
             return await _retryRequest<T, D>(
               client: client,
               uri: uri,
@@ -240,14 +247,21 @@ class ApiClient extends IApiClient {
               body: body,
             );
           }
+
+          return returnDefaultValueOnException<T, D>(
+            fromJsonD,
+
+            "Unsupported HTTP method",
+            HttpStatus.unauthorized,
+          );
         } else {
-          return returnDefaultValueOnException(
+          return returnDefaultValueOnException<T, D>(
             fromJsonD,
             "UnAuthorized",
             HttpStatus.unauthorized,
           );
         }
-        return returnDefaultValueOnException(
+        return returnDefaultValueOnException<T, D>(
           fromJsonD,
           "Unsupported HTTP method",
           HttpStatus.unsupportedMediaType,
@@ -255,19 +269,28 @@ class ApiClient extends IApiClient {
       }
       try {
         final decoded = json.decode(response.body);
-
-        if (decoded is Map<String, dynamic>) {
-          return await fromJsonD(decoded) as T;
+        return T.fromJson(decoded, fromJsonD);
+        if (fromJsonD != null) {
+          if (decoded is Map<String, dynamic>) {
+            return await fromJsonD(decoded) as T;
+          } else {
+            return await fromJsonD(decoded) as T;
+          }
         } else {
-          return await fromJsonD(decoded) as T;
+          // return b;
         }
       } catch (e) {
-        return returnDefaultValueOnException(fromJsonD, e.toString(), 500);
+        return returnDefaultValueOnException<T, D>(
+          fromJsonD,
+          e.toString(),
+          500,
+        );
       }
       // 9. Parse successful response
     } catch (e) {
-      return returnDefaultValueOnException(fromJsonD, e.toString(), 500);
+      return returnDefaultValueOnException<T, D>(fromJsonD, e.toString(), 500);
     }
+    return null;
   }
 
   // Helper method for retrying requests
@@ -298,8 +321,15 @@ class ApiClient extends IApiClient {
     }
   }
 
+  Completer<bool>? _refreshCompleter;
+
   Future<bool> refreshToken() async {
-    if (_isRefreshing) return false; // جلوگیری از parallel refresh
+    if (_refreshCompleter != null) {
+      return _refreshCompleter!.future;
+    }
+
+    _refreshCompleter = Completer<bool>();
+
     _isRefreshing = true;
     bool success = false;
 
@@ -338,7 +368,7 @@ class ApiClient extends IApiClient {
         user.token = newToken;
         await storage.saveUser(user);
         await storage.saveToken(newToken);
-        success = true;
+        _isRefreshing = success = true;
 
         // اجرای درخواست‌های صف‌بندی شده
         while (_pendingRequests.isNotEmpty) {
@@ -348,11 +378,17 @@ class ApiClient extends IApiClient {
         }
       }
     } catch (e) {
-      return false;
+      _refreshCompleter!.complete(false);
     } finally {
       _isRefreshing = false;
+      _refreshCompleter = null;
     }
 
+    if (success) {
+      _refreshCompleter!.complete(true);
+    } else {
+      _refreshCompleter!.complete(false);
+    }
     return _isRefreshing;
   }
 
@@ -378,6 +414,13 @@ class ApiClient extends IApiClient {
   }
 
   bool isTokenValid(String token) => token.isNotEmpty;
+}
+
+extension<D> on Type {
+  D? fromJson(
+    Map<String, dynamic> json,
+    D Function(Map<String, dynamic>)? fromJsonD,
+  ) => fromJsonD?.call(json);
 }
 
 class RequestQueue {
@@ -467,5 +510,17 @@ class ApiUriBuilder {
         '$cleanedBase${endpoint.replaceFirst(RegExp(r'^/'), '')}';
 
     return Uri.parse(fullUrl.replaceAll(RegExp(r'(?<!:)/+'), '/'));
+  }
+}
+
+typedef ItemCreator<S> = S Function();
+
+class PagedListData<T> {
+  ItemCreator<T> creator;
+
+  PagedListData(ItemCreator<T> this.creator) {}
+
+  void performMagic() {
+    T item = creator();
   }
 }

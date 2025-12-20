@@ -7,6 +7,7 @@ import 'api_client_service.dart';
 class ApiService<T extends BaseResponse<D>, D, C extends BaseRequest>
     implements IApiService<T, D, C> {
   final ApiClient clientService;
+
   ApiService({required this.clientService});
 
   @override
@@ -29,7 +30,7 @@ class ApiService<T extends BaseResponse<D>, D, C extends BaseRequest>
   }
 
   @override
-  Future<T?> get(C request, T Function(Map<String, dynamic>) fromJsonD) async {
+  Future<T?> get(C request, T Function(Map<String, dynamic>)? fromJsonD) async {
     try {
       return clientService.sendRequestAsync<T, D, C>(
         request.url,

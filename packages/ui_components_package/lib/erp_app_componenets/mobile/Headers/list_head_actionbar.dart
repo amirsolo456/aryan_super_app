@@ -7,25 +7,25 @@ final Widget sortIcon = Image.asset(
   'assets/images/sort.png',
   width: 24,
   height: 24,
-  package:'resources_package',
+  package: 'resources_package',
 );
 final Widget filterNoneIcon = Image.asset(
   'assets/images/filternone.png',
   width: 24,
   height: 24,
-  package:'resources_package',
+  package: 'resources_package',
 );
 final Widget filterSigningIcon = Image.asset(
   'assets/images/filtersigning.png',
   width: 24,
   height: 24,
-  package:'resources_package',
+  package: 'resources_package',
 );
 final Widget refreshIcon = Image.asset(
   'assets/images/refresh.png',
   width: 24,
   height: 24,
-  package:'resources_package',
+  package: 'resources_package',
 );
 
 class ButtonPanel extends StatelessWidget {
@@ -37,6 +37,7 @@ class ButtonPanel extends StatelessWidget {
       padding: EdgeInsets.zero,
       child: Wrap(
         spacing: 5,
+        textDirection: TextDirection.ltr,
         crossAxisAlignment: WrapCrossAlignment.end,
         alignment: WrapAlignment.end,
         direction: Axis.horizontal,

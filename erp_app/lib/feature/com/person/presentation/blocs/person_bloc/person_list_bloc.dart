@@ -1,17 +1,25 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:erp_app/feature/com/person/presentation/blocs/person_bloc/person_list_state.dart';
+import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 import 'package:models_package/Data/Com/Person/dto.dart';
 import 'package:services_package/com/person/person_service.dart';
+
+import '../../../../../../page_cache_provider.dart';
 
 part 'person_list_event.dart';
 
 class PersonListBloc extends Bloc<PersonListEvent, PersonListState> {
   final PersonService personService;
-
+  final pageCacheProvider = GetIt.instance<PageCacheProvider>();
   PersonListBloc({required this.personService})
     : super(PersonListInitialState()) {
-    on<PersonListEvent>((event, emit) async {
+    on<LoadPersonListEvent>(_onLoadPersonList);
+    on<PersonListInitialEvent>(_onPersonListInitial);
+
+    /* on<LoadPersonListState>((event, emit) async {
       if (event is PersonListInitialEvent) {
         try {
           final Response? response = await personService.get(
@@ -52,6 +60,45 @@ class PersonListBloc extends Bloc<PersonListEvent, PersonListState> {
           emit(PaginationDataError());
         }
       } else {}
-    });
+    });*/
+  }
+
+  Future<void> _onPersonListInitial(
+    PersonListInitialEvent event,
+    Emitter<PersonListState> emit,
+  ) async {
+    final completer = Completer<void>();
+    pageCacheProvider.registerPendingOperation(completer);
+
+    try {
+      await Future.delayed(const Duration(seconds: 2));
+
+      if (!completer.isCompleted) {
+        completer.complete();
+        pageCacheProvider.unregisterPendingOperation(completer);
+      }
+
+    } catch (e) {
+      if (!completer.isCompleted) {
+        completer.completeError(e);
+        pageCacheProvider.unregisterPendingOperation(completer);
+      }
+    }
+  }
+
+  Future<void> _onLoadPersonList(
+    LoadPersonListEvent event,
+    Emitter<PersonListState> emit,
+  ) async {
+    emit(const PersonListLoadingState());
+    try {
+      final persons = await personService.get(
+        Request(repoViewId: 0),
+        (json) => Response.fromJson(json),
+      );
+      emit(PersonListLoadDataSourceState(data: persons));
+    } catch (e) {
+      // emit(MenuErrorState(e.toString()));
+    }
   }
 }

@@ -1,14 +1,15 @@
 import 'dart:convert';
 
 import 'package:models_package/Base/language.dart';
-import 'package:services_package/storage/data/datasource/shared_storage_datasouce.dart';
-import 'package:services_package/storage/data/model/shared_storage_data_model.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../data/datasource/shared_storage_datasouce.dart';
+import '../../data/model/shared_storage_data_model.dart';
 
 class SharedStorageUseCase implements ISharedStorageDataSource {
   static const String _deviceTokenKey = 'device_token';
   static const String _languageKey = 'language';
-
   late SharedPreferences _sharedPrefs;
 
   // helper to ensure SharedPreferences آماده است
@@ -86,7 +87,6 @@ class SharedStorageUseCase implements ISharedStorageDataSource {
     );
   }
 
-  @override
   Future<void> removeAll() async {
     await _init();
     await _sharedPrefs.clear();
@@ -95,10 +95,19 @@ class SharedStorageUseCase implements ISharedStorageDataSource {
     // await _sharedPrefs.remove(_languageKey);
   }
 
-  @override
   Future<void> signOut() async {
     // در این پروژه signOut صرفاً همه‌ی داده‌های محلی مرتبط را پاک می‌کند.
     // اگر رفتار دیگری (مثل invalidate توکن سمت سرور) مد نظرتون هست، باید آن را اضافه کنید.
     await removeAll();
+  }
+
+  @override
+  Future<String?> getSharedDbPath() async {
+    try {
+      final directory = await getApplicationSupportDirectory();
+      return directory.path;
+    } catch (e) {
+      return null;
+    }
   }
 }

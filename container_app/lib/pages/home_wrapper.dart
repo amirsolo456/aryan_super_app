@@ -1,5 +1,6 @@
 import 'package:container_app/pages/launcher_page.dart';
 import 'package:container_app/pages/splash_screen.dart';
+
 import 'package:erp_app/core/network/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:services_package/storage/domain/usecases/storage_service.dart';
@@ -56,8 +57,6 @@ class _HomeWrapperState extends State<HomeWrapper> {
       }
     }
   }
-
-
 
   Widget _buildErrorScreen(String error) {
     return Scaffold(

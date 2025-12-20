@@ -1,24 +1,38 @@
 import 'dart:io';
-import 'package:container_app/pages/launcher_page.dart';
 import 'package:container_app/pages/splash_screen.dart';
 import 'package:erp_app/core/network/injection_container.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:services_package/shared_core/notifications/app_notifier.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:login_module/services/login_manager_service.dart';
 import 'package:login_module/services/snackbar_service.dart';
-import 'package:navigation_builder/navigation_builder.dart';
 import 'package:resources_package/Resources/Theme/theme_manager.dart';
 import 'package:resources_package/l10n/app_localizations.dart';
+import 'package:services_package/shared_core/notifications/enums.dart';
 import 'package:services_package/storage/domain/usecases/storage_service.dart';
 import 'package:ui_components_package/erp_app_componenets/common/Buttons/language_button_standalone/language_button_stand_alone_cubit.dart';
+
+import 'app_notifier.dart';
+import 'data/enums.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   initStandAlone();
+
+  // final AppNotifier appNotifier = AppNotifier();
+  // // AppNotifier.initialize(registerInGetIt: true, sl: sl);
+  // if (!sl.isRegistered<AppNotifier>()) {
+  //   sl.registerSingleton<AppNotifier>(appNotifier);
+  // } else {
+  //   sl.unregister<AppNotifier>();
+  //   sl.registerSingleton<AppNotifier>(appNotifier);
+  // }
+
   if (!sl.isRegistered<LoginModuleManager>()) {
     sl.registerLazySingleton(() => LoginModuleManager());
   }
@@ -26,8 +40,21 @@ void main() async {
   if (!sl.isRegistered<SnackBarService>()) {
     sl.registerLazySingleton<SnackBarService>(() => SnackBarService());
   }
+  // final notifier = sl<AppNotifier>();
+  // notifier.sendRequestToOtherApp(
+  //   method: 'child_app_channel',
+  //   timeout: Duration(seconds: 5),
+  //   params: [],
+  // );
 
-
+  // تنظیم کانال برای دریافت از اپ فرزند
+  // const MethodChannel('parent_app_channel').setMethodCallHandler((call) async {
+  //   if (call.method == 'notification') {
+  //     final data = call.arguments as Map<String, dynamic>;
+  //     notifier.receiveFromOtherApp(data);
+  //   }
+  //   return null;
+  // });
 
   Locale initialLocale = Locale('fa');
 
@@ -52,9 +79,7 @@ void main() async {
       await storageService.saveDeviceToken(token);
       final _lang = await storageService.loadLanguage();
 
-      if (_lang != null) {
-        initialLocale = Locale(_lang.languageCode ?? 'fa');
-      }
+      initialLocale = Locale(_lang.languageCode ?? 'fa');
     }
   } catch (e) {
     debugPrint('Error in token/setup: $e');
@@ -62,32 +87,75 @@ void main() async {
   }
 
   runApp(
-    MyApp(initialLocal: Locale(initialLocale.languageCode), networkMode: 0),
+    ParentAppScreen(
+      initialLocal: Locale(initialLocale.languageCode),
+      networkMode: 0,
+    ),
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
+
+class ParentAppScreen extends StatefulWidget {
   final Locale initialLocal;
   final int networkMode;
 
-  const MyApp({
-    super.key,
+  const ParentAppScreen({
     required this.initialLocal,
     required this.networkMode,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => LanguageButtonStandAloneCubit(
-            initialLocale: initialLocal,
-            storage: sl.get<StorageService>(),
-          ),
-        ),
+  State<ParentAppScreen> createState() => _ParentAppScreenState();
+}
 
-      ],
+class _ParentAppScreenState extends State<ParentAppScreen>
+    with AppNotifierMixin {
+
+  @override
+  void initState() {
+    super.initState();
+
+    // گوش دادن به نوتیفیکیشن‌های خاص از اپ فرزند
+    addTypedNotificationListener(NotificationType.errorOccurred, (
+      notification,
+    ) {
+      // خطایی از اپ فرزند آمده
+      print('Error from child app: ${notification.message}');
+      // نمایش به کاربر
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('خطا از اپ فرزند: ${notification.message}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    });
+
+    addTypedNotificationListener(NotificationType.sessionExpired, (
+      notification,
+    ) {
+      // سشن اپ فرزند منقضی شده
+      print('Child app session expired');
+      // ارسال دستور لاگین مجدد به اپ فرزند
+      const MethodChannel('parent_to_child_channel').invokeMethod('relogin');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      lazy: true,
+      create: (_) => LanguageButtonStandAloneCubit(
+        initialLocale: widget.initialLocal,
+        storage: sl.get<StorageService>(),
+      ),
       child: BlocBuilder<LanguageButtonStandAloneCubit, Locale>(
         builder: (context, locale) {
           return MaterialApp(
@@ -103,45 +171,20 @@ class MyApp extends StatelessWidget {
             theme: ThemeColorsManager(.light).aryanTheme,
             darkTheme: ThemeColorsManager(.dark).aryanTheme,
             themeMode: ThemeManager.themeMode,
-            home: SplashScreenPage(mode: 1, networkMode: networkMode),
+            home: SplashScreenPage(mode: 1, networkMode: widget.networkMode),
           );
         },
       ),
     );
   }
-}
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-final containerNavigator = NavigationBuilder.create(
-  routes: {
-    '/signOut': (RouteData data) {
-      try {
-        return SplashScreenPage(networkMode: 0, mode: 0);
-      } catch (e) {
-        exit(0);
-      }
-    },
-    '/luncherPage': (RouteData data) {
-      final Map<String, dynamic> loginSession =
-          data.pathParams['erpMenuTabBarId'] ?? Map<String, dynamic>()[data];
-      return LauncherPage(loginSession: loginSession);
-    },
-  },
-  initialLocation: '/',
-  unknownRoute: (route) => Scaffold(appBar: AppBar(), body: SizedBox()),
-  builder: (Widget outlet) => Scaffold(body: outlet),
-  transitionsBuilder: (context, anim, secAnim, child) =>
-      FadeTransition(opacity: anim, child: child),
-  transitionDuration: const Duration(milliseconds: 1000),
-  debugPrintWhenRouted: true,
-);
-
-class MyHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
+  // ارسال دستور به اپ فرزند
+  void _sendCommandToChild() {
+    notifyApp(
+      type: NotificationType.customEvent,
+      message: 'Command from parent',
+      payload: {'command': 'refresh', 'data': 'some_data'},
+      crossApp: true, // ارسال به اپ فرزند
+    );
   }
 }

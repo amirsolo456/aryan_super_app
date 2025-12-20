@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'dart:core';
+import 'dart:io' show Platform;
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:models_package/Base/login_module.dart' as prefix0;
 import 'package:models_package/Base/login_module.dart';
 import 'package:models_package/Data/Auth/User/dto.dart';
-import 'package:services_package/storage/data/datasource/secure_storage_datasource.dart';
-import 'package:services_package/storage/data/model/secure_storage_data_model.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+
+import '../../data/datasource/secure_storage_datasource.dart';
+import '../../data/model/secure_storage_data_model.dart';
 
 class SecureStorageUseCase implements ISecureStorageDataSource {
   static const String _tokenKey = 'auth_token';
@@ -269,6 +273,23 @@ class SecureStorageUseCase implements ISecureStorageDataSource {
     } catch (e) {
       print('Error saving login session model: $e');
       throw Exception('Failed to save login session model');
+    }
+  }
+
+  @override
+  Future<String?> getSecureDbPath() async {
+    try {
+      if (Platform.isAndroid) {
+        final directory = await getApplicationSupportDirectory();
+        final sharedPrefsPath = path.join(directory.path, '../shared_prefs');
+        final filePath = path.join(sharedPrefsPath, 'FlutterSecureStorage.xml');
+        return filePath;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error getting secure storage path: $e');
+      return null;
     }
   }
 

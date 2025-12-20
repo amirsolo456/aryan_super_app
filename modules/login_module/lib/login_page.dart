@@ -12,10 +12,8 @@ import 'package:resources_package/l10n/app_localizations.dart';
 import 'package:resources_package/l10n/app_localizations_fa.dart';
 import 'package:resources_package/resources/Theme/theme_manager.dart';
 import 'package:resources_package/resources/styles/styles.dart';
-import 'package:ui_components_package/erp_app_componenets/common/Buttons/language_button_standalone/language_button_stand_alone.dart';
 import 'package:ui_components_package/erp_app_componenets/common/aryan_logo.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Buttons/count_down.dart';
-import 'package:ui_components_package/erp_app_componenets/mobile/Buttons/dynamic_button.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Buttons/loading_button.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Inputs/secondary_input.dart';
 import 'package:ui_components_package/erp_app_componenets/mobile/Inputs/verification.dart';
@@ -544,29 +542,29 @@ class _LoginPageBodyState extends State<LoginPageBody> {
 
       builder: (context, state) {
         return Scaffold(
-          appBar: (state is LoginUsernameState || state is LoginInitialState)
-              ? AppBar(
-                  primary: true,
-                  scrolledUnderElevation: 0.0,
-                  automaticallyImplyLeading: false,
-                  backgroundColor: Colors.white,
-                  animateColor: false,
-                  title: const LanguageButtonStandAlone(),
-                )
-              : AppBar(
-                  toolbarHeight: 50,
-                  primary: true,
-                  animateColor: false,
-                  backgroundColor: Colors.white,
-                  scrolledUnderElevation: 0.0,
-                  leading: CustomDynamicButton(
-                    icon: const Icon(Icons.arrow_back),
-                    useDefaultAnimation: false,
-                    onPressed: () =>
-                        context.read<LoginBloc>().add(_getBackPressed(state)),
-                  ),
-                  actions: const [LanguageButtonStandAlone()],
-                ),
+          // appBar: (state is LoginUsernameState || state is LoginInitialState)
+          //     ? AppBar(
+          //         primary: true,
+          //         scrolledUnderElevation: 0.0,
+          //         automaticallyImplyLeading: false,
+          //         backgroundColor: Colors.white,
+          //         animateColor: false,
+          //         title: const LanguageButtonStandAlone(),
+          //       )
+          //     : AppBar(
+          //         toolbarHeight: 50,
+          //         primary: true,
+          //         animateColor: false,
+          //         backgroundColor: Colors.white,
+          //         scrolledUnderElevation: 0.0,
+          //         leading: CustomDynamicButton(
+          //           icon: const Icon(Icons.arrow_back),
+          //           useDefaultAnimation: false,
+          //           onPressed: () =>
+          //               context.read<LoginBloc>().add(_getBackPressed(state)),
+          //         ),
+          //         actions: const [LanguageButtonStandAlone()],
+          //       ),
           body: _buildBody(state, context),
         );
       },

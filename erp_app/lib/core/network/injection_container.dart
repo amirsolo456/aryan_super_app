@@ -2,11 +2,15 @@ import 'package:erp_app/core/list_generic/presentation/features/generic_page.dar
 import 'package:erp_app/feature/default_page/select_cashier/bloc/select_cashier_bloc.dart';
 import 'package:erp_app/feature/default_page/select_currency/bloc/select_currency_bloc.dart';
 import 'package:erp_app/feature/default_page/select_year/bloc/select_year_bloc.dart';
+import 'package:erp_app/feature/redux/generic_lists/erp_store/models/generic_list_entity_state.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:models_package/Base/base_request.dart';
+import 'package:models_package/Base/base_response.dart';
 import 'package:models_package/Data/Auth/Menu/dto.dart' as menu;
 import 'package:models_package/Data/Com/Person/dto.dart' as person_list;
+import 'package:redux/redux.dart';
+import 'package:services_package/Interfaces/backend_api_services/iapi_service.dart';
 import 'package:services_package/Interfaces/front_helper_services/isnackbar_service.dart'
 as snack_bar;
 import 'package:services_package/Repo_ViewId/repo_view_id.dart';
@@ -38,6 +42,10 @@ import '../../feature/com/person/presentation/blocs/person_bloc/person_list_bloc
 import '../../feature/com/person/presentation/blocs/search_person_bloc/search_person_bloc.dart';
 import '../../feature/default_page/Language/bloc/language_bloc.dart';
 import '../../feature/default_page/Place/bloc/place_bloc.dart';
+import '../../feature/redux/generic_lists/erp_store/actions/generic_list_entity_actions.dart';
+import '../../feature/redux/generic_lists/erp_store/middleware/api_middleware.dart';
+import '../../feature/redux/generic_lists/erp_store/reducers/list_reducer.dart';
+import '../../main.dart';
 import '../messengers_services/exception_helper_service.dart';
 import '../messengers_services/snackbar_service.dart';
 
@@ -53,7 +61,6 @@ void initStandAlone() {
     sharedStorageUseCase: sharedClient,
     sqliteStorageUseCase: sqliteClient,
   );
-
   final _defaults = Defaults(
     placeId: 1,
     yearId: 1403,
@@ -82,6 +89,7 @@ void initStandAlone() {
           () => ApiClient(storage: _storage, appSettings: _apisetting),
     );
   }
+
   final apiClient = ApiClient(storage: _storage, appSettings: _apisetting);
 
   if (!sl.isRegistered<OtpService>()) {
@@ -133,6 +141,7 @@ void initStandAlone() {
     );
   }
 
+
   if (!sl.isRegistered<MenuService>()) {
     sl.registerFactory<MenuService>(() => MenuService(apiClient));
   }
@@ -143,27 +152,11 @@ void initStandAlone() {
     );
   }
 
-
   // ==================   Defaults
 
   if (!sl.isRegistered<PlaceService>()) {
     sl.registerFactory<PlaceService>(() => PlaceService(apiClient));
   }
-
-//Ehsan Change
-
-  if (!sl.isRegistered<PlaceBloc>()) {
-    sl.registerFactory(() =>
-        PlaceBloc(getPlaceUseCase: GetIt.instance<PlaceService>()),);
-  }
-
-  //Ehsan Change
-
-
-  if (!sl.isRegistered<PlaceService>()) {
-    sl.registerFactory<PlaceService>(() => PlaceService(apiClient));
-  }
-
 
   if (!sl.isRegistered<PlaceBloc>()) {
     sl.registerFactory(
@@ -251,16 +244,65 @@ void initStandAlone() {
     );
   }
 
-  // if (!sl.isRegistered<GenericBloc>()) {
-  //   sl.registerFactory(
-  //     () =>
-  //         GenericBloc<
-  //           person_list.Response,
-  //           person_list.ResponseData,
-  //           person_list.Request
-  //         >,
-  //   );
-  // }
+  if (sl
+      .isRegistered<
+      ApiService<person_list.Response,
+          person_list.ResponseData,
+          person_list.Request>
+  >() == false) {
+    try {
+      sl.registerLazySingleton(
+            () =>
+        ApiService<person_list.Response,
+            person_list.ResponseData,
+            person_list.Request>(clientService: apiClient),
+      );
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  final personStore =
+  getStore<
+      person_list.Response,
+      person_list.ResponseData,
+      person_list.Request
+  >(
+    requestFactory: () => person_list.Request(repoViewId: 0),
+    fromJsonD: (json) => person_list.Response.fromJson(json),
+  );
+
+  // 2. Factory برای ایجاد storeهای مختلف
+  sl.registerFactoryParam<
+      Store<ErpStoreState<dynamic, dynamic, dynamic>>,
+      dynamic,
+      dynamic
+  >((typeArguments, _) {
+    // این یک پیاده‌سازی عمومی است
+    // در عمل باید انواع مشخص T, D, C را بدانیم
+    throw ArgumentError('Please use getStore() method with specific types');
+  });
+
+  // می‌توانید store را در GetIt با یک کلید خاص ثبت کنید
+  if (!sl.isRegistered<
+      Store<
+          ErpStoreState<
+              person_list.Response,
+              person_list.ResponseData,
+              person_list.Request
+          >
+      >
+  >(instanceName: 'personStore')) {
+    sl.registerSingleton<
+        Store<
+            ErpStoreState<
+                person_list.Response,
+                person_list.ResponseData,
+                person_list.Request
+            >
+        >
+    >(personStore, instanceName: 'personStore');
+  }
 
   if (!sl.isRegistered<GenericPage>()) {
     sl.registerFactory(
@@ -307,4 +349,34 @@ void initStandAlone() {
           ),
     );
   }
+}
+Store<ErpStoreState<T, D, C>>
+getStore<T extends BaseResponse<D>, D, C extends BaseRequest>({
+  required C Function() requestFactory,
+  required T Function(Map<String, dynamic>) fromJsonD,
+}) {
+  // ایجاد reducer function
+  ErpStoreState<T, D, C> reducer(ErpStoreState<T, D, C> state, dynamic action) {
+    if (action is GenericEntityAction) {
+      return GenericEntityReducer.reduce<T, D, C>(state, action);
+    }
+    return state;
+  }
+
+  // ایجاد middleware
+  final apiClient = sl.get<ApiClient>();
+  final middleware = ErpApiMiddleware<T, D, C>(
+    api: apiClient,
+    requestFactory: requestFactory,
+    fromJsonD: fromJsonD,
+    request: null,
+  );
+
+  return Store<ErpStoreState<T, D, C>>(
+    reducer,
+    initialState: ErpStoreState<T, D, C>(),
+    middleware: [middleware],
+    distinct: true,
+    syncStream: true,
+  );
 }
