@@ -206,7 +206,7 @@ class _DefaultPageState extends State<DefaultPage> {
             items: state.languages,
             selectedId: selectedLanguageId,
             getId: (e) => e.LanguageId,
-            getTitle: (e) => e.LanguageDesc ?? '',
+            getTitle: (e) => e.LanguageDesc,
             onSelect: (id) {
               setState(() => selectedLanguageId = id);
               context.read<DefaultSelectionBloc>().add(LanguageChanged(id));
@@ -272,7 +272,7 @@ class _DefaultPageState extends State<DefaultPage> {
             items: state.selectCurrency,
             selectedId: selectedCurrencyId,
             getId: (e) => e.selectId,
-            getTitle: (e) => e.selectDisplay ?? '',
+            getTitle: (e) => e.selectDisplay,
             onSelect: (id) {
               setState(() => selectedCurrencyId = id);
               context.read<DefaultSelectionBloc>().add(CurrencyChanged(id));
@@ -294,7 +294,7 @@ class _DefaultPageState extends State<DefaultPage> {
             items: state.selectYears,
             selectedId: selectedYearId,
             getId: (e) => e.yearId,
-            getTitle: (e) => e.yearDesc ?? '',
+            getTitle: (e) => e.yearDesc,
             onSelect: (id) {
               setState(() => selectedYearId = id);
               context.read<DefaultSelectionBloc>().add(YearChanged(id));

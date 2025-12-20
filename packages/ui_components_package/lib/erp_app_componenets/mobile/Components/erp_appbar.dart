@@ -72,25 +72,24 @@ AppBar buildUnKnownAppBar() {
 
 AppBar buildNewModeAppBar(BuildContext context) {
   return AppBar(
-    title: Text(
-      textAlign: TextAlign.start,
-      // AppLocalizations.of(context)!.personList,
-      AppLocalizations.of(context)!.addNew,
-      style: TextStyle(color: Colors.black),
-    ),
-    // centerTitle: true,
-    // actions: [
-    //   IconButton(
-    //     onPressed: () {},
-    //     icon: futuresIcon,
-    //     highlightColor: Colors.black.withOpacity(0.05),
-    //   ),
-    //   IconButton(
-    //     onPressed: () {},
-    //     icon: moreIcon,
-    //     highlightColor: Colors.black.withOpacity(0.05),
-    //   ),
-    // ],
+    actions: [
+      Text(
+        "جدید",
+        textAlign: TextAlign.start,
+        style: TextStyle(color: Colors.black),
+      ),
+      IconButton(
+        icon: Icon(
+          Icons.arrow_forward,
+          color: Colors.black, // رنگ فلش
+        ),
+        onPressed: () {
+          // Navigator.pop(context); // یا منطق بازگشت شما
+          Navigator.of(context).pop();
+        },
+      ),
+    ],
+
     backgroundColor: Colors.white,
     elevation: 0,
     scrolledUnderElevation: 0,
