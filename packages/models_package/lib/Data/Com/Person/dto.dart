@@ -12,22 +12,15 @@ class Request extends BaseRequest {
 
   Request({required this.repoViewId}) : super(repoViewId: repoViewId);
 
-  factory Request.fromJson(Map<String, dynamic> json) =>
-      _$RequestFromJson(json);
-
   @override
   Map<String, dynamic> toJson() {
     return _$RequestToJson(this);
   }
 
-  // factory Request.fromJson(Map<String, dynamic> json) {
-  //   return Request(repoViewId: json['RepoViewId']);
-  // }
-  //
-  // @override
-  // Map<String, dynamic> toJson() {
-  //   return  {"RepoViewId" = this.repoViewId};
-  // }
+  @override
+  factory Request.fromJson(Map<String, dynamic> json) {
+    return _$RequestFromJson(json);
+  }
 }
 
 @JsonSerializable()

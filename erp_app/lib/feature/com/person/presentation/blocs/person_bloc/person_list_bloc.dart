@@ -1,14 +1,19 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:erp_app/feature/com/person/presentation/blocs/person_bloc/person_list_state.dart';
+import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 import 'package:models_package/Data/Com/Person/dto.dart';
 import 'package:services_package/com/person/person_service.dart';
+
+import '../../../../../../page_cache_provider.dart';
 
 part 'person_list_event.dart';
 
 class PersonListBloc extends Bloc<PersonListEvent, PersonListState> {
   final PersonService personService;
-
+  final pageCacheProvider = GetIt.instance<PageCacheProvider>();
   PersonListBloc({required this.personService})
     : super(PersonListInitialState()) {
     on<LoadPersonListEvent>(_onLoadPersonList);
@@ -62,11 +67,22 @@ class PersonListBloc extends Bloc<PersonListEvent, PersonListState> {
     PersonListInitialEvent event,
     Emitter<PersonListState> emit,
   ) async {
-    emit(const PersonListLoadingState());
+    final completer = Completer<void>();
+    pageCacheProvider.registerPendingOperation(completer);
+
     try {
-      emit(PersonListInitialState());
+      await Future.delayed(const Duration(seconds: 2));
+
+      if (!completer.isCompleted) {
+        completer.complete();
+        pageCacheProvider.unregisterPendingOperation(completer);
+      }
+
     } catch (e) {
-      // emit(MenuErrorState(e.toString()));
+      if (!completer.isCompleted) {
+        completer.completeError(e);
+        pageCacheProvider.unregisterPendingOperation(completer);
+      }
     }
   }
 

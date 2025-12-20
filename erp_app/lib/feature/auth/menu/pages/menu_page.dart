@@ -1,24 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get_it/get_it.dart';
-import 'package:models_package/Base/enums.dart';
-import 'package:models_package/Data/Com/Person/dto.dart' as person;
 import 'package:models_package/Data/Auth/Menu/dto.dart';
-import 'package:navigation_builder/navigation_builder.dart';
-import 'package:restart_app/restart_app.dart';
-import 'package:services_package/Repo_ViewId/repo_view_id.dart';
-import 'package:services_package/com/person/person_service.dart';
-import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_appbar.dart';
-import 'package:ui_components_package/erp_app_componenets/mobile/Components/erp_not_found.dart';
-import '../../../../components/mainlayout/main_layout.dart';
-import '../../../../main.dart';
-import '../../../redux/generic_lists/erp_store/models/field_display_config.dart';
-import '../../../redux/generic_lists/erp_store/models/generic_list_entity_state.dart';
-import '../../../redux/generic_lists/ui/generic_list_page.dart';
+import '../../../../advance_router.dart';
+import '../../../../page_cache_provider.dart';
 import '../bloc/menu_bloc.dart';
 import '../bloc/menu_event.dart';
 import '../bloc/menu_state.dart';
+import 'package:provider/provider.dart';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
@@ -74,7 +63,9 @@ class _MenuPageState extends State<MenuPage> {
       body: BlocBuilder<MenuBloc, MenuState>(
         builder: (context, state) {
           if (state is MenuTokenNeedState) {
-            context.read<MenuBloc>().add(MenuTokenNeedEvent());
+            final notifier = Provider.of<PageCacheProvider>(context);
+            notifier.signOut();
+
             return const Center(child: Text('لطفا دوباره وارد شوید!'));
           }
           if (state is MenuLoadingState) {
@@ -89,59 +80,59 @@ class _MenuPageState extends State<MenuPage> {
               filteredMenus = state.menus;
             }
 
-            return Directionality(
-              textDirection: TextDirection.rtl,
 
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isFocused ? Colors.white : Colors.grey[100],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isFocused ? Colors.black12 : Colors.white,
-                        ),
-                      ),
-                      child: TextField(
-                        controller: searchController,
-                        focusNode: searchFocusNode,
-                        textDirection: TextDirection.rtl,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'IRanSans',
-                        ),
-                        decoration: const InputDecoration(
-                          hintText: 'جستجو',
-                          hintStyle: TextStyle(color: Colors.black54),
-
-                          // مهم! باید صفر شود تا صد در صد رنگ پس‌زمینه از Container گرفته شود
-                          filled: false,
-
-                          // fillColor: Colors.red,
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
+                return  Directionality(textDirection: TextDirection.rtl,
+                  child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isFocused ? Colors.white : Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isFocused ? Colors.black12 : Colors.white,
                           ),
                         ),
-                        onChanged: (value) => filterMenus(state.menus, value),
+                        child: TextField(
+                          controller: searchController,
+                          focusNode: searchFocusNode,
+                          // textDirection: TextDirection.rtl,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontFamily: 'IRanSans',
+                          ),
+                          decoration: const InputDecoration(
+                            hintText: 'جستجو',
+                            hintStyle: TextStyle(color: Colors.black54),
+
+                            // مهم! باید صفر شود تا صد در صد رنگ پس‌زمینه از Container گرفته شود
+                            filled: false,
+
+                            // fillColor: Colors.red,
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                          ),
+                          onChanged: (value) => filterMenus(state.menus, value),
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: filteredMenus.length,
-                      itemBuilder: (context, index) {
-                        return _MenuTile(filteredMenus[index]);
-                      },
+                    Expanded(
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: filteredMenus.length,
+                        itemBuilder: (context, index) {
+                          return _MenuTile(filteredMenus[index]);
+                        },
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            );
+                  ],
+
+                              ),
+                );
           }
           return const SizedBox();
         },
@@ -158,7 +149,7 @@ class _MenuTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool hasChildren = item.subMenus.isNotEmpty;
-
+    final notifier = Provider.of<PageCacheProvider>(context);
     final Widget titleWidget = Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -168,7 +159,7 @@ class _MenuTile extends StatelessWidget {
         Expanded(
           child: Text(
             item.menuDesc ?? '',
-            textDirection: TextDirection.rtl,
+            // textDirection: TextDirection.rtl,
             style: const TextStyle(fontSize: 14),
           ),
         ),
@@ -185,28 +176,33 @@ class _MenuTile extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(horizontal: 12),
           title: titleWidget,
           onTap: () {
-            // ساخت URL به صورت صحیح
             final link = item.appLink ?? item.webLink ?? '';
-
-            // حذف اسلش اول اگر وجود دارد
             final cleanLink = link.startsWith('/') ? link.substring(1) : link;
+            notifier.changePage(PageType.listGenerator, route: '/GenericList/${link}' , tab: null);
 
-            // ساخت مسیر کامل
-            final basePath = '/GenericList/$cleanLink';
 
-            // اضافه کردن پارامتر repoViewId
-            final params = <String, String>{};
-            if (item.repoId != null && item.repoId! > 0) {
-              params['repoViewId'] = item.repoId!.toString();
-            }
-
-            // ساخت URL نهایی
-            final fullUrl = addQueryParams(basePath, params);
-
-            print('Navigating to: $fullUrl');
-
-            // navigation
-            erpNavigator.to(basePath);
+            // // ساخت URL به صورت صحیح
+            // final link = item.appLink ?? item.webLink ?? '';
+            //
+            // // حذف اسلش اول اگر وجود دارد
+            // final cleanLink = link.startsWith('/') ? link.substring(1) : link;
+            //
+            // // ساخت مسیر کامل
+            // final basePath = '/GenericList/$cleanLink';
+            //
+            // // اضافه کردن پارامتر repoViewId
+            // final params = <String, String>{};
+            // if (item.repoId != null && item.repoId! > 0) {
+            //   params['repoViewId'] = item.repoId!.toString();
+            // }
+            //
+            // // ساخت URL نهایی
+            // final fullUrl = addQueryParams(basePath, params);
+            //
+            // print('Navigating to: $fullUrl');
+            //
+            // // navigation
+            // erpNavigator.to(basePath);
           },
         ),
       );

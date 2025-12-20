@@ -23,6 +23,7 @@ enum NavButtonTabBarMode {
   erpGenericListTabMode(5),
   erpGenericFormTabMode(6),
   erpNotFound(7),
+  skeletion(8),
   erpDashboardTabMode(10);
 
   final int value;

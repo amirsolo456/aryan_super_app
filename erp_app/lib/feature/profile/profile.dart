@@ -81,8 +81,8 @@ class _ProfilePageState extends State<ProfilePage> {
         } else if (state is ProfileLoadDataSuccess) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Directionality(
-              textDirection: TextDirection.rtl,
+
+
               child: Column(
                 children: [
                   
@@ -172,7 +172,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ],
               ),
-            ),
+
           );
         } else if (state is ProfileLoadDataError) {
           return Text('Error');

@@ -26,8 +26,7 @@ class PageCacheManager {
       final page = builder();
       _cache[index] = PageCacheItem(page);
       return page;
-    }
-    catch (e) {
+    } catch (e) {
       print(e);
       return const SizedBox();
     }
@@ -53,6 +52,16 @@ class PageCacheManager {
       }
     } catch (e) {
       print(e);
+    }
+  }
+
+  void cleanAll() {
+    _cache.clear();
+  }
+
+  void remove(int index) {
+    if (_cache.length >= index) {
+      _cache.remove(index);
     }
   }
 }
